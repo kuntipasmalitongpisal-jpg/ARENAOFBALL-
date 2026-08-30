@@ -7497,18 +7497,29 @@ function runSimulation(f1,f2, netRole, roomCode){
       ctx.fill();
       ctx.shadowBlur = 0;
     } else if(id==='diode'){
-      // a small pulsing bulb at the core, tinted by whichever color mode is currently active —
-      // LED mode pulses noticeably faster/brighter than the plain RED/BLUE/GREEN modes
+      // no solid bulb at the core anymore — DIODE's whole body softly emits light instead,
+      // a layered glow blooming outward from the center and tinted by whichever color mode
+      // is currently active. LED mode blooms noticeably brighter/faster than the plain
+      // RED/BLUE/GREEN modes.
       const glowColor = DIODE_MODE_COLORS[p.diodeMode] || '#ffffff';
       const isLed = p.diodeMode==='led';
       const pulse2 = 0.5+0.5*Math.sin(t*(isLed?9:3.5));
-      ctx.beginPath();
-      ctx.arc(0,0, 2.6+pulse2*(isLed?2.2:1.2), 0, Math.PI*2);
-      ctx.fillStyle = glowColor;
+      const bloomR = p.r*(0.8+pulse2*(isLed?0.4:0.22));
+      ctx.save();
+      const grad2 = ctx.createRadialGradient(0,0,0, 0,0,bloomR);
+      grad2.addColorStop(0, glowColor);
+      grad2.addColorStop(0.5, glowColor);
+      grad2.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.globalAlpha = isLed ? 0.55+pulse2*0.25 : 0.3+pulse2*0.18;
+      ctx.fillStyle = grad2;
       ctx.shadowColor = glowColor;
-      ctx.shadowBlur = (isLed?10:6)+pulse2*6;
+      ctx.shadowBlur = (isLed?20:11)+pulse2*8;
+      ctx.beginPath();
+      ctx.arc(0,0,bloomR,0,Math.PI*2);
       ctx.fill();
       ctx.shadowBlur = 0;
+      ctx.restore();
+      ctx.globalAlpha = 1;
     }
   }
 

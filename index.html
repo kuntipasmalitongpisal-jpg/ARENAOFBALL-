@@ -1740,18 +1740,20 @@
 }
 /* small spinning-gear tag on the TECH UPDATE characters' element-select cards, so the
    update's cast reads as a matched set at a glance in the character grid, not just in their
-   individual ability text (all 5: MICROCHIP/COMPUTER/TECHNO from the original drop, plus
-   GLITCH/DRONE added in the later event drop) */
+   individual ability text (all 6: MICROCHIP/COMPUTER/TECHNO from the original drop, GLITCH/
+   DRONE from the later event drop, and DIODE — the Hack-the-Mainframe minigame reward) */
 .elem-btn[data-id="microchip"],
 .elem-btn[data-id="computer"],
 .elem-btn[data-id="techno"],
 .elem-btn[data-id="glitch"],
-.elem-btn[data-id="drone"]{ position:relative; }
+.elem-btn[data-id="drone"],
+.elem-btn[data-id="diode"]{ position:relative; }
 .elem-btn[data-id="microchip"]::after,
 .elem-btn[data-id="computer"]::after,
 .elem-btn[data-id="techno"]::after,
 .elem-btn[data-id="glitch"]::after,
-.elem-btn[data-id="drone"]::after{
+.elem-btn[data-id="drone"]::after,
+.elem-btn[data-id="diode"]::after{
   content:'⚙';
   position:absolute; bottom:3px; right:6px;
   font-size:0.56rem;
@@ -1824,9 +1826,6 @@
         <input type="text" id="name1" maxlength="14" placeholder="เช่น AQUA">
       </div>
     </div>
-    <label>สี</label>
-    <div class="swatches" id="swatch1"></div>
-    <div style="height:10px"></div>
     <label>เลือกตัวละครที่ปลดล็อกแล้ว</label>
     <div class="elem-grid" id="elem1"></div>
     <div class="elem-detail" id="elemDetail1"></div>
@@ -1842,9 +1841,6 @@
         <input type="text" id="name2" maxlength="14" placeholder="เช่น PYRO">
       </div>
     </div>
-    <label>สี</label>
-    <div class="swatches" id="swatch2"></div>
-    <div style="height:10px"></div>
     <label>เลือกธาตุ (ทดลองสู้ได้ทุกตัว ไม่ต้องปลดล็อก) <button type="button" class="roll-btn" id="roll2" title="สุ่มธาตุตามอัตราความหายาก">🎲 สุ่ม</button></label>
     <div class="elem-grid" id="elem2"></div>
     <div class="elem-detail" id="elemDetail2"></div>
@@ -2025,7 +2021,7 @@ function saveMyTeamOnline(){
   if(ids.length){
     teamMembers = ids.map(id=>{
       const elem = ELEMENTS.find(e=>e.id===id);
-      const base = {...elem, name:elem.name, color:elem.color, element:elem.name, __elemId:elem.id};
+      const base = {...elem, name:elem.name, color:getCharColor(id), element:elem.name, __elemId:elem.id};
       const f = applyRosterBonus(base);
       return {elemId:f.__elemId, name:f.name, color:f.color, pow:f.pow, spd:f.spd};
     });
@@ -2241,10 +2237,11 @@ function renderCharGrid(ids){
     const entry = saveData.roster[id];
     const r = getRarity(e);
     const equipped = entry.item ? getItemDef(entry.item) : null;
+    const dispColor = getCharColor(id);
     return `<div class="char-card" data-elem="${id}" style="--rc:${r.color}">
       ${equipped?`<span class="cc-item-badge" title="${equipped.name}">${equipped.icon}</span>`:''}
-      <div class="cc-dot" style="background:${e.color};color:${e.color}"></div>
-      <div class="cc-name" style="color:${e.color}">${e.name}</div>
+      <div class="cc-dot" style="background:${dispColor};color:${dispColor}"></div>
+      <div class="cc-name" style="color:${dispColor}">${e.name}</div>
       <div class="cc-lv">Lv.${entry.level}${entry.level>=LEVEL_CAP?' MAX':''}</div>
       <div class="cc-stars" style="color:${r.color}">${'★'.repeat(r.stars)}</div>
     </div>`;
@@ -2284,14 +2281,20 @@ function renderCharDetail(id){
     return itemChipHTML(idef, isEquippedHere, saveData.itemInventory[iid], disabled);
   }).join('');
 
+  const dispColor = getCharColor(id);
+  const colorSwatchesHTML = COLORS.map(c=>
+    `<div class="swatch${c.toLowerCase()===dispColor.toLowerCase()?' sel':''}" data-color="${c}" style="background:${c};--sc:${c}"></div>`
+  ).join('');
   return `
   <div class="wh-back" id="whBackChars">← กลับไปดูรายการทั้งหมด</div>
   <div class="wh-detail-head">
-    <div class="wh-detail-dot" style="background:${elem.color};color:${elem.color}"></div>
-    <div class="wh-detail-name" style="color:${elem.color}">${elem.name}</div>
+    <div class="wh-detail-dot" style="background:${dispColor};color:${dispColor}"></div>
+    <div class="wh-detail-name" style="color:${dispColor}">${elem.name}</div>
     <div class="wh-detail-tag">${elem.tag}</div>
     <div class="wh-detail-stars" style="color:${rarity.color}">${'★'.repeat(rarity.stars)} ${rarity.labelTH}</div>
   </div>
+  <label style="display:block;font-size:0.6rem;letter-spacing:1.5px;color:var(--dim);margin:14px 0 9px;text-transform:uppercase;">🎨 เลือกสีตัวละคร (ใช้อัตโนมัติเมื่อนำไปต่อสู้)</label>
+  <div class="swatches wh-color-swatches" data-elem="${id}">${colorSwatchesHTML}</div>
   <div class="roster-row-head">
     <span class="roster-name" style="color:${elem.color}">Lv.${entry.level}${maxed?' (MAX)':''}</span>
     <span class="roster-lv">เศษอัพเกรด ${entry.shards}</span>
@@ -2481,6 +2484,16 @@ function wireRosterListEvents(){
       }
     };
   });
+  const colorSwatchRow = document.querySelector('.wh-color-swatches');
+  if(colorSwatchRow){
+    const elemId = colorSwatchRow.dataset.elem;
+    colorSwatchRow.querySelectorAll('.swatch').forEach(sw=>{
+      sw.onclick = ()=>{
+        setCharColor(elemId, sw.dataset.color);
+        openRosterModal();
+      };
+    });
+  }
   document.querySelectorAll('.item-chip-row').forEach(row=>{
     const elemId = row.dataset.elem;
     row.querySelectorAll('.item-chip:not(.unavailable)').forEach(chip=>{
@@ -2724,7 +2737,7 @@ function renderTeamPicker(stage){
     const card = document.createElement('div');
     card.className = 'team-pick-card';
     card.dataset.id = id;
-    card.innerHTML = `<div class="pick-order"></div><div class="dot" style="background:${elem.color}"></div><div class="en">${elem.name}</div><div class="th">Lv.${entry.level}</div>`;
+    card.innerHTML = `<div class="pick-order"></div><div class="dot" style="background:${getCharColor(id)}"></div><div class="en">${elem.name}</div><div class="th">Lv.${entry.level}</div>`;
     card.onclick = ()=>{
       const idx = _pickedTeam.indexOf(id);
       if(idx>=0){ _pickedTeam.splice(idx,1); card.classList.remove('picked'); }
@@ -2745,7 +2758,7 @@ function renderTeamPicker(stage){
     if(!_pickedTeam.length) return;
     const teamDefs = _pickedTeam.map(id=>{
       const elem = ELEMENTS.find(e=>e.id===id);
-      const base = {...elem, name:elem.name, color:elem.color, element:elem.name, __elemId:elem.id};
+      const base = {...elem, name:elem.name, color:getCharColor(id), element:elem.name, __elemId:elem.id};
       return applyRosterBonus(base);
     });
     if(stage.boss){
@@ -2783,7 +2796,7 @@ function startChallengeBattle(t){
   if(myIds.length){
     playerTeamDefs = myIds.map(id=>{
       const elem = ELEMENTS.find(e=>e.id===id);
-      const base = {...elem, name:elem.name, color:elem.color, element:elem.name, __elemId:elem.id};
+      const base = {...elem, name:elem.name, color:getCharColor(id), element:elem.name, __elemId:elem.id};
       return applyRosterBonus(base);
     });
   } else {
@@ -2897,7 +2910,7 @@ function renderPvpTeamPicker(){
     card.dataset.id = id;
     const already = _pvpPickedTeam.indexOf(id);
     if(already>=0) card.classList.add('picked');
-    card.innerHTML = `<div class="pick-order">${already>=0?(already+1):''}</div><div class="dot" style="background:${elem.color}"></div><div class="en">${elem.name}</div><div class="th">Lv.${entry.level}</div>`;
+    card.innerHTML = `<div class="pick-order">${already>=0?(already+1):''}</div><div class="dot" style="background:${getCharColor(id)}"></div><div class="en">${elem.name}</div><div class="th">Lv.${entry.level}</div>`;
     card.onclick = ()=>{
       const idx = _pvpPickedTeam.indexOf(id);
       if(idx>=0){ _pvpPickedTeam.splice(idx,1); card.classList.remove('picked'); }
@@ -3203,7 +3216,7 @@ refreshGemsUI();
    is meant to end, which simultaneously: (a) lets TECH elements roll from the normal gacha again,
    (b) lets gold buy shards for them again, and (c) hides the event-mode CTA on the main screen. */
 const EVENT_ACTIVE = true;
-const TECH_IDS = ['microchip','computer','techno','glitch','drone']; // TECH UPDATE elements — event-exclusive while EVENT_ACTIVE (GLITCH/DRONE added for the newest event drop)
+const TECH_IDS = ['microchip','computer','techno','glitch','drone','diode']; // TECH UPDATE elements — event-exclusive while EVENT_ACTIVE (GLITCH/DRONE added for the newest event drop, DIODE added as the Hack-the-Mainframe minigame's perfect-clear reward)
 function isEventActive(){ return EVENT_ACTIVE; }
 const GEAR_TO_GOLD_RATE = 1;   // 1 Gear = 1 Gold
 const GEAR_TO_GEMS_RATE = 100; // 100 Gear = 50 Gems (i.e. 2 Gear per Gem)
@@ -3361,7 +3374,10 @@ function grantCharacterDirect(elemId){
   return isNew;
 }
 function renderEpicChoiceBody(introMsg){
-  const epics = ELEMENTS.filter(e=>e.rarity==='epic');
+  // DIODE is deliberately excluded from this redeem-code epic picker too — a direct pick-your-
+  // reward code would otherwise be a "direct exchange" for it, which the minigame-only rule
+  // rules out entirely.
+  const epics = ELEMENTS.filter(e=>e.rarity==='epic' && e.id!=='diode');
   const cards = epics.map(e=>{
     const owned = ownsChar(e.id);
     return `<div class="team-pick-card epic-choice-card" data-id="${e.id}">
@@ -3535,6 +3551,23 @@ function levelUpCost(level){ return {gold: Math.round(150*level*(1+level*0.12)),
 
 function rosterEntry(elemId){ return saveData.roster[elemId] || null; }
 function ownsChar(elemId){ return !!saveData.roster[elemId]; }
+// Effective color for an owned character: the custom color picked for it in the warehouse
+// (คลัง), if any — otherwise the element's own default color. This is the single source of
+// truth for "what color is this fighter" everywhere it matters (battle, team pickers, lists),
+// so picking a color once in the warehouse is all it takes for it to show up everywhere.
+function getCharColor(elemId){
+  const elem = ELEMENTS.find(e=>e.id===elemId);
+  if(!elem) return '#ffffff';
+  const entry = saveData.roster[elemId];
+  return (entry && entry.color) || elem.color;
+}
+function setCharColor(elemId, color){
+  const entry = saveData.roster[elemId];
+  if(!entry) return false;
+  entry.color = color;
+  persistSave();
+  return true;
+}
 
 // Rolls a character. New -> added to roster at level 1. Duplicate -> +1 shard for that character.
 function pullCharacter(pool){
@@ -4184,7 +4217,7 @@ function renderEventTeamPicker(stage){
     const card = document.createElement('div');
     card.className = 'team-pick-card';
     card.dataset.id = id;
-    card.innerHTML = `<div class="pick-order"></div><div class="dot" style="background:${elem.color}"></div><div class="en">${elem.name}</div><div class="th">Lv.${entry.level}</div>`;
+    card.innerHTML = `<div class="pick-order"></div><div class="dot" style="background:${getCharColor(id)}"></div><div class="en">${elem.name}</div><div class="th">Lv.${entry.level}</div>`;
     card.onclick = ()=>{
       const idx = _pickedEventTeam.indexOf(id);
       if(idx>=0){ _pickedEventTeam.splice(idx,1); card.classList.remove('picked'); }
@@ -4205,7 +4238,7 @@ function renderEventTeamPicker(stage){
     if(!_pickedEventTeam.length) return;
     const teamDefs = _pickedEventTeam.map(id=>{
       const elem = ELEMENTS.find(e=>e.id===id);
-      const base = {...elem, name:elem.name, color:elem.color, element:elem.name, __elemId:elem.id};
+      const base = {...elem, name:elem.name, color:getCharColor(id), element:elem.name, __elemId:elem.id};
       return applyRosterBonus(base);
     });
     if(stage.preBattleMinigame){
@@ -5781,6 +5814,10 @@ let eventTab = 'stages'; // 'stages' | 'shop' | 'quests'
 const EVENT_CHAR_SHOP_COST = {common:40, uncommon:90, rare:180, epic:320, legendary:600};
 const EVENT_CHAR_GACHA_COST = 60;  // Gear per roll — pool includes TECH elements
 const EVENT_ITEM_GACHA_COST = 40;  // Gear per item roll
+// DIODE is deliberately left out of the event's own character pool too — the ONLY way to get
+// it is a perfect clear of the "แฮ็กเมนเฟรม TECH" minigame (see endHackGame), not the event
+// gacha and not a direct Gear purchase.
+function getEventGachaPool(){ return ELEMENTS.filter(e=>e.id!=='diode'); }
 
 function openEventScreen(){
   document.getElementById('setupScreen').style.display='none';
@@ -5838,8 +5875,9 @@ function renderEventShop(){
   const body = document.getElementById('eventBody');
   // [TECH UPDATE] direct-buy is restricted to the true event-exclusive TECH characters only —
   // every other (non-event) character can only be obtained through the random event gacha above,
-  // never bought outright with Gear.
-  const shopElems = ELEMENTS.filter(e=>TECH_IDS.includes(e.id));
+  // never bought outright with Gear. DIODE is excluded even from this list — it's the
+  // Hack-the-Mainframe minigame's own reward and isn't purchasable or tradeable at all.
+  const shopElems = ELEMENTS.filter(e=>TECH_IDS.includes(e.id) && e.id!=='diode');
   // [SHOP UPDATE] direct-buy cards now hard-lock once owned — this section is for claiming a
   // specific new TECH character, not for re-buying one you already have. Getting a dupe here
   // used to silently spend Gear for a single shard with no way to tell beforehand; that's what
@@ -5873,7 +5911,7 @@ function renderEventShop(){
     const affordable = !maxed && gcost!=null && (saveData.gear||0)>=gcost;
     return `<div class="event-stage-row" data-shard-buy="${id}" style="${maxed?'opacity:0.5;':(affordable?'':'opacity:0.55;')}">
       <div>
-        <div class="esr-name" style="color:${elem.color}">${elem.name}</div>
+        <div class="esr-name" style="color:${getCharColor(id)}">${elem.name}</div>
         <div class="esr-sub">Lv.${entry.level}${maxed?' (MAX)':''} · เศษสะสม ${entry.shards}</div>
       </div>
       <div class="esr-go">${maxed?'':`+1 เศษ (${gcost}🔩)`}</div>
@@ -5882,7 +5920,7 @@ function renderEventShop(){
   body.innerHTML = eventTabsHTML() + `
     <div class="event-shop-section">
       <div class="t">🎲 สุ่มตัวละครอีเว้นท์</div>
-      <div class="d">ใช้ Gear สุ่มตัวละคร — พูลนี้รวมตัวละคร TECH UPDATE (ไมโครชิป/คอมพิวเตอร์/เทคโน) ที่หาไม่ได้จากตู้ปกติระหว่างอีเว้นท์ ส่วนตัวละครทั่วไปนอกอีเว้นท์ต้องสุ่มเอาเท่านั้น ซื้อตรงไม่ได้ · สุ่มไอเทมที่นี่ยังมีโอกาสได้ไอเทมอีเว้นท์เอ็กซ์คลูซีฟ (NANO REPAIR KIT / OVERCLOCK CHIP / QUANTUM CAPACITOR) ที่หาไม่ได้จากตู้ไอเทมปกติด้วย</div>
+      <div class="d">ใช้ Gear สุ่มตัวละคร — พูลนี้รวมตัวละคร TECH UPDATE (ไมโครชิป/คอมพิวเตอร์/เทคโน/กลิทช์/โดรน) ที่หาไม่ได้จากตู้ปกติระหว่างอีเว้นท์ ส่วนตัวละครทั่วไปนอกอีเว้นท์ต้องสุ่มเอาเท่านั้น ซื้อตรงไม่ได้ (ยกเว้น 🔆 DIODE ที่ไม่อยู่ในพูลสุ่มหรือซื้อตรงใดๆ เลย ต้องผ่านมินิเกม "แฮ็กเมนเฟรม TECH" ให้ครบเท่านั้น) · สุ่มไอเทมที่นี่ยังมีโอกาสได้ไอเทมอีเว้นท์เอ็กซ์คลูซีฟ (NANO REPAIR KIT / OVERCLOCK CHIP / QUANTUM CAPACITOR) ที่หาไม่ได้จากตู้ไอเทมปกติด้วย</div>
       <div class="exchange-row">
         <button type="button" class="btn ghost small" id="eventCharGachaBtn">🎲 สุ่มตัวละคร (${EVENT_CHAR_GACHA_COST}🔩)</button>
         <button type="button" class="btn ghost small" id="eventCharGacha10Btn">🎲 สุ่ม x10 (${EVENT_CHAR_GACHA_COST*10}🔩)</button>
@@ -5916,7 +5954,7 @@ function renderEventShop(){
   document.getElementById('eventCharGachaBtn').onclick = ()=>{
     if((saveData.gear||0) < EVENT_CHAR_GACHA_COST){ onlineStatusMsg('Gear ไม่พอ ต้องการ '+EVENT_CHAR_GACHA_COST+'🔩'); return; }
     saveData.gear -= EVENT_CHAR_GACHA_COST; persistSave(); refreshGemsUI();
-    pullCharacter(ELEMENTS).then(({picked, isNew})=>{
+    pullCharacter(getEventGachaPool()).then(({picked, isNew})=>{
       onlineStatusMsg(isNew ? `ได้ตัวละครใหม่: ${picked.name}! เข้าคลังแล้ว` : `${picked.name} ซ้ำ — ได้เศษอัพเกรด +1`);
       renderEventShop();
     });
@@ -5936,7 +5974,7 @@ function renderEventShop(){
         renderEventShop();
         return;
       }
-      pullCharacter(ELEMENTS).then(({isNew})=>{ isNew ? newCount++ : dupCount++; runNext(n-1); });
+      pullCharacter(getEventGachaPool()).then(({isNew})=>{ isNew ? newCount++ : dupCount++; runNext(n-1); });
     };
     runNext(10);
   };
@@ -6038,7 +6076,7 @@ function renderEventMinigame(){
   body.innerHTML = eventTabsHTML() + `
     <div class="event-shop-section">
       <div class="t">🖥️ แฮ็กเมนเฟรม TECH</div>
-      <div class="d">มินิเกมธีม TECH — จำลำดับไฟบนแผงวงจร (RAM/POWER/CORE/DISK/SIGNAL/FAN/CPU/NET/BATTERY) แล้วคลิกตามลำดับให้ถูก ยิ่งจำได้หลายรอบยิ่งได้ Gear เยอะ: รอบละ ${MINIGAME_GEAR_PER_ROUND}🔩 และถ้าผ่านครบ ${MINIGAME_MAX_ROUNDS} รอบรับโบนัสอีก +${MINIGAME_CLEAR_BONUS}🔩</div>
+      <div class="d">มินิเกมธีม TECH — จำลำดับไฟบนแผงวงจร (RAM/POWER/CORE/DISK/SIGNAL/FAN/CPU/NET/BATTERY) แล้วคลิกตามลำดับให้ถูก ยิ่งจำได้หลายรอบยิ่งได้ Gear เยอะ: รอบละ ${MINIGAME_GEAR_PER_ROUND}🔩 และถ้าผ่านครบ ${MINIGAME_MAX_ROUNDS} รอบรับโบนัสอีก +${MINIGAME_CLEAR_BONUS}🔩 พร้อมตัวละคร 🔆 DIODE (LED) (ตัวซ้ำ = ได้เศษอัพเกรด +1)</div>
       <div class="d" style="margin-bottom:10px;">เหลือโควตาวันนี้: <b>${playsLeft}</b>/${MINIGAME_DAILY_LIMIT}</div>
       <button type="button" class="btn" id="hackStartBtn" ${playsLeft<=0?'disabled':''}>${playsLeft>0?'▶ เริ่มแฮ็ก':'เล่นครบโควตาวันนี้แล้ว — พรุ่งนี้มาใหม่'}</button>
     </div>`;
@@ -6152,8 +6190,19 @@ function endHackGame(perfectClear, quit){
     persistSave();
     refreshGemsUI();
   }
+  // perfect-clearing all MINIGAME_MAX_ROUNDS rounds also grants DIODE directly (a dupe pull
+  // just turns into +1 upgrade shard, same convention as the event gacha/shop above) — this
+  // is the minigame's own character reward, separate from the Gear payout.
+  let diodeMsg = '';
+  if(perfectClear){
+    const diodeElem = ELEMENTS.find(e=>e.id==='diode');
+    if(diodeElem){
+      const diodeIsNew = grantCharacterDirect('diode');
+      diodeMsg = ` 🔆 ได้รับ ${diodeElem.name} ${diodeIsNew?'(ตัวใหม่!)':'(ซ้ำ +1 เศษ)'}!`;
+    }
+  }
   onlineStatusMsg(perfectClear
-    ? `🖥️ แฮ็กสำเร็จครบ ${MINIGAME_MAX_ROUNDS} รอบ! +${gearWon}🔩`
+    ? `🖥️ แฮ็กสำเร็จครบ ${MINIGAME_MAX_ROUNDS} รอบ! +${gearWon}🔩${diodeMsg}`
     : (quit
         ? `🖥️ ออกจากเกม — เก็บได้ ${roundsCleared} รอบ +${gearWon}🔩`
         : (roundsCleared>0 ? `🖥️ พลาด — ผ่านมา ${roundsCleared} รอบ +${gearWon}🔩` : `🖥️ พลาดตั้งแต่รอบแรก — ลองใหม่อีกครั้ง`)));
@@ -6294,6 +6343,12 @@ const ATTACK_SFX = {
   drone(){
     sfxNoise({dur:0.09,vol:0.1,freq:2600,endFreq:3600,filterType:'bandpass',Q:1.4});
     sfxTone({freq:1500,type:'square',dur:0.045,vol:0.11,delay:0.015});
+  },
+  // DIODE's ARC EMITTER — fires so often it needs to read as a light "tick" rather than a full
+  // cast: one very short bright blip.
+  diode(){
+    sfxTone({freq:1700, type:'sine', dur:0.05, vol:0.1});
+    sfxTone({freq:2500, type:'sine', dur:0.03, vol:0.06, delay:0.01});
   },
 };
 function playAttackSFX(elemId){ const fn = ATTACK_SFX[elemId]; if(fn) fn(); }
@@ -6625,7 +6680,9 @@ function getRarity(elemOrId){
 // active — they're event-exclusive, only reachable via the event gacha/shop which passes its
 // own pool (including TECH) explicitly.
 function pickRandomElementWeighted(pool){
-  pool = pool && pool.length ? pool : (isEventActive() ? ELEMENTS.filter(e=>!TECH_IDS.includes(e.id)) : ELEMENTS);
+  // DIODE is a minigame-only reward — it never appears in ANY default weighted pool, event
+  // active or not, so it can't be pulled from a normal or event gacha roll by chance.
+  pool = pool && pool.length ? pool : (isEventActive() ? ELEMENTS.filter(e=>!TECH_IDS.includes(e.id)) : ELEMENTS.filter(e=>e.id!=='diode'));
   const total = pool.reduce((sum,e)=> sum + (getRarity(e).weight||1), 0);
   let roll = Math.random()*total;
   for(const e of pool){
@@ -6801,34 +6858,40 @@ const ELEMENTS = [
     passiveBloodRitual:true, bloodRitualHp:200, bloodRitualDur:4.0, bloodRitualHealPct:0.75,
     passiveDesc:'กระหายเลือด — ยิ่งเลือดตัวเองเหลือน้อย พลังโจมตียิ่งพุ่งสูงขึ้น (สูงสุด +40% ตอนใกล้ตาย) | BLOOD RITUAL (ท่าไม้ตาย) — เมื่อ HP เหลือ 200 หรือต่ำกว่า จะเข้าสู่พิธีกรรมเลือดเป็นเวลา 4 วินาที ระหว่างนี้ทุกครั้งที่โดนโจมตีจะได้ HP คืน 75% ของดาเมจที่ได้รับกลับมาทันที (ซ้อนทับกับ Lifesteal ปกติของ CRIMSON FANG ตอนเป็นฝ่ายโจมตีได้) — พร้อมเกิดซ้ำได้ทุกครั้งที่ HP ตกลงมาแตะ 200 อีกครั้งหลังพ้นช่วงนั้นไปแล้ว',
   },
+  // ===== NEW: DIODE (LED) — TECH UPDATE event-drop character, awarded as the perfect-clear
+  // reward from the "แฮ็กเมนเฟรม TECH" minigame (see endHackGame). Its main attack is a 67°
+  // arc of light fired almost continuously (very short cooldown) — nothing needs to travel
+  // first, standing inside the arc when it fires is what gets hit. [BUFF] the arc's reach
+  // was extended (210 -> 290) without touching the 67° angle, so ARC EMITTER now threatens
+  // from much further away while staying just as narrow. A fully independent 3s
+  // passive clock (separate from its two manual abilities, same pattern as TECHNO's summon /
+  // GLITCH's blink / DRONE's swarm timers) flips its color mode at random: RED (burns on
+  // hit), BLUE (slows on hit), or GREEN (heals DIODE for 50% of the damage its arc deals).
+  // Once all three colors have each come up at least once — or the instant its own HP drops
+  // to 200 or below, whichever comes first — it locks into LED mode for the rest of the
+  // match: brighter white light, harder damage, all three effects layered at once, and it
+  // inflicts ERROR on whatever it touches.
+  {
+    id:'diode', rarity:'epic', name:'DIODE', tag:'ธาตุไดโอด (LED)', color:'#ffffff', pow:60, spd:58,
+    abA:{name:'ARC EMITTER', desc:'ปล่อยแสงเป็นรูปพัดมุม 67 องศาออกจากตัวรัวถี่มาก ระยะทำการไกลขึ้นกว่าเดิมมาก ไม่มีคลื่นหรือลำแสงพุ่งออกไปก่อน แค่ยืนอยู่ในระยะก็โดนดาเมจต่อเนื่องทันที สีของแสงเปลี่ยนไปตามโหมดปัจจุบัน (แดง/น้ำเงิน/เขียว/LED) และให้ผลต่างกันไปตามสี', kind:'wave', dmgMul:0.36, cd:0.4, coneDeg:67, range:290, dur:0.28},
+    abB:{name:'VOLTAGE GUARD', desc:'เร่งวงจรป้องกันแรงดันไฟกระชาก ลดความเสียหายที่ได้รับชั่วคราว', kind:'shield', reduce:0.5, cd:5.4, dur:1.5},
+    passiveDiodeMode:true, diodeModeInterval:3.0, diodeLedTriggerHP:200,
+    passiveDesc:'[TECH UPDATE] โหมดไดโอด — ทุก 3 วินาที จะสลับโหมดสีแบบสุ่มระหว่าง RED (ทำให้ติดไฟลุกเมื่อโดน ARC EMITTER), BLUE (ทำให้ช้าลงเมื่อโดน), และ GREEN (ฮีลเลือดตัวเอง 50% ของดาเมจที่ ARC EMITTER ทำได้) | เมื่อผ่านมาแล้วครบทั้ง 3 โหมด หรือเมื่อ HP เหลือ 200 หรือต่ำกว่า จะเข้าสู่โหมด LED ถาวรตลอดแมตช์ที่เหลือ — แสงสีขาวแรงขึ้น ได้ผลของทั้ง 3 โหมดพร้อมกัน (ไฟลุก + ช้าลง + ฮีล) และทำให้ศัตรูติดสถานะ ERROR ทันทีที่โดน',
+  },
 ];
-
-function buildSwatches(container, def){
-  container.innerHTML='';
-  COLORS.forEach((c,i)=>{
-    const d=document.createElement('div');
-    d.className='swatch'+(c===def?' sel':'');
-    d.style.background=c;
-    d.style.setProperty('--sc', c);
-    d.dataset.color=c;
-    d.onclick=()=>{ [...container.children].forEach(x=>x.classList.remove('sel')); d.classList.add('sel'); };
-    container.appendChild(d);
-  });
-}
-buildSwatches(document.getElementById('swatch1'), '#2fb8ff');
-buildSwatches(document.getElementById('swatch2'), '#ff5a36');
 
 function buildElementGrid(gridEl, detailEl, statEl, defId, restrictOwned){
   gridEl.innerHTML='';
   const card = gridEl.closest('.fighter-card');
   function renderDetail(el){
-    if(card) card.style.setProperty('--ec', el.color);
+    const dispColor = getCharColor(el.id);
+    if(card) card.style.setProperty('--ec', dispColor);
     const rr = getRarity(el);
     const passiveLine = el.passiveDesc ? `<br><b>ลักษณะพิเศษ:</b> ${el.passiveDesc}` : '';
     detailEl.innerHTML = `<span class="rarity-badge" style="--rc:${rr.color};--rg:${rr.glow}">${'★'.repeat(rr.stars)} ${rr.labelTH}</span><br><br><b>ท่าหลัก:</b> ${el.abA.name} — ${el.abA.desc}<br><b>ท่าเสริม:</b> ${el.abB.name} — ${el.abB.desc}${passiveLine}`;
     statEl.innerHTML = `
-      <div class="stat-row"><span class="lbl">ATK</span><div class="track"><div class="fill" style="width:${el.pow}%;background:${el.color};color:${el.color}"></div></div><span class="num">${el.pow}</span></div>
-      <div class="stat-row"><span class="lbl">SPD</span><div class="track"><div class="fill" style="width:${el.spd}%;background:${el.color};color:${el.color}"></div></div><span class="num">${el.spd}</span></div>
+      <div class="stat-row"><span class="lbl">ATK</span><div class="track"><div class="fill" style="width:${el.pow}%;background:${dispColor};color:${dispColor}"></div></div><span class="num">${el.pow}</span></div>
+      <div class="stat-row"><span class="lbl">SPD</span><div class="track"><div class="fill" style="width:${el.spd}%;background:${dispColor};color:${dispColor}"></div></div><span class="num">${el.spd}</span></div>
     `;
   }
   // sort common → legendary so the grid reads as ascending tiers, and drop a header row in
@@ -6855,19 +6918,12 @@ function buildElementGrid(gridEl, detailEl, statEl, defId, restrictOwned){
     d.style.setProperty('--rg', rr.glow);
     d.title = owned ? (el.tag+' — '+rr.labelTH+' ('+rr.label+')') : 'ยังไม่ปลดล็อก — แตะเพื่อไปสุ่ม';
     d.innerHTML = (owned ? '' : '<div class="lock-tag">🔒</div>')
-      + `<div class="dot" style="background:${el.color}"></div><div class="en">${el.name}</div><div class="rarity-stars">${'★'.repeat(rr.stars)}</div>`;
+      + `<div class="dot" style="background:${getCharColor(el.id)}"></div><div class="en">${el.name}</div><div class="rarity-stars">${'★'.repeat(rr.stars)}</div>`;
     d.onclick=()=>{
       if(!owned){ onlineStatusMsg(el.name+' ยังไม่ปลดล็อก — ลองกด "สุ่มตัวละคร" ดูก่อน'); return; }
       [...gridEl.children].forEach(x=>x.classList.remove('sel'));
       d.classList.add('sel');
       renderDetail(el);
-      // sync swatch color to element color
-      const swatchContainer = gridEl.id==='elem1' ? document.getElementById('swatch1') : document.getElementById('swatch2');
-      const match = [...swatchContainer.children].find(s=>s.dataset.color.toLowerCase()===el.color.toLowerCase());
-      if(match){
-        [...swatchContainer.children].forEach(s=>s.classList.remove('sel'));
-        match.classList.add('sel');
-      }
     };
     gridEl.appendChild(d);
   });
@@ -6926,7 +6982,9 @@ function readFighter(n){
   const nameEl = document.getElementById('name'+n);
   const elem = getSelectedElement(document.getElementById('elem'+n));
   const name = (nameEl.value.trim() || elem.name).toUpperCase();
-  const color = document.getElementById('swatch'+n).querySelector('.sel').dataset.color;
+  // color now comes automatically from the character's saved warehouse color (or its default
+  // element color if none was customized) — no manual swatch picker on the main screen anymore.
+  const color = getCharColor(elem.id);
   // spread the full element definition through (not just a hand-picked subset) so that every
   // passive* field defined on the element actually survives into battle — previously only a
   // few fields were copied here, which silently broke TERRA's rock-hide reflect passive since
@@ -7003,8 +7061,13 @@ function runSimulation(f1,f2, netRole, roomCode){
   const MAXHP2 = (f2 && typeof f2.__maxHpOverride==='number') ? f2.__maxHpOverride : ((f2 && typeof f2.fixedMaxHp==='number') ? f2.fixedMaxHp : 1000); // enemy side
   const R = 34;
 
-  const SHAPES = {aqua:'droplet', pyro:'triangle', volt:'diamond', terra:'square', frost:'diamond', gale:'triangle', toxin:'circle', radiant:'star', shadow:'diamond', metal:'square', nature:'triangle', sound:'circle', cosmos:'ring', love:'heart', steam:'cloud', microchip:'chip', computer:'monitor', techno:'circuit', glitch:'shard', drone:'rotor', blood:'fang'};
+  const SHAPES = {aqua:'droplet', pyro:'triangle', volt:'diamond', terra:'square', frost:'diamond', gale:'triangle', toxin:'circle', radiant:'star', shadow:'diamond', metal:'square', nature:'triangle', sound:'circle', cosmos:'ring', love:'heart', steam:'cloud', microchip:'chip', computer:'monitor', techno:'circuit', glitch:'shard', drone:'rotor', blood:'fang', diode:'diamond'};
   function elementShape(id){ return SHAPES[id] || 'circle'; }
+
+  // DIODE's four color modes, shared by every DIODE-related system in this battle (the mode
+  // clock, the forced LED trigger, the persistent aura ring, and the body glow) so they can
+  // never drift out of sync with each other.
+  const DIODE_MODE_COLORS = {red:'#ff4d6d', blue:'#4dc7ff', green:'#7dffb0', led:'#ffffff'};
 
   // ambient background dust motes — generated once per battle, animated purely as a function
   // of time (Date.now()) in draw(), so no extra per-frame state bookkeeping is needed
@@ -7393,7 +7456,7 @@ function runSimulation(f1,f2, netRole, roomCode){
   // gets a pulsing orange-red overheating core tying into its enrage passive.
   function drawTechAccent(ctx, p){
     const id = p.def.__elemId;
-    if(id!=='microchip' && id!=='computer' && id!=='techno') return;
+    if(id!=='microchip' && id!=='computer' && id!=='techno' && id!=='diode') return;
     const t = Date.now()/1000;
     if(id==='microchip'){
       const pads = 6;
@@ -7433,6 +7496,19 @@ function runSimulation(f1,f2, netRole, roomCode){
       ctx.shadowBlur = 8+pulse*4;
       ctx.fill();
       ctx.shadowBlur = 0;
+    } else if(id==='diode'){
+      // a small pulsing bulb at the core, tinted by whichever color mode is currently active —
+      // LED mode pulses noticeably faster/brighter than the plain RED/BLUE/GREEN modes
+      const glowColor = DIODE_MODE_COLORS[p.diodeMode] || '#ffffff';
+      const isLed = p.diodeMode==='led';
+      const pulse2 = 0.5+0.5*Math.sin(t*(isLed?9:3.5));
+      ctx.beginPath();
+      ctx.arc(0,0, 2.6+pulse2*(isLed?2.2:1.2), 0, Math.PI*2);
+      ctx.fillStyle = glowColor;
+      ctx.shadowColor = glowColor;
+      ctx.shadowBlur = (isLed?10:6)+pulse2*6;
+      ctx.fill();
+      ctx.shadowBlur = 0;
     }
   }
 
@@ -7440,6 +7516,123 @@ function runSimulation(f1,f2, netRole, roomCode){
     let d = Math.abs(a-b) % (Math.PI*2);
     if(d > Math.PI) d = Math.PI*2 - d;
     return d;
+  }
+
+  // DIODE's persistent light-radius aura: drawn fresh every frame in world space (not tied to
+  // any ability cast), always at full size — nothing expands or travels outward, it's just a
+  // glowing 67° wedge sitting around DIODE and tracking the opponent, exactly matching the
+  // range/angle ARC EMITTER actually damages. Pulses faster and brighter while in LED mode.
+  function drawDiodeAura(ctx, p, o){
+    if(!p.alive || p.def.__elemId!=='diode') return;
+    toPx(p);
+    const rng = (p.def.abA && p.def.abA.range) || 150;
+    const coneDeg = (p.def.abA && p.def.abA.coneDeg) || 67;
+    const halfAngle = coneDeg * Math.PI/360;
+    let ang = 0;
+    if(o && o.alive){ toPx(o); ang = Math.atan2(o.py-p.py, o.px-p.px); }
+    const mode = p.diodeMode || 'red';
+    const col = DIODE_MODE_COLORS[mode] || '#ffffff';
+    const isLed = mode==='led';
+    const t = Date.now()/1000;
+    const pulse = 0.5+0.5*Math.sin(t*(isLed?6:2.6));
+    ctx.save();
+
+    // soft radial glow fanning out from DIODE, brightest near the emitter and fading toward
+    // the rim — reads as a projected cone of light rather than one flat tinted slice
+    const grad = ctx.createRadialGradient(p.px, p.py, 0, p.px, p.py, rng);
+    grad.addColorStop(0, col);
+    grad.addColorStop(0.55, col);
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.beginPath();
+    ctx.moveTo(p.px, p.py);
+    ctx.arc(p.px, p.py, rng, ang-halfAngle, ang+halfAngle);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.globalAlpha = 0.1 + pulse*0.06;
+    ctx.fill();
+
+    // a few thin fanning light-rays inside the wedge, so the emitter reads as projecting
+    // distinct beams rather than a single flat tinted slice
+    const rayCount = isLed ? 5 : 3;
+    ctx.strokeStyle = col;
+    ctx.shadowColor = col;
+    ctx.shadowBlur = 5;
+    ctx.lineWidth = 1;
+    ctx.globalAlpha = 0.26 + pulse*0.16;
+    for(let i=0;i<rayCount;i++){
+      const frac = rayCount===1 ? 0 : (i/(rayCount-1))*2-1;
+      const a2 = ang + frac*halfAngle*0.94;
+      ctx.beginPath();
+      ctx.moveTo(p.px, p.py);
+      ctx.lineTo(p.px+Math.cos(a2)*rng, p.py+Math.sin(a2)*rng);
+      ctx.stroke();
+    }
+    ctx.shadowBlur = 0;
+
+    // outer rim arc
+    ctx.beginPath();
+    ctx.arc(p.px, p.py, rng, ang-halfAngle, ang+halfAngle);
+    ctx.strokeStyle = col;
+    ctx.shadowColor = col;
+    ctx.shadowBlur = (isLed?18:9) + pulse*7;
+    ctx.lineWidth = isLed ? 2.8 : 1.9;
+    ctx.globalAlpha = 0.5 + pulse*0.35;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // mode-specific flourish layered on top of the shared wedge/rim, so each color reads
+    // distinctly at a glance instead of only differing by tint
+    if(mode==='red'){
+      // flickering embers drifting along the arc's outer rim
+      for(let i=0;i<3;i++){
+        const fa = ang + Math.sin(t*1.7+i*2.1)*halfAngle*0.85;
+        const fr = rng*(0.7+0.22*Math.sin(t*3+i));
+        const ex = p.px+Math.cos(fa)*fr, ey = p.py+Math.sin(fa)*fr;
+        drawShape(ctx, ex, ey, 3+Math.sin(t*5+i), 'triangle', i%2?'#ffb03f':col, 9);
+      }
+    } else if(mode==='blue'){
+      // crackling static bolts stitching from the emitter out toward the rim
+      ctx.shadowColor = col;
+      for(let i=0;i<2;i++){
+        const fa = ang + Math.sin(t*2.3+i*3.7)*halfAngle*0.8;
+        const ex = p.px+Math.cos(fa)*rng*0.9, ey = p.py+Math.sin(fa)*rng*0.9;
+        const jag = makeJaggedPath(p.px,p.py,ex,ey,5,10);
+        ctx.beginPath();
+        ctx.moveTo(jag[0].x,jag[0].y);
+        jag.slice(1).forEach(pt=>ctx.lineTo(pt.x,pt.y));
+        ctx.strokeStyle = '#eaffff';
+        ctx.shadowBlur = 8;
+        ctx.lineWidth = 1.2;
+        ctx.globalAlpha = 0.45+0.3*Math.sin(t*8+i);
+        ctx.stroke();
+      }
+      ctx.shadowBlur = 0;
+    } else if(mode==='green'){
+      // soft healing motes rising from the emitter out toward the rim
+      for(let i=0;i<3;i++){
+        const life = ((t*0.6+i/3)%1);
+        const fa = ang + Math.sin(i*2.4)*halfAngle*0.7;
+        const fr = rng*life;
+        const ex = p.px+Math.cos(fa)*fr, ey = p.py+Math.sin(fa)*fr - life*10;
+        ctx.globalAlpha = (1-life)*0.7;
+        drawShape(ctx, ex, ey, 2.4+life*1.5, 'circle', col, 8);
+      }
+    } else if(isLed){
+      // prismatic shimmer riding just inside the outer rim, on top of the plain white stroke
+      const hue = (t*90)%360;
+      ctx.beginPath();
+      ctx.arc(p.px, p.py, rng*0.985, ang-halfAngle, ang+halfAngle);
+      ctx.strokeStyle = `hsl(${hue},95%,70%)`;
+      ctx.shadowColor = `hsl(${hue},95%,70%)`;
+      ctx.shadowBlur = 14;
+      ctx.lineWidth = 1.4;
+      ctx.globalAlpha = 0.5;
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+    }
+
+    ctx.restore();
+    ctx.globalAlpha = 1;
   }
 
   function makeJaggedPath(x1,y1,x2,y2,segments,spread){
@@ -7537,6 +7730,12 @@ function runSimulation(f1,f2, netRole, roomCode){
       // — same "fully independent passive timer" pattern as TECHNO's summon clock above.
       glitchBlinkT: def.passiveGlitchBlink ? (def.glitchBlinkInterval||3.0) : 0,
       droneSwarmT: def.passiveDroneSwarm ? (def.droneSwarmInterval||4.0) : 0,
+      // DIODE's mode state — the actual starting color + seen-set gets assigned right after
+      // the fighter is constructed (see the [p1,p2].forEach right below makeFighter's calls);
+      // diodeModeT just counts down to the next automatic color switch.
+      diodeMode: null,
+      diodeModeT: def.passiveDiodeMode ? (def.diodeModeInterval||3.0) : 0,
+      diodeModesSeen: null,
       // which effect currently owns this fighter's rootT lock — lets the renderer draw the
       // right cage (NATURE's woody vines vs the mecharm's electrified metal clamp) instead of
       // always defaulting to vines no matter what actually rooted them
@@ -7551,6 +7750,17 @@ function runSimulation(f1,f2, netRole, roomCode){
   }
   const p1 = makeFighter(f1, 0);
   const p2 = makeFighter(f2, 1);
+  // DIODE always opens on a random color (RED/BLUE/GREEN) rather than starting undefined —
+  // marks that first color as already "seen" so the LED lock-in only needs the other two to
+  // come up before it can trigger, and tints the body to match right from the first frame.
+  [p1,p2].forEach(p=>{
+    if(p.def.passiveDiodeMode){
+      const startMode = ['red','blue','green'][Math.floor(Math.random()*3)];
+      p.diodeMode = startMode;
+      p.diodeModesSeen = {[startMode]:true};
+      p.def.color = DIODE_MODE_COLORS[startMode];
+    }
+  });
 
   /* ================= REALTIME ROOM (host side): both fighters fight fully automatically —
      the host just streams a compact position/HP snapshot to Firebase so the guest can watch
@@ -7943,6 +8153,22 @@ function runSimulation(f1,f2, netRole, roomCode){
       floaters.push({x:target.px, y:target.py-target.r-28, text:'ปลุกพลัง!', life:0.9, vy:-30, color:'#8dff4d', big:true});
       rings.push({x:target.px, y:target.py, r:target.r, maxR:target.r+34, life:0.45, maxLife:0.45, color:'#8dff4d'});
       log(`${target.def.name} เลือดเหลือ ${target.def.verdantPrisonTriggerHP||225} รากไม้โบราณเริ่มชูขึ้น เตรียมปลุกพลัง VERDANT PRISON!`, true);
+    }
+
+    // DIODE's LED force-trigger: the instant its own HP drops to diodeLedTriggerHP (200 by
+    // default) or below, it snaps into LED mode right away instead of waiting for its 3s mode
+    // clock to come around — a fresh full window starts from this exact moment. LED still
+    // isn't permanent here either: once the window ends, the periodic mode clock (in
+    // stepInner) re-checks HP on its own and will simply force LED again if still that low,
+    // or resume normal color rotation once HP has recovered back above the threshold.
+    if(target.def.passiveDiodeMode && target.diodeMode!=='led' && target.hp>0 && target.hp<=(target.def.diodeLedTriggerHP||200)){
+      target.diodeMode = 'led';
+      target.diodeModeT = target.def.diodeModeInterval || 3.0;
+      target.def.color = DIODE_MODE_COLORS.led;
+      toPx(target);
+      floaters.push({x:target.px, y:target.py-target.r-28, text:'LED MODE!', life:0.9, vy:-30, color:DIODE_MODE_COLORS.led, big:true});
+      rings.push({x:target.px, y:target.py, r:target.r, maxR:target.r+34, life:0.45, maxLife:0.45, color:DIODE_MODE_COLORS.led});
+      log(`${target.def.name} เลือดเหลือ ${target.def.diodeLedTriggerHP||200} เข้าสู่โหมด LED ทันที!`, true);
     }
 
     toPx(target);
@@ -8347,8 +8573,36 @@ function runSimulation(f1,f2, netRole, roomCode){
   }
   updateHPUI();
 
+  // DIODE's ARC EMITTER: reuses the same 67° instant-cone shape defined on p.def.abA, but the
+  // actual on-hit status effects (and, in LED mode, the damage multiplier + color) depend on
+  // whichever mode DIODE is currently cycling through — see the diodeModeT passive clock
+  // further down in stepInner, and the LED force-trigger inside applyDamage.
+  function diodeArcAbility(p){
+    const base = p.def.abA;
+    const mode = p.diodeMode || 'red';
+    const out = {...base, waveColor: DIODE_MODE_COLORS[mode]};
+    if(mode==='led'){
+      out.name = base.name+' (LED)';
+      out.dmgMul = base.dmgMul * 1.6;
+      out.burn = {dur:2.6};
+      out.slow = {dur:1.6};
+      out.lifesteal = 0.5;
+      out.chip = {instant:true, dur:3.0};
+    } else if(mode==='red'){
+      out.name = base.name+' (RED)';
+      out.burn = {dur:2.4};
+    } else if(mode==='blue'){
+      out.name = base.name+' (BLUE)';
+      out.slow = {dur:1.6};
+    } else if(mode==='green'){
+      out.name = base.name+' (GREEN)';
+      out.lifesteal = 0.5;
+    }
+    return out;
+  }
   function useAbilityA(p, target){
-    const a = p.def.abA;
+    let a = p.def.abA;
+    if(p.def.__elemId==='diode') a = diodeArcAbility(p);
     const base = 35 * dmgFactor(p);
     const shape = elementShape(p.def.__elemId);
     playAttackSFX(p.def.__elemId);
@@ -8614,17 +8868,67 @@ function runSimulation(f1,f2, netRole, roomCode){
       });
       log(`${p.def.name} ยิง ${a.name} ทะลุออกไป`);
     } else if(a.kind==='wave'){
-      // wide expanding shockwave cone that travels outward from the caster (long range, wide arc)
-      const dx = target.px-p.px, dy = target.py-p.py;
-      const ang = Math.atan2(dy,dx);
-      const halfAngle = ((a.coneDeg||200) * Math.PI/360);
-      waves.push({
-        x:p.px, y:p.py, angle:ang, halfAngle,
-        life:a.dur||0.85, maxLife:a.dur||0.85, maxRadius:a.range||260,
-        color:p.def.color, dmg: base*a.dmgMul, name:a.name, owner:p,
-        hitReal:false, hitClone:false, poison:a.poison, burn:a.burn, freeze:a.freeze, nullify:a.nullify, chip:a.chip
-      });
-      log(`${p.def.name} ปล่อย ${a.name} เป็นคลื่นกว้างพุ่งออกไปไกล`);
+      if(p.def.__elemId==='diode'){
+        // DIODE's ARC EMITTER: no traveling wave graphic fires here — the light radius is
+        // drawn every frame regardless of cast timing (see drawDiodeAura in the render loop)
+        // as a persistent glowing wedge around DIODE. This just resolves the actual hit +
+        // damage on the same short cooldown, using the identical range the aura is drawn
+        // with, so anyone standing inside the visible glow is exactly who's taking damage —
+        // no separate flash needs to travel out to them first.
+        const dist = Math.hypot(target.px-p.px, target.py-p.py);
+        const rng = a.range||150;
+        if(dist < p.r+target.r+rng){
+          applyDamage(target, base*a.dmgMul, p.def.name, a.name, a.poison, a.burn, a.freeze, p, a.lifesteal, a.slow, null, null, null, null, a.chip);
+          toPx(target);
+          // hit sparks read differently per color mode, so getting burned/slowed/healed-off-of
+          // is legible at a glance instead of always looking like the same generic flash
+          const dMode = p.diodeMode || 'red';
+          const dCol = a.waveColor || p.def.color;
+          if(dMode==='led'){
+            // LED mode layers a brighter, denser burst — white sparkle core plus a ring of
+            // prismatic glints, matching how it stacks all three effects at once
+            for(let i=0;i<6;i++){
+              const angP = Math.random()*Math.PI*2, spdP = 0.8+Math.random()*1.8;
+              const hue = Math.random()*360;
+              particles.push({x:target.px,y:target.py,vx:Math.cos(angP)*spdP,vy:Math.sin(angP)*spdP,life:0.32,color:`hsl(${hue},95%,75%)`,shape:'star'});
+            }
+            particles.push({x:target.px,y:target.py,vx:0,vy:-0.3,life:0.28,color:'#ffffff',shape:'diamond'});
+          } else if(dMode==='blue'){
+            // icy diamond shards with a slight downward drift, cool white-blue mix
+            for(let i=0;i<5;i++){
+              const angP = Math.random()*Math.PI*2, spdP = 0.5+Math.random()*1.3;
+              particles.push({x:target.px,y:target.py,vx:Math.cos(angP)*spdP,vy:Math.sin(angP)*spdP+0.3,life:0.34,color:i%2?dCol:'#eaffff',shape:'diamond'});
+            }
+          } else if(dMode==='green'){
+            // soft rising healing motes drifting upward instead of scattering outward
+            for(let i=0;i<4;i++){
+              const angP = (Math.random()-0.5)*1.4;
+              particles.push({x:target.px,y:target.py,vx:Math.sin(angP)*0.6,vy:-0.8-Math.random()*1.1,life:0.4,color:dCol,shape:'circle'});
+            }
+          } else {
+            // red: bright embers with a warm orange/red mix, flicking outward like sparks off metal
+            for(let i=0;i<5;i++){
+              const angP = Math.random()*Math.PI*2, spdP = 0.7+Math.random()*1.6;
+              particles.push({x:target.px,y:target.py,vx:Math.cos(angP)*spdP,vy:Math.sin(angP)*spdP-0.4,life:0.3,color:i%2?'#ffb03f':dCol,shape:'triangle'});
+            }
+          }
+        }
+        tryHitClone(target, p.px, p.py, rng, base*a.dmgMul, p.def.name, a.name);
+        // deliberately no log() here — this fires close to 2-3x/sec and would flood the battle log
+      } else {
+        // wide expanding shockwave cone that travels outward from the caster (long range, wide arc)
+        const dx = target.px-p.px, dy = target.py-p.py;
+        const ang = Math.atan2(dy,dx);
+        const halfAngle = ((a.coneDeg||200) * Math.PI/360);
+        waves.push({
+          x:p.px, y:p.py, angle:ang, halfAngle,
+          life:a.dur||0.85, maxLife:a.dur||0.85, maxRadius:a.range||260,
+          color:a.waveColor||p.def.color, dmg: base*a.dmgMul, name:a.name, owner:p,
+          hitReal:false, hitClone:false, poison:a.poison, burn:a.burn, freeze:a.freeze, nullify:a.nullify, chip:a.chip,
+          lifesteal:a.lifesteal, slow:a.slow
+        });
+        log(`${p.def.name} ปล่อย ${a.name} เป็นคลื่นกว้างพุ่งออกไปไกล`);
+      }
     }
   }
 
@@ -9373,6 +9677,58 @@ function runSimulation(f1,f2, netRole, roomCode){
       sfxNoise({dur:0.1, vol:0.1, freq:3400, endFreq:2200, filterType:'bandpass', Q:1.6});
     });
 
+    // DIODE's mode clock: every diodeModeInterval seconds (3s by default) it re-rolls its
+    // color mode — a fully independent passive timer, same pattern as TECHNO/GLITCH/DRONE
+    // above. LED is NOT a permanent end state: it's just one more mode in the same 3s
+    // rotation. Each tick either (a) forces LED if HP is at/under diodeLedTriggerHP, (b)
+    // becomes LED the moment RED/BLUE/GREEN have each come up at least once since the last
+    // LED window, or (c) otherwise picks a fresh random color among RED/BLUE/GREEN. Coming
+    // OUT of an LED window always starts a brand new 3-color collection cycle. The instant
+    // (not waiting for this clock) low-HP force-trigger lives inside applyDamage, right where
+    // the other HP-triggered passives are checked.
+    [p1,p2].forEach(p=>{
+      if(!p.alive || !p.def.passiveDiodeMode) return;
+      p.diodeModeT -= dt;
+      if(p.diodeModeT>0) return;
+      p.diodeModeT = p.def.diodeModeInterval || 3.0;
+      const ledTrigger = p.def.diodeLedTriggerHP || 200;
+      toPx(p);
+      const modeLabels = {red:'RED', blue:'BLUE', green:'GREEN', led:'LED'};
+      let nextMode;
+      if(p.hp <= ledTrigger){
+        nextMode = 'led';
+      } else {
+        if(p.diodeMode==='led') p.diodeModesSeen = {}; // just finished an LED window — start fresh
+        const pick = ['red','blue','green'][Math.floor(Math.random()*3)];
+        p.diodeModesSeen = p.diodeModesSeen || {};
+        p.diodeModesSeen[pick] = true;
+        nextMode = (Object.keys(p.diodeModesSeen).length>=3) ? 'led' : pick;
+      }
+      p.diodeMode = nextMode;
+      p.def.color = DIODE_MODE_COLORS[nextMode];
+      const col = DIODE_MODE_COLORS[nextMode];
+      const modeShapes = {red:'triangle', blue:'diamond', green:'circle', led:'star'};
+      const switchShape = modeShapes[nextMode] || 'diamond';
+      if(nextMode==='led'){
+        floaters.push({x:p.px, y:p.py-p.r-24, text:'LED MODE!', life:0.9, vy:-30, color:col, big:true});
+        rings.push({x:p.px, y:p.py, r:p.r, maxR:p.r+30, life:0.4, maxLife:0.4, color:col});
+        rings.push({x:p.px, y:p.py, r:p.r*0.4, maxR:p.r+44, life:0.55, maxLife:0.55, color:'#ffffff'});
+        for(let i=0;i<10;i++){
+          const angM = Math.random()*Math.PI*2, spdM = 1+Math.random()*2.4;
+          particles.push({x:p.px,y:p.py,vx:Math.cos(angM)*spdM,vy:Math.sin(angM)*spdM,life:0.5,color:`hsl(${Math.random()*360},95%,75%)`,shape:switchShape});
+        }
+        log(`${p.def.name} เปลี่ยนเป็นโหมด LED!`, true);
+      } else {
+        floaters.push({x:p.px, y:p.py-p.r-24, text:modeLabels[nextMode]+' MODE', life:0.8, vy:-28, color:col, big:false});
+        rings.push({x:p.px, y:p.py, r:p.r*0.6, maxR:p.r+18, life:0.3, maxLife:0.3, color:col});
+        for(let i=0;i<6;i++){
+          const angM = Math.random()*Math.PI*2, spdM = 0.8+Math.random()*1.6;
+          particles.push({x:p.px,y:p.py,vx:Math.cos(angM)*spdM,vy:Math.sin(angM)*spdM,life:0.4,color:col,shape:switchShape});
+        }
+        log(`${p.def.name} เปลี่ยนโหมดเป็น ${modeLabels[nextMode]}`, true);
+      }
+    });
+
     // LOVE's CUPID'S RAIN: while active, spawn a new beam crashing down at a random x-position
     // roughly every third of a second, for as long as the 4s window lasts
     [p1,p2].forEach(p=>{
@@ -9912,7 +10268,7 @@ function runSimulation(f1,f2, netRole, roomCode){
           const dist = Math.hypot(ddx,ddy);
           const ang2 = Math.atan2(ddy,ddx);
           if(dist < curR+tt.r+18 && dist > curR-30 && angleDiff(ang2, w.angle) < w.halfAngle){
-            applyDamage(tt, w.dmg, w.owner.def.name, w.name, w.poison, w.burn, w.freeze, w.owner, null, null, null, null, null, null, w.chip);
+            applyDamage(tt, w.dmg, w.owner.def.name, w.name, w.poison, w.burn, w.freeze, w.owner, w.lifesteal, w.slow, null, null, null, null, w.chip);
             w.hitReal = true;
           }
         }
@@ -12945,6 +13301,8 @@ function runSimulation(f1,f2, netRole, roomCode){
       ctx.globalAlpha=1;
     });
 
+    drawDiodeAura(ctx, p1, p2);
+    drawDiodeAura(ctx, p2, p1);
     drawFighter(p1);
     drawFighter(p2);
     [p1,p2].forEach(p=>{ if(p.alive && p.cloneHP>0) drawShadowClone(p); });
@@ -13094,7 +13452,10 @@ document.getElementById('eventBackBtn').onclick = ()=>{
 document.getElementById('itemGachaBtn').onclick = runItemGacha;
 document.getElementById('rosterBtn').onclick = ()=>{ charDetailId=null; itemDetailId=null; openRosterModal(); };
 document.getElementById('redeemBtn').onclick = openRedeemModal;
-document.getElementById('charRateBtn').onclick = ()=> toggleRatePanel('charRateBtn','charRatePanel', ELEMENTS);
+// mirrors pickRandomElementWeighted()'s own default-pool logic exactly, so the drop-rate panel
+// never shows odds for a character that isn't actually reachable through the plain gacha button
+// (TECH characters excluded while the event is active; DIODE excluded always — minigame only).
+document.getElementById('charRateBtn').onclick = ()=> toggleRatePanel('charRateBtn','charRatePanel', isEventActive() ? ELEMENTS.filter(e=>!TECH_IDS.includes(e.id)) : ELEMENTS.filter(e=>e.id!=='diode'));
 document.getElementById('itemRateBtn').onclick = ()=> toggleRatePanel('itemRateBtn','itemRatePanel', ITEM_DEFS);
 document.getElementById('saveOnlineBtn').onclick = saveMyTeamOnline;
 document.getElementById('challengeBtn').onclick = openChallengeList;

@@ -24,12 +24,7 @@
   ::selection{ background:var(--accent2); color:#000; }
   body{
     margin:0;
-    background:
-      radial-gradient(circle at 15% 0%, rgba(77,199,255,0.10) 0%, transparent 38%),
-      radial-gradient(circle at 85% 100%, rgba(255,77,109,0.09) 0%, transparent 42%),
-      radial-gradient(circle at 50% 50%, #121218 0%, transparent 70%),
-      var(--bg);
-    background-attachment:fixed;
+    background:var(--bg);
     color:var(--line-bright);
     font-family:'Courier New', monospace;
     min-height:100vh;
@@ -37,11 +32,29 @@
     flex-direction:column;
     align-items:center;
     padding:22px 12px 44px;
+    position:relative;
+    z-index:0;
+  }
+  /* fixed ambient background moved to its own GPU-composited layer so it no longer
+     forces a full-page repaint on every scroll frame (was background-attachment:fixed
+     directly on body, which is the classic mobile scroll-jank culprit) */
+  body::before{
+    content:'';
+    position:fixed; inset:0; z-index:-1;
+    background:
+      radial-gradient(circle at 15% 0%, rgba(77,199,255,0.10) 0%, transparent 38%),
+      radial-gradient(circle at 85% 100%, rgba(255,77,109,0.09) 0%, transparent 42%),
+      radial-gradient(circle at 50% 50%, #121218 0%, transparent 70%);
+    transform:translateZ(0);
+    will-change:transform;
+    pointer-events:none;
   }
   .scan{
     position:fixed; inset:0; pointer-events:none; z-index:50;
     background:repeating-linear-gradient(0deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 3px);
     mix-blend-mode:overlay;
+    transform:translateZ(0);
+    will-change:transform;
   }
   .title{
     font-size:1.65rem;
@@ -1738,6 +1751,93 @@
   0%,100%{ box-shadow:0 0 10px -2px rgba(51,255,207,0.35); }
   50%{ box-shadow:0 0 20px -1px rgba(51,255,207,0.65); }
 }
+/* ===== TECH UPDATE main-menu backdrop (v2) — layered scene behind the whole setup screen:
+   a darkening vignette, soft drifting color-blob bloom (real blur, not gradient falloff), a
+   drifting PCB circuit-trace texture, a slow scanning light sweep, rising data-mote
+   particles, and HUD-style corner brackets framing the whole menu. Built as real markup
+   (.menu-fx and children, inserted as the first child of #setupScreen) rather than pseudo-
+   elements so each layer can be tuned independently. Purely decorative: absolutely
+   positioned, zero pointer-events, negative z-index, doesn't affect layout or gameplay. */
+#setupScreen{
+  position:relative;
+  isolation:isolate;
+}
+.menu-fx{
+  position:absolute;
+  inset:-20px -10px;
+  z-index:-1;
+  overflow:hidden;
+  pointer-events:none;
+  border-radius:16px;
+  -webkit-mask-image:linear-gradient(180deg, transparent, #000 4%, #000 96%, transparent);
+  mask-image:linear-gradient(180deg, transparent, #000 4%, #000 96%, transparent);
+}
+.menu-fx-vignette{
+  position:absolute; inset:0;
+  background:radial-gradient(ellipse at 50% 12%, rgba(18,24,28,0) 0%, rgba(4,5,7,0.6) 80%);
+}
+.menu-fx-glow{
+  position:absolute;
+  border-radius:50%;
+  filter:blur(54px);
+  will-change:transform;
+}
+.menu-fx-glow.g1{ width:230px; height:230px; top:-50px; left:-50px; background:var(--accent-tech); opacity:0.38; animation:menuGlowDrift1 16s ease-in-out infinite; }
+.menu-fx-glow.g2{ width:270px; height:270px; bottom:-70px; right:-60px; background:var(--accent2); opacity:0.26; animation:menuGlowDrift2 19s ease-in-out infinite; }
+.menu-fx-glow.g3{ width:190px; height:190px; top:38%; left:58%; background:var(--accent1); opacity:0.15; animation:menuGlowDrift3 21s ease-in-out infinite; }
+@keyframes menuGlowDrift1{ 0%,100%{ transform:translate(0,0); } 50%{ transform:translate(32px,26px); } }
+@keyframes menuGlowDrift2{ 0%,100%{ transform:translate(0,0); } 50%{ transform:translate(-26px,-22px); } }
+@keyframes menuGlowDrift3{ 0%,100%{ transform:translate(0,0) scale(1); } 50%{ transform:translate(-22px,16px) scale(1.18); } }
+.menu-fx-circuit{
+  position:absolute; top:-140px; left:-140px; right:-140px; bottom:-140px;
+  opacity:0.2;
+  mix-blend-mode:screen;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><g fill='none' stroke='%2333ffcf' stroke-width='1'><path d='M10 0V40 H50 V70 H90'/><path d='M140 30H100 V90 H60 V140'/><path d='M0 100 H30 V60'/><circle cx='50' cy='70' r='2.4' fill='%2333ffcf' stroke='none'/><circle cx='90' cy='30' r='2.4' fill='%2333ffcf' stroke='none'/><circle cx='30' cy='100' r='2.4' fill='%2333ffcf' stroke='none'/><circle cx='60' cy='90' r='2.4' fill='%2333ffcf' stroke='none'/></g></svg>");
+  background-size:140px 140px;
+  transform:translate3d(0,0,0);
+  will-change:transform;
+  animation:menuCircuitDrift 30s linear infinite;
+}
+/* was animating background-position (forces a full repaint every frame); the layer is
+   now oversized by one tile (140px) on every edge and slides with transform instead, which
+   the compositor can run on the GPU without repainting anything each frame */
+@keyframes menuCircuitDrift{ from{ transform:translate3d(0,0,0); } to{ transform:translate3d(-140px,-140px,0); } }
+.menu-fx-scan{
+  position:absolute; left:0; right:0; height:130px; top:-130px;
+  background:linear-gradient(180deg, transparent, rgba(51,255,207,0.16), transparent);
+  transform:translateY(0);
+  will-change:transform;
+  animation:menuScanSweep 7s ease-in-out infinite;
+}
+/* was animating top (forces layout reflow every frame); vh is a valid length inside
+   transform so this now composites on the GPU with no reflow/repaint, at the cost of the
+   sweep distance being an approximation of the page height instead of an exact match */
+@keyframes menuScanSweep{ 0%{ transform:translateY(0); } 60%{ transform:translateY(250vh); } 100%{ transform:translateY(250vh); } }
+.menu-fx-particles{ position:absolute; inset:0; }
+.menu-fx-particles span{
+  position:absolute; left:var(--l); bottom:-6px;
+  width:2.4px; height:2.4px; border-radius:50%;
+  background:var(--accent-tech);
+  box-shadow:0 0 6px 1px var(--accent-tech);
+  opacity:0;
+  animation:menuParticleRise var(--d) linear infinite;
+  animation-delay:var(--dl);
+}
+@keyframes menuParticleRise{
+  0%{ opacity:0; transform:translateY(0); }
+  10%{ opacity:0.85; }
+  88%{ opacity:0.45; }
+  100%{ opacity:0; transform:translateY(-560px); }
+}
+.menu-fx-corner{
+  position:absolute; width:22px; height:22px;
+  opacity:0.55;
+  filter:drop-shadow(0 0 4px var(--accent-tech));
+}
+.menu-fx-corner.tl{ top:6px; left:6px; border-top:2px solid var(--accent-tech); border-left:2px solid var(--accent-tech); }
+.menu-fx-corner.tr{ top:6px; right:6px; border-top:2px solid var(--accent-tech); border-right:2px solid var(--accent-tech); }
+.menu-fx-corner.bl{ bottom:6px; left:6px; border-bottom:2px solid var(--accent-tech); border-left:2px solid var(--accent-tech); }
+.menu-fx-corner.br{ bottom:6px; right:6px; border-bottom:2px solid var(--accent-tech); border-right:2px solid var(--accent-tech); }
 /* small spinning-gear tag on the TECH UPDATE characters' element-select cards, so the
    update's cast reads as a matched set at a glance in the character grid, not just in their
    individual ability text (all 6: MICROCHIP/COMPUTER/TECHNO from the original drop, GLITCH/
@@ -1778,6 +1878,28 @@
 </div>
 
 <div class="wrap" id="setupScreen">
+  <div class="menu-fx" aria-hidden="true">
+    <div class="menu-fx-vignette"></div>
+    <div class="menu-fx-glow g1"></div>
+    <div class="menu-fx-glow g2"></div>
+    <div class="menu-fx-glow g3"></div>
+    <div class="menu-fx-circuit"></div>
+    <div class="menu-fx-scan"></div>
+    <div class="menu-fx-particles">
+      <span style="--l:6%;--d:9s;--dl:0s"></span>
+      <span style="--l:16%;--d:11s;--dl:1.4s"></span>
+      <span style="--l:28%;--d:8s;--dl:3s"></span>
+      <span style="--l:42%;--d:12s;--dl:0.6s"></span>
+      <span style="--l:58%;--d:9.5s;--dl:2.2s"></span>
+      <span style="--l:70%;--d:10.5s;--dl:4s"></span>
+      <span style="--l:83%;--d:8.5s;--dl:1s"></span>
+      <span style="--l:92%;--d:11.5s;--dl:3.6s"></span>
+    </div>
+    <div class="menu-fx-corner tl"></div>
+    <div class="menu-fx-corner tr"></div>
+    <div class="menu-fx-corner bl"></div>
+    <div class="menu-fx-corner br"></div>
+  </div>
   <div class="section-box campaign-cta">
     <div class="section-head">
       <div>
@@ -3052,15 +3174,20 @@ function runRemoteSpectator(code, hostFighter, myFighter){
   if(window._stopPlayerControls){ window._stopPlayerControls(); window._stopPlayerControls=null; }
   const canvas = document.getElementById('arena');
   const ctx = canvas.getContext('2d');
+  // [PERF] cap the device pixel ratio at 2 — on 3x phone screens an uncapped DPR silently
+  // triples the canvas's actual pixel area (9x on a naive width*height basis), which is one
+  // of the biggest single causes of stutter on mobile. 2x is still crisp; 3x costs real frames
+  // for pixels most screens can't even resolve the extra detail of.
+  const DPR = Math.min(window.devicePixelRatio||1, 2);
   function fit(){
     const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * devicePixelRatio;
-    canvas.height = rect.height * devicePixelRatio;
+    canvas.width = rect.width * DPR;
+    canvas.height = rect.height * DPR;
   }
   fit();
   window.onresize = fit;
-  const W = ()=>canvas.width/devicePixelRatio;
-  const H = ()=>canvas.height/devicePixelRatio;
+  const W = ()=>canvas.width/DPR;
+  const H = ()=>canvas.height/DPR;
   const MAXHP = 1000;
   const R = 34;
   let latest = null;
@@ -3122,7 +3249,7 @@ function runRemoteSpectator(code, hostFighter, myFighter){
   function draw(now){
     animId = requestAnimationFrame(draw);
     ctx.save();
-    ctx.scale(devicePixelRatio, devicePixelRatio);
+    ctx.scale(DPR, DPR);
     ctx.clearRect(0,0,W(),H());
     if(latest){
       [[latest.p1x,latest.p1y,hostFighter.color],[latest.p2x,latest.p2y,myFighter.color]].forEach(([x,y,color])=>{
@@ -6878,6 +7005,21 @@ const ELEMENTS = [
     passiveDiodeMode:true, diodeModeInterval:3.0, diodeLedTriggerHP:200,
     passiveDesc:'[TECH UPDATE] โหมดไดโอด — ทุก 3 วินาที จะสลับโหมดสีแบบสุ่มระหว่าง RED (ทำให้ติดไฟลุกเมื่อโดน ARC EMITTER), BLUE (ทำให้ช้าลงเมื่อโดน), และ GREEN (ฮีลเลือดตัวเอง 50% ของดาเมจที่ ARC EMITTER ทำได้) | เมื่อผ่านมาแล้วครบทั้ง 3 โหมด หรือเมื่อ HP เหลือ 200 หรือต่ำกว่า จะเข้าสู่โหมด LED ถาวรตลอดแมตช์ที่เหลือ — แสงสีขาวแรงขึ้น ได้ผลของทั้ง 3 โหมดพร้อมกัน (ไฟลุก + ช้าลง + ฮีล) และทำให้ศัตรูติดสถานะ ERROR ทันทีที่โดน',
   },
+  // ===== NEW: ZODIAC (epic) — a constellation-mage whose main attack, STARMAP STRIKE, draws
+  // the current zodiac sign's star-pattern onto the battlefield as an AoE hazard: anyone
+  // caught on its stars/lines takes damage plus a secondary effect that depends entirely on
+  // which of the 12 signs is currently active (burn for the fire signs, slow for earth,
+  // freeze for air, poison for water). A fully independent 5s passive clock — same pattern as
+  // DIODE's mode timer / DRONE's swarm / GLITCH's blink — rotates the active sign every 5
+  // seconds and re-tints the whole arena backdrop to match it, so both the attack's behavior
+  // and the look of the stage itself keep shifting through the zodiac wheel over the match.
+  {
+    id:'zodiac', rarity:'epic', name:'ZODIAC', tag:'ธาตุจักรราศี', color:'#c9a8ff', pow:76, spd:50,
+    abA:{name:'STARMAP STRIKE', desc:'วาดหมู่ดาวของราศีที่กำลังใช้งานอยู่ลงบนสนามรบเป็นรูปแบบเส้นเชื่อมดวงดาวขนาดใหญ่ หน่วงเวลาสั้นๆ ก่อนจะสว่างขึ้น ใครก็ตามที่อยู่บนแนวเส้นหรือจุดดาวตอนที่มันสว่างจะโดนดาเมจ พร้อมเอฟเฟกต์เสริมที่เปลี่ยนไปตามหมู่ดาว (ราศีไฟ=ติดไฟลุก, ราศีดิน=ช้าลง, ราศีลม=แช่แข็ง, ราศีน้ำ=ติดพิษ)', kind:'zodiac', dmgMul:1.6, cd:2.2, telegraph:0.85, radius:185},
+    abB:{name:'CELESTIAL WARD', desc:'เรียกแสงดาวคุ้มกันร่างกาย ลดความเสียหายที่ได้รับชั่วคราว', kind:'shield', reduce:0.5, cd:5.4, dur:1.6},
+    passiveZodiacCycle:true, zodiacCycleInterval:5.0,
+    passiveDesc:'วงจรจักรราศี — ทุก 5 วินาที หมู่ดาวราศีที่กำลังใช้งานอยู่จะหมุนเวียนไปเป็นราศีถัดไป พร้อมเปลี่ยนสีพื้นหลังสนามรบให้ตรงกับราศีนั้นๆ ท่า STARMAP STRIKE จะให้ดาเมจและเอฟเฟกต์เสริมต่างกันไปตามราศีที่กำลังใช้งานอยู่ ณ ขณะนั้น',
+  },
 ];
 
 function buildElementGrid(gridEl, detailEl, statEl, defId, restrictOwned){
@@ -7041,10 +7183,14 @@ function runSimulation(f1,f2, netRole, roomCode){
   if(window._stopBattleLoop){ window._stopBattleLoop(); window._stopBattleLoop=null; }
   const canvas = document.getElementById('arena');
   const ctx = canvas.getContext('2d');
+  // [PERF] same DPR cap as the spectator view above — the main battle canvas is where the
+  // stutter is most felt (dozens of particles/rings/shapes redrawn every frame), so capping
+  // the pixel area here matters even more than in spectator mode.
+  const DPR = Math.min(window.devicePixelRatio||1, 2);
   function fit(){
     const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * devicePixelRatio;
-    canvas.height = rect.height * devicePixelRatio;
+    canvas.width = rect.width * DPR;
+    canvas.height = rect.height * DPR;
   }
   fit();
   window.onresize = fit;
@@ -7061,13 +7207,43 @@ function runSimulation(f1,f2, netRole, roomCode){
   const MAXHP2 = (f2 && typeof f2.__maxHpOverride==='number') ? f2.__maxHpOverride : ((f2 && typeof f2.fixedMaxHp==='number') ? f2.fixedMaxHp : 1000); // enemy side
   const R = 34;
 
-  const SHAPES = {aqua:'droplet', pyro:'triangle', volt:'diamond', terra:'square', frost:'diamond', gale:'triangle', toxin:'circle', radiant:'star', shadow:'diamond', metal:'square', nature:'triangle', sound:'circle', cosmos:'ring', love:'heart', steam:'cloud', microchip:'chip', computer:'monitor', techno:'circuit', glitch:'shard', drone:'rotor', blood:'fang', diode:'diamond'};
+  const SHAPES = {aqua:'droplet', pyro:'triangle', volt:'diamond', terra:'square', frost:'diamond', gale:'triangle', toxin:'circle', radiant:'star', shadow:'diamond', metal:'square', nature:'triangle', sound:'circle', cosmos:'ring', love:'heart', steam:'cloud', microchip:'chip', computer:'monitor', techno:'circuit', glitch:'shard', drone:'rotor', blood:'fang', diode:'diamond', zodiac:'star'};
   function elementShape(id){ return SHAPES[id] || 'circle'; }
 
   // DIODE's four color modes, shared by every DIODE-related system in this battle (the mode
   // clock, the forced LED trigger, the persistent aura ring, and the body glow) so they can
   // never drift out of sync with each other.
   const DIODE_MODE_COLORS = {red:'#ff4d6d', blue:'#4dc7ff', green:'#7dffb0', led:'#ffffff'};
+
+  // ZODIAC's 12 signs — each carries its own star-pattern (a small set of points in a -1..1
+  // box, connected either sequentially or via an explicit `edges` list where the shape needs
+  // branches/loops instead of one continuous line), a signature color used for both the
+  // drawn constellation and the arena backdrop tint while it's active, and a classical
+  // element group (fire/earth/air/water) that decides which secondary status STARMAP STRIKE
+  // applies on hit. Order matches the traditional zodiac wheel so the 5s cycle reads as
+  // actually rotating through the signs rather than jumping around randomly.
+  const ZODIAC_ORDER = ['aries','taurus','gemini','cancer','leo','virgo','libra','scorpio','sagittarius','capricorn','aquarius','pisces'];
+  // [BUFF] every sign now carries more stars (7-8 points instead of 4-6) so each constellation
+  // reads as a fuller, denser pattern rather than a sparse handful of dots, and each sign's
+  // radius/spread scales up together with the bigger abA.radius set above.
+  const ZODIAC_SIGNS = {
+    aries:      {nameTH:'ราศีเมษ',   color:'#ff6b5c', group:'fire',  points:[[-0.9,0.65],[-0.62,0.32],[-0.3,0.1],[0.0,-0.15],[0.32,-0.42],[0.62,-0.68],[0.92,-0.9]]},
+    taurus:     {nameTH:'ราศีพฤษภ',  color:'#8fd97a', group:'earth', points:[[-0.9,-0.7],[-0.55,-0.1],[-0.2,0.4],[0.15,0.75],[0.5,0.4],[0.8,-0.1],[0.95,-0.6],[-0.15,-0.85]], edges:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[2,7]]},
+    gemini:     {nameTH:'ราศีเมถุน', color:'#ffe37a', group:'air',   points:[[-0.7,-0.9],[-0.7,-0.3],[-0.7,0.3],[-0.7,0.9],[0.7,-0.9],[0.7,-0.3],[0.7,0.3],[0.7,0.9]], edges:[[0,1],[1,2],[2,3],[4,5],[5,6],[6,7],[1,5],[2,6]]},
+    cancer:     {nameTH:'ราศีกรกฎ',  color:'#9fe8ff', group:'water', points:[[-0.8,0.1],[-0.4,-0.4],[0.0,0.0],[0.4,-0.4],[0.8,0.1],[-0.15,0.55],[0.15,0.85]], edges:[[0,1],[1,2],[2,3],[3,4],[2,5],[5,6]]},
+    leo:        {nameTH:'ราศีสิงห์', color:'#ffb93f', group:'fire',  points:[[-0.85,0.5],[-0.5,-0.1],[-0.15,0.35],[0.2,-0.3],[0.55,0.05],[0.8,0.55],[0.95,0.85]]},
+    virgo:      {nameTH:'ราศีกันย์', color:'#c2ff6b', group:'earth', points:[[-0.9,-0.4],[-0.55,0.45],[-0.15,-0.2],[0.25,0.6],[0.6,-0.1],[0.9,0.5],[0.5,0.85]]},
+    libra:      {nameTH:'ราศีตุลย์', color:'#ffd6f0', group:'air',   points:[[0.0,-0.85],[0.0,-0.2],[-0.75,0.15],[-0.55,0.55],[0.75,0.15],[0.55,0.55],[0.0,0.85]], edges:[[0,1],[1,2],[2,3],[1,4],[4,5],[1,6]]},
+    scorpio:    {nameTH:'ราศีพิจิก', color:'#c264ff', group:'water', points:[[-0.9,-0.6],[-0.6,-0.15],[-0.25,0.15],[0.1,0.45],[0.45,0.55],[0.75,0.3],[0.85,-0.15]]},
+    sagittarius:{nameTH:'ราศีธนู',   color:'#ff9d4d', group:'fire',  points:[[-0.85,0.85],[-0.2,0.15],[0.85,-0.85],[-0.55,0.55],[-0.15,0.55],[-0.55,-0.05],[0.5,-0.5]], edges:[[0,1],[1,2],[3,1],[4,1],[5,1],[6,2]]},
+    capricorn:  {nameTH:'ราศีมังกร', color:'#c9ced8', group:'earth', points:[[-0.85,-0.35],[-0.45,0.05],[-0.05,-0.25],[0.35,0.4],[0.7,0.75],[0.9,0.5],[0.75,0.15]]},
+    aquarius:   {nameTH:'ราศีกุมภ์', color:'#4dc7ff', group:'air',   points:[[-0.9,-0.3],[-0.6,0.25],[-0.3,-0.3],[0.0,0.25],[0.3,-0.3],[0.6,0.25],[0.9,-0.3]]},
+    pisces:     {nameTH:'ราศีมีน',   color:'#5ce1ff', group:'water', points:[[-0.9,-0.5],[-0.55,-0.1],[-0.85,0.4],[-0.2,0.0],[0.2,0.0],[0.9,0.5],[0.55,0.1],[0.85,-0.4]], edges:[[0,1],[1,2],[2,0],[1,3],[3,4],[4,6],[5,6],[6,7],[7,5]]},
+  };
+  // which secondary status STARMAP STRIKE applies, keyed by the active sign's classical
+  // element group — matches the status object shapes applyDamage already expects elsewhere
+  // (AQUA's puddle-slow, PYRO's burn, FROST's freeze, TOXIN's poison)
+  const ZODIAC_GROUP_EFFECT = {fire:'burn', earth:'slow', air:'freeze', water:'poison'};
 
   // ambient background dust motes — generated once per battle, animated purely as a function
   // of time (Date.now()) in draw(), so no extra per-frame state bookkeeping is needed
@@ -7104,6 +7280,16 @@ function runSimulation(f1,f2, netRole, roomCode){
     speed: 0.12+Math.random()*0.28,
     drift: (Math.random()-0.5)*0.4,
   })) : [];
+  // ZODIAC's own drift-mote set for its backdrop tint, generated unconditionally (unlike
+  // themeParticles above, which only exists for campaign biome stages) so the starfield drift
+  // still shows up in plain PvP/practice matches, not just inside a themed campaign stage
+  const zodiacMotes = Array.from({length:22}, ()=>({
+    x: Math.random(), y: Math.random(),
+    r: 1+Math.random()*2.0,
+    phase: Math.random()*Math.PI*2,
+    speed: 0.1+Math.random()*0.24,
+    drift: (Math.random()-0.5)*0.35,
+  }));
   function drawThemeBackdrop(theme, bgT){
     const cfg = THEME_FX[theme]; if(!cfg) return;
     ctx.save();
@@ -7123,6 +7309,35 @@ function runSimulation(f1,f2, netRole, roomCode){
       ctx.shadowBlur = 7;
       ctx.beginPath();
       ctx.arc(x, y, pt.r, 0, Math.PI*2);
+      ctx.fill();
+    });
+    ctx.shadowBlur = 0;
+    ctx.restore();
+  }
+
+  // ZODIAC's arena re-tint: while a ZODIAC fighter is in the match, the whole backdrop washes
+  // toward whichever sign is currently active (updated by the 5s sign-cycle timer above), the
+  // same layered tint+drift-particle treatment drawThemeBackdrop gives campaign biomes, just
+  // keyed off the live sign instead of a fixed map theme — so the palette actually shifts
+  // over the course of the fight instead of sitting static.
+  function drawZodiacBackdrop(color, bgT){
+    ctx.save();
+    ctx.fillStyle = color;
+    ctx.globalAlpha = 0.20;
+    ctx.fillRect(0,0,W(),H());
+    ctx.restore();
+    ctx.save();
+    zodiacMotes.forEach(pt=>{
+      const life = ((bgT*pt.speed*0.7 + pt.phase/6.28) % 1 + 1) % 1;
+      const x = ((pt.x + bgT*pt.drift*0.02) % 1 + 1) % 1 * W();
+      const y = (1-life) * H();
+      const alpha = Math.sin(life*Math.PI);
+      ctx.globalAlpha = Math.max(0.03, alpha*0.55);
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowColor = color;
+      ctx.shadowBlur = 6;
+      ctx.beginPath();
+      ctx.arc(x, y, pt.r*0.8, 0, Math.PI*2);
       ctx.fill();
     });
     ctx.shadowBlur = 0;
@@ -7747,6 +7962,11 @@ function runSimulation(f1,f2, netRole, roomCode){
       diodeMode: null,
       diodeModeT: def.passiveDiodeMode ? (def.diodeModeInterval||3.0) : 0,
       diodeModesSeen: null,
+      // ZODIAC's active sign + its own independent 5s rotation timer, same pattern as
+      // DIODE's mode clock above — the actual starting sign gets rolled right after the
+      // fighter is constructed (see the [p1,p2].forEach right below makeFighter's calls)
+      zodiacSign: null,
+      zodiacCycleT: def.passiveZodiacCycle ? (def.zodiacCycleInterval||5.0) : 0,
       // which effect currently owns this fighter's rootT lock — lets the renderer draw the
       // right cage (NATURE's woody vines vs the mecharm's electrified metal clamp) instead of
       // always defaulting to vines no matter what actually rooted them
@@ -7770,6 +7990,13 @@ function runSimulation(f1,f2, netRole, roomCode){
       p.diodeMode = startMode;
       p.diodeModesSeen = {[startMode]:true};
       p.def.color = DIODE_MODE_COLORS[startMode];
+    }
+    // ZODIAC opens on a random sign rather than starting undefined, and tints its own body
+    // to match right from the first frame — same treatment DIODE gets above
+    if(p.def.passiveZodiacCycle){
+      const startSign = ZODIAC_ORDER[Math.floor(Math.random()*ZODIAC_ORDER.length)];
+      p.zodiacSign = startSign;
+      p.def.color = ZODIAC_SIGNS[startSign].color;
     }
   });
 
@@ -7824,16 +8051,41 @@ function runSimulation(f1,f2, netRole, roomCode){
   const verdantBlooms = []; // soft expanding flower-bloom flourish drawn once when the root-cage first clamps shut
   const fireBursts = []; // PYRO's MAGMA LANCE: filled fireball flash on impact (rings alone are too thin/weak to read as an explosion)
   const starcharges = [];
+  const constellations = []; // ZODIAC's STARMAP STRIKE: telegraphed constellation-shaped ground hazard — the current
+                              // sign's star-pattern is marked on the field, then lights up and hits whoever's on it
   let shake = {mag:0, t:0};
 
-  function log(msg, hit){
+  // [PERF] log() used to touch the DOM directly on every single call (appendChild + a
+  // scrollHeight read, which forces a synchronous layout) — during a busy exchange that's
+  // dozens of forced reflows per second, a classic source of stutter that has nothing to do
+  // with the canvas rendering at all. Now it just queues the message; a single
+  // requestAnimationFrame callback flushes everything queued that frame in one batched DOM
+  // update, so a flurry of hits in the same frame costs one reflow instead of one each.
+  let _logQueue = [];
+  let _logFlushScheduled = false;
+  function _flushLog(){
+    _logFlushScheduled = false;
+    if(_logQueue.length===0) return;
     const el = document.getElementById('log');
-    const d = document.createElement('div');
-    if(hit) d.className='hit';
-    d.textContent = msg;
-    el.appendChild(d);
-    el.scrollTop = el.scrollHeight;
+    if(!el){ _logQueue.length=0; return; }
+    const frag = document.createDocumentFragment();
+    _logQueue.forEach(({msg,hit})=>{
+      const d = document.createElement('div');
+      if(hit) d.className='hit';
+      d.textContent = msg;
+      frag.appendChild(d);
+    });
+    _logQueue.length = 0;
+    el.appendChild(frag);
     while(el.children.length>40) el.removeChild(el.firstChild);
+    el.scrollTop = el.scrollHeight;
+  }
+  function log(msg, hit){
+    _logQueue.push({msg,hit});
+    if(!_logFlushScheduled){
+      _logFlushScheduled = true;
+      requestAnimationFrame(_flushLog);
+    }
   }
 
   function speedFactor(p){
@@ -8940,6 +9192,20 @@ function runSimulation(f1,f2, netRole, roomCode){
         });
         log(`${p.def.name} ปล่อย ${a.name} เป็นคลื่นกว้างพุ่งออกไปไกล`);
       }
+    } else if(a.kind==='zodiac'){
+      // ZODIAC's STARMAP STRIKE: ground-targeted like TERRA's quake (marks a spot, telegraphs,
+      // then detonates), but shaped like the currently-active sign's constellation instead of
+      // a plain circle, and the secondary status it applies depends on that sign's element
+      // group. Marked centered on the opponent's current spot so it can't be trivially avoided.
+      const sign = p.zodiacSign || ZODIAC_ORDER[0];
+      const rng = a.radius || 135;
+      const cx = target.px, cy = target.py;
+      const telegraph = a.telegraph!=null ? a.telegraph : 0.85;
+      constellations.push({
+        x:cx, y:cy, r:rng, dmg: base*a.dmgMul, owner:p, name:a.name, sign,
+        telegraphT: telegraph, maxTelegraph: telegraph, color:ZODIAC_SIGNS[sign].color
+      });
+      log(`${p.def.name} วาด${ZODIAC_SIGNS[sign].nameTH}ลงบนสนามด้วย ${a.name}`);
     }
   }
 
@@ -9199,8 +9465,8 @@ function runSimulation(f1,f2, netRole, roomCode){
   // so any battle can reach in and silence a previous, still-running one before starting its own.
   window._stopBattleLoop = function(){ running = false; };
   let gameOver = false;
-  const W = ()=>canvas.width/devicePixelRatio;
-  const H = ()=>canvas.height/devicePixelRatio;
+  const W = ()=>canvas.width/DPR;
+  const H = ()=>canvas.height/DPR;
 
   function toPx(p){
     p.px = p.x * W();
@@ -9738,6 +10004,30 @@ function runSimulation(f1,f2, netRole, roomCode){
         }
         log(`${p.def.name} เปลี่ยนโหมดเป็น ${modeLabels[nextMode]}`, true);
       }
+    });
+
+    // ZODIAC's sign clock: every zodiacCycleInterval seconds (5s by default) it rotates to
+    // the next sign in the zodiac wheel — a fully independent passive timer, same pattern as
+    // TECHNO/GLITCH/DRONE/DIODE above. Re-tints both its own body and (via p.zodiacSign,
+    // read directly by drawZodiacBackdrop in the render loop) the whole arena backdrop.
+    [p1,p2].forEach(p=>{
+      if(!p.alive || !p.def.passiveZodiacCycle) return;
+      p.zodiacCycleT -= dt;
+      if(p.zodiacCycleT>0) return;
+      p.zodiacCycleT = p.def.zodiacCycleInterval || 5.0;
+      const curIdx = ZODIAC_ORDER.indexOf(p.zodiacSign);
+      const nextSign = ZODIAC_ORDER[(curIdx+1) % ZODIAC_ORDER.length];
+      p.zodiacSign = nextSign;
+      const info = ZODIAC_SIGNS[nextSign];
+      p.def.color = info.color;
+      toPx(p);
+      floaters.push({x:p.px, y:p.py-p.r-24, text:info.nameTH, life:1.0, vy:-28, color:info.color, big:true});
+      rings.push({x:p.px, y:p.py, r:p.r*0.5, maxR:p.r+34, life:0.5, maxLife:0.5, color:info.color});
+      for(let i=0;i<8;i++){
+        const angZ = Math.random()*Math.PI*2, spdZ = 0.8+Math.random()*1.8;
+        particles.push({x:p.px,y:p.py,vx:Math.cos(angZ)*spdZ,vy:Math.sin(angZ)*spdZ,life:0.5,color:info.color,shape:'star'});
+      }
+      log(`${p.def.name} หมุนสู่${info.nameTH} — พื้นหลังสนามเปลี่ยนไปตามหมู่ดาว`, true);
     });
 
     // LOVE's CUPID'S RAIN: while active, spawn a new beam crashing down at a random x-position
@@ -10375,6 +10665,49 @@ function runSimulation(f1,f2, netRole, roomCode){
         }
         playQuakeSFX();
         quakes.splice(i,1);
+      }
+    }
+
+    // ZODIAC's constellation hazard: counts down like TERRA's quake, then lights up and hits
+    // whoever's standing anywhere across its star-pattern (checked against each individual
+    // star point, not just the marked center) with damage plus a status effect that depends
+    // on the sign's element group (fire=burn, earth=slow, air=freeze, water=poison).
+    for(let i=constellations.length-1;i>=0;i--){
+      const c = constellations[i];
+      c.telegraphT -= dt;
+      if(c.telegraphT<=0){
+        const info = ZODIAC_SIGNS[c.sign];
+        const groupEffect = ZODIAC_GROUP_EFFECT[info.group];
+        const poisonArg = groupEffect==='poison' ? {dur:3.2} : null;
+        const burnArg = groupEffect==='burn' ? {dur:2.6} : null;
+        const freezeArg = groupEffect==='freeze';
+        const slowArg = groupEffect==='slow' ? {dur:1.6} : null;
+        [p1,p2].forEach(f=>{
+          if(!f.alive || f===c.owner) return;
+          toPx(f);
+          // hit if standing near any individual star point of the pattern, not just the center —
+          // reads as "touching the constellation" rather than a plain circular blast
+          const hitAny = info.points.some(pt=>{
+            const px2 = c.x + pt[0]*c.r, py2 = c.y + pt[1]*c.r;
+            return Math.hypot(f.px-px2, f.py-py2) < f.r+32;
+          }) || Math.hypot(f.px-c.x, f.py-c.y) < f.r+c.r*0.5;
+          if(hitAny){
+            applyDamage(f, c.dmg, c.owner.def.name, c.name+' ('+info.nameTH+')', poisonArg, burnArg, freezeArg, c.owner, null, slowArg);
+          }
+          tryHitClone(f, c.x, c.y, c.r, c.dmg, c.owner.def.name, c.name);
+        });
+        shake.mag = Math.max(shake.mag, 8); shake.t = Math.max(shake.t, 0.3);
+        rings.push({x:c.x,y:c.y,r:c.r*0.3,maxR:c.r*1.15,life:0.5,maxLife:0.5,color:c.color});
+        rings.push({x:c.x,y:c.y,r:c.r*0.15,maxR:c.r*0.9,life:0.35,maxLife:0.35,color:'#ffffff'});
+        info.points.forEach(pt=>{
+          const px2 = c.x + pt[0]*c.r, py2 = c.y + pt[1]*c.r;
+          for(let k=0;k<6;k++){
+            const angS = Math.random()*Math.PI*2, spdS = 0.8+Math.random()*2.4;
+            particles.push({x:px2,y:py2,vx:Math.cos(angS)*spdS,vy:Math.sin(angS)*spdS,life:0.55,color:c.color,shape:'star'});
+          }
+        });
+        playQuakeSFX();
+        constellations.splice(i,1);
       }
     }
 
@@ -11146,6 +11479,11 @@ function runSimulation(f1,f2, netRole, roomCode){
       pt.x+=pt.vx; pt.y+=pt.vy; pt.vx*=0.94; pt.vy*=0.94; pt.life-=dt;
       if(pt.life<=0) particles.splice(i,1);
     }
+    // [PERF] safety valve — life-based culling above handles the normal case, but overlapping
+    // bursts (e.g. a legendary reveal-style confetti moment landing mid-fight alongside a
+    // multi-hit combo) can briefly outrun it. Hard-capping at 260 by dropping the oldest first
+    // caps the per-frame draw cost of the busiest possible moment instead of letting it spike.
+    if(particles.length>260) particles.splice(0, particles.length-260);
     for(let i=rings.length-1;i>=0;i--){
       const r=rings[i];
       r.life-=dt;
@@ -11666,7 +12004,7 @@ function runSimulation(f1,f2, netRole, roomCode){
   }
 
   function draw(){
-    ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+    ctx.setTransform(DPR,0,0,DPR,0,0);
     ctx.clearRect(0,0,W(),H());
 
     let sx=0, sy=0;
@@ -11693,6 +12031,12 @@ function runSimulation(f1,f2, netRole, roomCode){
     // campaign biome tint + drifting particles sit right on top of the base wash, underneath
     // everything else, so the hex lattice / fighter glows / motes still read clearly on top
     if(battleTheme) drawThemeBackdrop(battleTheme, bgT);
+
+    // ZODIAC's live arena re-tint: whichever ZODIAC fighter is present, use its currently
+    // active sign's color (prefers p1 if both happen to be ZODIAC, so the tint stays stable
+    // rather than fighting between the two each frame)
+    const zodiacFighter = p1.def.passiveZodiacCycle ? p1 : (p2.def.passiveZodiacCycle ? p2 : null);
+    if(zodiacFighter && zodiacFighter.zodiacSign) drawZodiacBackdrop(ZODIAC_SIGNS[zodiacFighter.zodiacSign].color, bgT);
 
     // each fighter's corner glow now breathes gently instead of sitting static
     const pulseA = 0.65 + 0.35*Math.sin(bgT*0.7);
@@ -12491,6 +12835,38 @@ function runSimulation(f1,f2, netRole, roomCode){
       ctx.beginPath();
       ctx.arc(q.x, q.y, q.r, 0, Math.PI*2);
       ctx.stroke();
+      ctx.restore();
+    });
+
+    // ZODIAC's constellation telegraph — the current sign's star-pattern drawn as connected
+    // points, brightening from a faint outline up to a fully-lit constellation as its timer
+    // runs out, so the shape (and which points will actually hit) is readable before it fires
+    constellations.forEach(c=>{
+      const info = ZODIAC_SIGNS[c.sign];
+      const t = 1 - Math.max(0,c.telegraphT)/c.maxTelegraph;
+      const pulse = 0.5 + 0.3*Math.sin(Date.now()/100);
+      const pts = info.points.map(pt=>({x:c.x+pt[0]*c.r, y:c.y+pt[1]*c.r}));
+      const edges = info.edges || pts.map((_,i)=>[i,i+1]).slice(0,-1);
+      ctx.save();
+      ctx.strokeStyle = c.color;
+      ctx.lineWidth = 1.4 + t*2.2;
+      ctx.globalAlpha = (0.25 + t*0.6) * pulse;
+      ctx.shadowColor = c.color;
+      ctx.shadowBlur = 6 + t*14;
+      edges.forEach(([ia,ib])=>{
+        ctx.beginPath();
+        ctx.moveTo(pts[ia].x, pts[ia].y);
+        ctx.lineTo(pts[ib].x, pts[ib].y);
+        ctx.stroke();
+      });
+      ctx.globalAlpha = 0.35 + t*0.65;
+      pts.forEach(pt2=>{
+        ctx.beginPath();
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowBlur = 10 + t*12;
+        ctx.arc(pt2.x, pt2.y, 2.8 + t*2.6, 0, Math.PI*2);
+        ctx.fill();
+      });
       ctx.restore();
     });
 

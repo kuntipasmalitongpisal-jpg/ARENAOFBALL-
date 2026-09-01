@@ -3528,11 +3528,16 @@ function wireEpicChoiceEvents(){
       const elemId = card.dataset.id;
       const elem = ELEMENTS.find(e=>e.id===elemId);
       if(!elem) return;
-      const isNew = grantCharacterDirect(elemId);
-      const msg = {ok:true, msg:`ได้รับ ${elem.name} ${isNew?'(ตัวใหม่!)':'(ซ้ำ +1 เศษ)'} แล้ว! 🎉`};
-      document.getElementById('listModalTitle').textContent = 'แลกโค้ดรับรางวัล';
-      document.getElementById('listModalBody').innerHTML = renderRedeemBody(msg);
-      wireRedeemEvents();
+      // now plays the same charge/reveal animation every other character grant in the game
+      // uses (via window.gachaPull) before crediting the pick — picking from this box used to
+      // hand over the character silently behind a small text confirmation, easy to miss.
+      window.gachaPull(()=>elem, ()=>{
+        const isNew = grantCharacterDirect(elemId);
+        const msg = {ok:true, msg:`ได้รับ ${elem.name} ${isNew?'(ตัวใหม่!)':'(ซ้ำ +1 เศษ)'} แล้ว! 🎉`};
+        document.getElementById('listModalTitle').textContent = 'แลกโค้ดรับรางวัล';
+        document.getElementById('listModalBody').innerHTML = renderRedeemBody(msg);
+        wireRedeemEvents();
+      });
     };
   });
 }
@@ -6317,23 +6322,30 @@ function endHackGame(perfectClear, quit){
     persistSave();
     refreshGemsUI();
   }
+  const showResult = (diodeMsg)=>{
+    onlineStatusMsg(perfectClear
+      ? `🖥️ แฮ็กสำเร็จครบ ${MINIGAME_MAX_ROUNDS} รอบ! +${gearWon}🔩${diodeMsg||''}`
+      : (quit
+          ? `🖥️ ออกจากเกม — เก็บได้ ${roundsCleared} รอบ +${gearWon}🔩`
+          : (roundsCleared>0 ? `🖥️ พลาด — ผ่านมา ${roundsCleared} รอบ +${gearWon}🔩` : `🖥️ พลาดตั้งแต่รอบแรก — ลองใหม่อีกครั้ง`)));
+    renderEventMinigame();
+  };
   // perfect-clearing all MINIGAME_MAX_ROUNDS rounds also grants DIODE directly (a dupe pull
   // just turns into +1 upgrade shard, same convention as the event gacha/shop above) — this
-  // is the minigame's own character reward, separate from the Gear payout.
-  let diodeMsg = '';
+  // is the minigame's own character reward, separate from the Gear payout. Now shown through
+  // the same animated pull/reveal overlay every other grant uses instead of landing silently
+  // behind a small status toast the player could easily scroll past and miss entirely.
   if(perfectClear){
     const diodeElem = ELEMENTS.find(e=>e.id==='diode');
     if(diodeElem){
-      const diodeIsNew = grantCharacterDirect('diode');
-      diodeMsg = ` 🔆 ได้รับ ${diodeElem.name} ${diodeIsNew?'(ตัวใหม่!)':'(ซ้ำ +1 เศษ)'}!`;
+      window.gachaPull(()=>diodeElem, ()=>{
+        const diodeIsNew = grantCharacterDirect('diode');
+        showResult(` 🔆 ได้รับ ${diodeElem.name} ${diodeIsNew?'(ตัวใหม่!)':'(ซ้ำ +1 เศษ)'}!`);
+      });
+      return;
     }
   }
-  onlineStatusMsg(perfectClear
-    ? `🖥️ แฮ็กสำเร็จครบ ${MINIGAME_MAX_ROUNDS} รอบ! +${gearWon}🔩${diodeMsg}`
-    : (quit
-        ? `🖥️ ออกจากเกม — เก็บได้ ${roundsCleared} รอบ +${gearWon}🔩`
-        : (roundsCleared>0 ? `🖥️ พลาด — ผ่านมา ${roundsCleared} รอบ +${gearWon}🔩` : `🖥️ พลาดตั้งแต่รอบแรก — ลองใหม่อีกครั้ง`)));
-  renderEventMinigame();
+  showResult('');
 }
 
 function renderEventQuests(){
@@ -6526,10 +6538,17 @@ function playLifestealSFX(){
   sfxNoise({dur:0.2,vol:0.08,freq:1800,filterType:'bandpass',Q:1.5,delay:0.02});
 }
 
-// water puddle slow proc sound (aqua's TIDAL BOLT splash)
+// water puddle zone proc sound (AQUA's TIDAL BOLT puddle-zone specifically)
 function playPuddleSFX(){
   sfxNoise({dur:0.18,vol:0.16,freq:2200,endFreq:600,filterType:'bandpass',Q:0.8});
   sfxTone({freq:500,endFreq:220,type:'sine',dur:0.24,vol:0.12,delay:0.02});
+}
+
+// generic slow-on-hit proc sound — a dull, draggy thud instead of a liquid splash, since the
+// direct `slow` field is used by STEAM/MUD/AMBER/DIODE etc., none of which are water
+function playSlowSFX(){
+  sfxTone({freq:260,endFreq:140,type:'triangle',dur:0.22,vol:0.13});
+  sfxNoise({dur:0.14,vol:0.08,freq:900,endFreq:400,filterType:'lowpass',delay:0.02});
 }
 
 // TERRA's QUAKE SLAM detonation — the actual heavy boom once the telegraphed zone goes off
@@ -7020,6 +7039,75 @@ const ELEMENTS = [
     passiveZodiacCycle:true, zodiacCycleInterval:5.0,
     passiveDesc:'วงจรจักรราศี — ทุก 5 วินาที หมู่ดาวราศีที่กำลังใช้งานอยู่จะหมุนเวียนไปเป็นราศีถัดไป พร้อมเปลี่ยนสีพื้นหลังสนามรบให้ตรงกับราศีนั้นๆ ท่า STARMAP STRIKE จะให้ดาเมจและเอฟเฟกต์เสริมต่างกันไปตามราศีที่กำลังใช้งานอยู่ ณ ขณะนั้น',
   },
+  // ===== NEW: 5 common-rarity characters — each built around one clean, non-overlapping
+  // role (skirmisher / tank / burst-poke / control-anchor / sustain) so the common tier
+  // reads as five distinct playstyles instead of five reskins of the same kit. Every
+  // ability 'kind' and passive flag used below (volley, haste+evadeDur, slash, shield+
+  // immovable, projectile+burn/slow, wave, heal, *Immune, flatReduce, regenPerSec) already
+  // exists and is driven generically by other characters above — no new engine logic
+  // needed for any of it to work.
+  {
+    // Evasive skirmisher: chips away with a 3-shot spread, then vanishes into a puff and
+    // reappears a beat later — untouchable, not tanky. Immune to slow fits a character
+    // made of loose, weightless grit that can't be pinned down.
+    id:'dust', rarity:'common', name:'DUST', tag:'ธาตุฝุ่น', color:'#d4c48a', pow:48, spd:74,
+    abA:{name:'GRIT VOLLEY', desc:'สะบัดเม็ดทรายกระจายออกไป 3 นัดพร้อมกันเป็นรูปพัดแคบๆ นัดสุดท้ายที่โดนจะทำให้เคลื่อนไหวช้าลงเล็กน้อย', kind:'volley', dmgMul:0.45, cd:1.3, count:3, slow:{dur:1.0}},
+    abB:{name:'DUST STEP', desc:'สลายร่างเป็นกลุ่มฝุ่นวูบหนึ่ง หลบการโจมตีทุกชนิดได้ชั่วครู่ ก่อนจะเร่งความเร็วต่อเนื่อง', kind:'haste', mult:1.35, cd:5.2, dur:1.4, evadeDur:0.3},
+    passiveSlowImmune:true, passiveDesc:'ตัวเบาหวิวปลิวไปกับสายลม — ไม่มีวันถูกทำให้เคลื่อนไหวช้าลง',
+  },
+  {
+    // Stalwart brawler: the only common built to trade hits at point-blank range instead
+    // of poking. STONE SKIN roots it in place on purpose — leaning into the tank identity
+    // rather than avoiding the usual "shield = also mobile" pattern.
+    id:'pebble', rarity:'common', name:'PEBBLE', tag:'ธาตุก้อนหิน', color:'#a89f91', pow:58, spd:46,
+    abA:{name:'BOULDER SLAM', desc:'ทุ่มก้อนหินขนาดใหญ่ฟาดระยะประชิด ไม่ต้องพุ่งชน', kind:'slash', dmgMul:1.2, cd:1.7, range:90},
+    abB:{name:'STONE SKIN', desc:'ยืนหยัดแน่นดั่งหิน ไม่ถูกผลักหรือกระเด็นระหว่างนี้ พร้อมลดความเสียหายที่ได้รับ', kind:'shield', reduce:0.46, cd:5.6, dur:1.6, immovable:true},
+    passiveFlatReduce:4, passiveDesc:'ผิวหนาแกร่งดั่งหิน — ลดความเสียหายที่ได้รับทุกครั้งแบบคงที่ 4 หน่วย',
+  },
+  {
+    // Glass-cannon poke: highest power of the commons, lowest survivability trade-off —
+    // a light single-stack burn is the only DOT among the commons, kept clearly weaker
+    // than PYRO's stacking inferno so it reads as "a spark," not a cheap Pyro.
+    id:'ember', rarity:'common', name:'EMBER', tag:'ธาตุประกายไฟ', color:'#ffb347', pow:64, spd:60,
+    abA:{name:'EMBER SPARK', desc:'สะบัดก้อนประกายไฟพุ่งออกไปเป็นเส้นตรงความเร็วสูง โดนแล้วติดไฟลุกเล็กน้อย', kind:'projectile', dmgMul:0.78, cd:1.4, burn:{dur:1.6}, fastSpark:true},
+    abB:{name:'FLARE UP', desc:'ปลุกความร้อนในตัวเร่งความเร็วชั่วคราว', kind:'haste', mult:1.4, cd:5.5, dur:1.8},
+    passiveBurnImmune:true, passiveDesc:'ตัวเป็นไฟอยู่แล้ว — ไม่ติดสถานะไฟลุกไหม้ซ้ำจากศัตรูอีก',
+  },
+  {
+    // Control anchor: the only common that leans entirely into locking an opponent down —
+    // long slow on the poke, then digs in and gets heavier instead of dodging. The charm
+    // immunity is a deliberately silly, unclaimed niche (nothing else in the roster resists
+    // LOVE's charm yet) — a lump of mud too thick-skinned to fall for Cupid's arrow.
+    id:'mud', rarity:'common', name:'MUD', tag:'ธาตุโคลน', color:'#6b5842', pow:50, spd:42,
+    abA:{name:'MUD SLING', desc:'ปาก้อนโคลนเหนียวใส่คู่ต่อสู้ โดนแล้วเคลื่อนไหวช้าลงนานเป็นพิเศษ', kind:'projectile', dmgMul:0.9, cd:1.35, slow:{dur:1.8}},
+    abB:{name:'QUICKSAND GUARD', desc:'จมตัวลงในโคลนหนา ยืนหยัดแน่นไม่ถูกผลัก พร้อมลดความเสียหายที่ได้รับ', kind:'shield', reduce:0.42, cd:5.6, dur:1.5, immovable:true},
+    passiveCharmImmune:true, passiveDesc:'หัวใจหนาเหมือนโคลนแห้ง — ไม่มีวันติดสถานะหลงรัก',
+  },
+  {
+    // Sustain support: the softest hitter of the commons, trading damage for a wide gentle
+    // wave and steady self-mend — a lightweight support archetype the other four commons
+    // don't cover (they all either poke, tank, or control; none of them heal).
+    id:'feather', rarity:'common', name:'FEATHER', tag:'ธาตุขนนก', color:'#e3ecf7', pow:44, spd:76,
+    abA:{name:'DOWN DRIFT', desc:'ปล่อยขนนกฟุ้งกระจายออกไปเป็นวงกว้างรอบตัว เบาแต่ครอบคลุมพื้นที่ไกล', kind:'wave', dmgMul:0.42, cd:1.7, range:140, coneDeg:130, dur:0.3},
+    abB:{name:'PLUME MEND', desc:'ห่มขนนกอุ่นรอบตัว ฟื้นฟู HP', kind:'heal', amount:38, cd:4.8},
+    passiveRegenPerSec:2, passiveDesc:'ขนนกอ่อนนุ่ม — ฟื้นฟู HP เองอย่างช้าๆ ตลอดเวลาที่ยังมีชีวิต (~2/วิ)',
+  },
+  {
+    // New uncommon #1: a glassy melee-dasher with a defensive shell — fills the same
+    // "aggressive uncommon" slot as GALE/SHADOW but with obsidian's own reflective-armor spin.
+    id:'obsidian', rarity:'uncommon', name:'OBSIDIAN', tag:'ธาตุออบซิเดียน', color:'#8f6bd9', pow:72, spd:50,
+    abA:{name:'GLASS FANG', desc:'พุ่งเข้าหาด้วยเศษแก้วภูเขาไฟคมกริบระยะสั้น ฟันแรงกว่าการพุ่งชนทั่วไป', kind:'dash', dmgMul:1.2, cd:1.6, dashSpeed:1.5, dashDur:0.55, knockback:1.1},
+    abB:{name:'OBSIDIAN SHELL', desc:'ห่อหุ้มตัวด้วยเปลือกแก้วภูเขาไฟแข็งเงา ลดความเสียหายที่ได้รับชั่วคราว', kind:'shield', reduce:0.45, cd:5.5, dur:1.5},
+    passiveReflectPct:0.15, passiveDesc:'ผิวออบซิเดียนคม — สะท้อน 15% ของความเสียหายที่ได้รับกลับใส่คู่ต่อสู้ตลอดเวลา',
+  },
+  {
+    // New uncommon #2: a sticky-control + steady-sustain support, giving the uncommon tier a
+    // gentler slow-and-heal option alongside the more aggressive OBSIDIAN above.
+    id:'amber', rarity:'uncommon', name:'AMBER', tag:'ธาตุอำพัน', color:'#f2a93d', pow:62, spd:56,
+    abA:{name:'RESIN SHOT', desc:'ยิงหยดยางอำพันเหนียวใส่คู่ต่อสู้ โดนแล้วเคลื่อนไหวช้าลงนานเป็นพิเศษ', kind:'projectile', dmgMul:0.95, cd:1.25, slow:{dur:2.0}},
+    abB:{name:'FOSSIL MEND', desc:'ห่อหุ้มตัวเองด้วยยางอำพันอุ่น ฟื้นฟู HP', kind:'heal', amount:48, cd:4.7},
+    passiveRegenPerSec:1.5, passiveDesc:'ยางอำพันซึมซาบ — ฟื้นฟู HP เองอย่างช้าๆ ตลอดเวลาที่ยังมีชีวิต (~1.5/วิ)',
+  },
 ];
 
 function buildElementGrid(gridEl, detailEl, statEl, defId, restrictOwned){
@@ -7207,7 +7295,7 @@ function runSimulation(f1,f2, netRole, roomCode){
   const MAXHP2 = (f2 && typeof f2.__maxHpOverride==='number') ? f2.__maxHpOverride : ((f2 && typeof f2.fixedMaxHp==='number') ? f2.fixedMaxHp : 1000); // enemy side
   const R = 34;
 
-  const SHAPES = {aqua:'droplet', pyro:'triangle', volt:'diamond', terra:'square', frost:'diamond', gale:'triangle', toxin:'circle', radiant:'star', shadow:'diamond', metal:'square', nature:'triangle', sound:'circle', cosmos:'ring', love:'heart', steam:'cloud', microchip:'chip', computer:'monitor', techno:'circuit', glitch:'shard', drone:'rotor', blood:'fang', diode:'diamond', zodiac:'star'};
+  const SHAPES = {aqua:'droplet', pyro:'triangle', volt:'diamond', terra:'square', frost:'diamond', gale:'triangle', toxin:'circle', radiant:'star', shadow:'diamond', metal:'square', nature:'triangle', sound:'circle', cosmos:'ring', love:'heart', steam:'cloud', microchip:'chip', computer:'monitor', techno:'circuit', glitch:'shard', drone:'rotor', blood:'fang', diode:'diamond', zodiac:'star', dust:'grain', pebble:'stone', ember:'spark', mud:'splat', feather:'plume'};
   function elementShape(id){ return SHAPES[id] || 'circle'; }
 
   // DIODE's four color modes, shared by every DIODE-related system in this battle (the mode
@@ -7461,6 +7549,56 @@ function runSimulation(f1,f2, netRole, roomCode){
         ctx.quadraticCurveTo(bx-side*size*0.3, -size*0.65, bx, -size*0.95);
         ctx.closePath();
       });
+    } else if(shape==='grain'){
+      // DUST's mark: a small irregular sand grain — a lopsided little pebble-speck rather
+      // than a clean circle, so it reads as "loose grit" not a plain dot
+      ctx.moveTo(size*0.9,-size*0.15);
+      ctx.lineTo(size*0.35,-size*0.85);
+      ctx.lineTo(-size*0.6,-size*0.55);
+      ctx.lineTo(-size*0.85,size*0.25);
+      ctx.lineTo(-size*0.1,size*0.9);
+      ctx.lineTo(size*0.7,size*0.5);
+      ctx.closePath();
+    } else if(shape==='stone'){
+      // PEBBLE's mark: a chunky faceted rock — flat angled sides instead of a rounded blob,
+      // reads as "solid mineral" and doubles as BOULDER SLAM's thrown-rock silhouette
+      ctx.moveTo(0,-size*1.05);
+      ctx.lineTo(size*0.75,-size*0.5);
+      ctx.lineTo(size*0.9,size*0.35);
+      ctx.lineTo(size*0.25,size*1.0);
+      ctx.lineTo(-size*0.55,size*0.8);
+      ctx.lineTo(-size*0.95,size*0.05);
+      ctx.lineTo(-size*0.5,-size*0.75);
+      ctx.closePath();
+    } else if(shape==='spark'){
+      // EMBER's mark: a slim flickering flame-spark tapering to a point — smaller and
+      // sharper than PYRO's full triangle flame, reads as "a single ember" not a bonfire
+      ctx.moveTo(0,-size*1.2);
+      ctx.quadraticCurveTo(size*0.55,-size*0.2,size*0.3,size*0.5);
+      ctx.quadraticCurveTo(size*0.12,size*0.95,0,size*1.1);
+      ctx.quadraticCurveTo(-size*0.12,size*0.95,-size*0.3,size*0.5);
+      ctx.quadraticCurveTo(-size*0.55,-size*0.2,0,-size*1.2);
+      ctx.closePath();
+    } else if(shape==='splat'){
+      // MUD's mark: a lopsided blob with a drooping drip tail — reads as "wet mud splatter"
+      // rather than STEAM's clean puffy cloud
+      ctx.arc(-size*0.35,-size*0.15,size*0.62,0,Math.PI*2);
+      ctx.arc(size*0.4,-size*0.05,size*0.5,0,Math.PI*2);
+      ctx.moveTo(size*0.1,size*0.3);
+      ctx.quadraticCurveTo(size*0.28,size*0.75,size*0.05,size*1.15);
+      ctx.quadraticCurveTo(-size*0.12,size*0.75,size*0.1,size*0.3);
+    } else if(shape==='plume'){
+      // FEATHER's mark: a single downy feather — a curved quill spine with a soft vane —
+      // reads instantly as "feather", distinct from any other glyph in the roster
+      ctx.moveTo(0,size*1.05);
+      ctx.quadraticCurveTo(size*0.05,size*0.2,0,-size*1.05);
+      ctx.quadraticCurveTo(size*0.85,-size*0.55,size*0.15,-size*0.05);
+      ctx.quadraticCurveTo(size*0.75,size*0.3,size*0.08,size*0.55);
+      ctx.quadraticCurveTo(size*0.55,size*0.85,0,size*1.05);
+      ctx.quadraticCurveTo(-size*0.55,size*0.85,-size*0.08,size*0.55);
+      ctx.quadraticCurveTo(-size*0.75,size*0.3,-size*0.15,-size*0.05);
+      ctx.quadraticCurveTo(-size*0.85,-size*0.55,0,-size*1.05);
+      ctx.closePath();
     } else if(shape==='rotor'){
       // DRONE's mark: a small quadcopter glyph — a hub with four angled arms, each tipped
       // with a rotor ring, so it reads instantly as "drone" rather than a generic square
@@ -8545,18 +8683,23 @@ function runSimulation(f1,f2, netRole, roomCode){
       }
     }
 
-    // water puddle: AQUA's TIDAL BOLT leaves a slick that slows the target on hit
+    // generic slow application: themed to whichever element actually caused it instead of
+    // always showing AQUA's water-splash — AQUA's own TIDAL BOLT slow comes from the separate
+    // `puddle` zone mechanic below, so this path is really STEAM/MUD/AMBER/DIODE(blue) etc.,
+    // none of which should look or read as "stuck in a puddle"
     if(slow && target.hp>0 && !target.def.passiveSlowImmune){
       target.slowT = Math.max(target.slowT||0, slow.dur||1.6);
       toPx(target);
-      playPuddleSFX();
-      rings.push({x:target.px,y:target.py+target.r*0.5,r:target.r*0.4,maxR:target.r+24,life:0.6,maxLife:0.6,color:'#2fb8ff'});
-      for(let i=0;i<10;i++){
+      const slowColor = (attacker && attacker.def && attacker.def.color) || '#c9c9d6';
+      const slowShape = (attacker && attacker.def && elementShape(attacker.def.__elemId)) || 'circle';
+      playSlowSFX();
+      rings.push({x:target.px,y:target.py,r:target.r*0.5,maxR:target.r+22,life:0.5,maxLife:0.5,color:slowColor});
+      for(let i=0;i<9;i++){
         const ang = Math.random()*Math.PI*2;
-        const spd7 = 0.6+Math.random()*1.8;
-        particles.push({x:target.px,y:target.py+target.r*0.5,vx:Math.cos(ang)*spd7,vy:Math.sin(ang)*spd7*0.4,life:0.5,color:'#2fb8ff',shape:'droplet'});
+        const spd7 = 0.5+Math.random()*1.4;
+        particles.push({x:target.px,y:target.py,vx:Math.cos(ang)*spd7,vy:Math.sin(ang)*spd7*0.5,life:0.4,color:slowColor,shape:slowShape});
       }
-      floaters.push({x:target.px, y:target.py-target.r-20, text:'ติดบ่อน้ำ!', life:0.75, vy:-26, color:'#2fb8ff', big:false});
+      floaters.push({x:target.px, y:target.py-target.r-20, text:'ช้าลง!', life:0.7, vy:-24, color:slowColor, big:false});
     } else if(slow && target.hp>0 && target.def.passiveSlowImmune){
       toPx(target);
       floaters.push({x:target.px, y:target.py-target.r-20, text:'ต้านช้า!', life:0.6, vy:-22, color:'#8bffd6', big:false});
@@ -8909,13 +9052,44 @@ function runSimulation(f1,f2, netRole, roomCode){
         const isMicrochipBit = p.def.id==='microchip';
         const isDroneScrap = p.def.id==='drone';
         const isBloodFang = p.def.id==='blood';
+        const isMudBlob = p.def.id==='mud';
+        const isFastSpark = !!a.fastSpark;
+        const isAmberDrop = p.def.id==='amber';
         projectiles.push({
-          x:p.px,y:p.py, vx:dx/d*(isVaporJet?6:7), vy:dy/d*(isVaporJet?6:7), owner:p, target,
-          dmg: base*a.dmgMul, color:p.def.color, life:2.2, name:a.name, trail:[], trailMax:isVaporJet?18:(isMicrochipBit?9:6), hitRadius:isVaporJet?15:6, shape, poison:a.poison, burn:a.burn, freeze:a.freeze, lifesteal:a.lifesteal, slow:a.slow, pull:a.pull, charm:a.charm, puddle:a.puddle, scald:a.scald, chip:a.chip,
-          pierce:a.pierce, hitCooldown:0, explodeOnWall:a.explodeOnWall, explodeOnHit:a.explodeOnHit, explodeDmgMul:a.explodeDmgMul, explodeRadius:a.explodeRadius, fireball:a.fireball, frostshard:isFrostShard, thornVine:isThornVine, microchipBit:isMicrochipBit, droneScrap:isDroneScrap, bloodFang:isBloodFang,
+          x:p.px,y:p.py, vx:dx/d*(isVaporJet?6:(isFastSpark?11:(isAmberDrop?5.2:7))), vy:dy/d*(isVaporJet?6:(isFastSpark?11:(isAmberDrop?5.2:7))), owner:p, target,
+          dmg: base*a.dmgMul, color:p.def.color, life:2.2, name:a.name, trail:[], trailMax:isVaporJet?18:(isMicrochipBit?9:(isFastSpark?10:(isAmberDrop?12:6))), hitRadius:isVaporJet?15:(isAmberDrop?8:6), shape, poison:a.poison, burn:a.burn, freeze:a.freeze, lifesteal:a.lifesteal, slow:a.slow, pull:a.pull, charm:a.charm, puddle:a.puddle, scald:a.scald, chip:a.chip,
+          pierce:a.pierce, hitCooldown:0, explodeOnWall:a.explodeOnWall, explodeOnHit:a.explodeOnHit, explodeDmgMul:a.explodeDmgMul, explodeRadius:a.explodeRadius, fireball:a.fireball, frostshard:isFrostShard, thornVine:isThornVine, microchipBit:isMicrochipBit, droneScrap:isDroneScrap, bloodFang:isBloodFang, mudBlob:isMudBlob, fastSpark:isFastSpark, amberDrop:isAmberDrop,
           spin: Math.random()*Math.PI*2
         });
         rings.push({x:p.px,y:p.py,r:p.r,maxR:p.r+18,life:0.3,maxLife:0.3,color:p.def.color});
+        // EMBER SPARK muzzle: a quick flick of small flame trailing behind a fast-moving
+        // spark — a thrown coal, not a lightning discharge, so it looks nothing like VOLT
+        if(isFastSpark){
+          for(let esp=0; esp<5; esp++){
+            const angEs = Math.atan2(dy,dx) + (Math.random()-0.5)*0.5;
+            const spdEs = 0.6+Math.random()*1.8;
+            particles.push({x:p.px,y:p.py,vx:Math.cos(angEs)*spdEs,vy:Math.sin(angEs)*spdEs,life:0.24,color:['#ffb347','#ff6b3d','#ffe08a'][esp%3],shape:'spark'});
+          }
+        }
+        // MUD's MUD SLING muzzle: a few heavy clods flick off the main blob as it's flung,
+        // trailing short and falling quickly — reads as wet, heavy earth rather than a light shot
+        if(isMudBlob){
+          for(let mdp=0; mdp<6; mdp++){
+            const angM2 = Math.atan2(dy,dx) + (Math.random()-0.5)*0.5;
+            const spdM2 = 1+Math.random()*2.4;
+            particles.push({x:p.px,y:p.py,vx:Math.cos(angM2)*spdM2,vy:Math.sin(angM2)*spdM2+0.4,life:0.32,color:['#6b5842','#8a7358','#4d3f2e'][mdp%3],shape:'splat'});
+          }
+        }
+        // AMBER's RESIN SHOT muzzle: a few thick amber droplets stretching off the main blob
+        // as it's flung, slower and heavier-looking than a normal shot, reading as sticky
+        // resin rather than a light projectile
+        if(isAmberDrop){
+          for(let amp=0; amp<5; amp++){
+            const angAm = Math.atan2(dy,dx) + (Math.random()-0.5)*0.4;
+            const spdAm = 0.5+Math.random()*1.5;
+            particles.push({x:p.px,y:p.py,vx:Math.cos(angAm)*spdAm,vy:Math.sin(angAm)*spdAm+0.3,life:0.4+Math.random()*0.2,color:['#f2a93d','#ffcf7a','#c9860f'][amp%3],shape:'droplet'});
+          }
+        }
         // DRONE's SCRAP SHOT muzzle: a spray of hot metal shavings kicked out at the barrel,
         // reading as a real mechanical gun-shot instead of a plain colored bolt leaving the body
         if(isDroneScrap){
@@ -8976,6 +9150,7 @@ function runSimulation(f1,f2, netRole, roomCode){
           });
         }
       } else {
+        const isGritVolley = p.def.id==='dust';
         for(let i=0;i<n;i++){
           setTimeout(()=>{
             if(!p.alive===false){} // no-op guard
@@ -8986,6 +9161,15 @@ function runSimulation(f1,f2, netRole, roomCode){
               x:p.px,y:p.py, vx:jx, vy:jy, owner:p, target,
               dmg: base*a.dmgMul, color:p.def.color, life:2.2, name:a.name, trail:[], shape, poison:a.poison, burn:a.burn, freeze:a.freeze, charm:a.charm
             });
+            // DUST's GRIT VOLLEY: each sandy grain kicks up its own small puff of grit as it
+            // leaves — a loose, gritty spray rather than a clean muzzle flash
+            if(isGritVolley){
+              for(let gp=0; gp<4; gp++){
+                const angG = Math.atan2(dy,dx) + (Math.random()-0.5)*0.8;
+                const spdG = 0.8+Math.random()*1.8;
+                particles.push({x:p.px,y:p.py,vx:Math.cos(angG)*spdG,vy:Math.sin(angG)*spdG,life:0.24,color:['#d4c48a','#b8a870','#e8dcae'][gp%3],shape:'grain'});
+              }
+            }
           }, i*90);
         }
       }
@@ -9035,6 +9219,9 @@ function runSimulation(f1,f2, netRole, roomCode){
       // GLITCH's ERROR SLASH gets its own corrupted-signal look below instead of sharing
       // SHADOW's smooth violet blade — thematically it should read as a data error, not a sword
       const isGlitchSlash = p.def.__elemId === 'glitch';
+      // PEBBLE's BOULDER SLAM: a heavy chunk of rock instead of a bladed swing — reads as a
+      // slow, blunt overhead smash rather than a slice
+      const isBoulderSlam = p.def.id === 'pebble';
       const comboReady = isShadowCombo && (p.slashComboCount||0) >= 4;
       const rng = comboReady ? (a.range||90)*2 : (a.range||90);
       const dist = Math.hypot(target.px-p.px, target.py-p.py);
@@ -9062,13 +9249,17 @@ function runSimulation(f1,f2, netRole, roomCode){
       // GLITCH's slash bursts fire off a punchier, tri-color spray (its own magenta plus the
       // pink/cyan RGB-split pair used everywhere else for the ERROR status) using its jagged
       // shard glyph instead of a plain colored dot — matches the heavier damage it now deals
-      const burstN2 = comboReady ? 40 : (isGlitchSlash ? 20 : 16);
+      const burstN2 = comboReady ? 40 : (isGlitchSlash ? 20 : (isBoulderSlam ? 14 : 16));
       const glitchBurstColors = ['#e619ff','#ff3d6d','#4dc7ff'];
+      const stoneBurstColors = ['#a89f91','#7a7266','#c4bcae'];
       for(let i=0;i<burstN2;i++){
         const spread = (Math.random()-0.5)*(comboReady?1.9:1.1);
         const a2 = ang+spread;
-        const spd = 3+Math.random()*(comboReady?7:4);
-        particles.push({x:p.px+Math.cos(ang)*(rng*0.35), y:p.py+Math.sin(ang)*(rng*0.35), vx:Math.cos(a2)*spd, vy:Math.sin(a2)*spd, life:comboReady?0.5:0.32, color:isGlitchSlash?glitchBurstColors[i%3]:p.def.color, shape:isGlitchSlash?'shard':shape});
+        const spd = isBoulderSlam ? (1.5+Math.random()*3) : (3+Math.random()*(comboReady?7:4));
+        particles.push({x:p.px+Math.cos(ang)*(rng*0.35), y:p.py+Math.sin(ang)*(rng*0.35), vx:Math.cos(a2)*spd, vy:isBoulderSlam?(Math.sin(a2)*spd*0.5+0.6):Math.sin(a2)*spd, life:comboReady?0.5:(isBoulderSlam?0.4:0.32), color:isGlitchSlash?glitchBurstColors[i%3]:(isBoulderSlam?stoneBurstColors[i%3]:p.def.color), shape:isGlitchSlash?'shard':(isBoulderSlam?'stone':shape)});
+      }
+      if(isBoulderSlam){
+        shake.mag = Math.max(shake.mag, 3.5); shake.t = Math.max(shake.t, 0.18);
       }
     } else if(a.kind==='dash'){
       const dx=target.px-p.px, dy=target.py-p.py;
@@ -9080,6 +9271,14 @@ function runSimulation(f1,f2, netRole, roomCode){
       p.pendingDashDmg = base*a.dmgMul;
       p.pendingDashName = a.name;
       rings.push({x:p.px,y:p.py,r:p.r,maxR:p.r+24,life:0.35,maxLife:0.35,color:p.def.color});
+      // OBSIDIAN's GLASS FANG windup: a burst of jagged violet glass splinters kicking off
+      // the body at the moment it launches, instead of just the plain ring every dash gets
+      if(p.def.id==='obsidian'){
+        for(let gf=0; gf<9; gf++){
+          const angGf = Math.random()*Math.PI*2, spdGf = 1+Math.random()*3;
+          particles.push({x:p.px,y:p.py,vx:Math.cos(angGf)*spdGf,vy:Math.sin(angGf)*spdGf,life:0.3+Math.random()*0.2,color:['#8f6bd9','#c9b3ff','#4a2f75'][gf%3],shape:'shard'});
+        }
+      }
       log(`${p.def.name} พุ่งเข้าใส่ด้วย ${a.name}`);
     } else if(a.kind==='bolt'){
       // instant jagged lightning strike — a.electric (COMPUTER's ELECTRIC PULSE) gets a fuller
@@ -9190,6 +9389,15 @@ function runSimulation(f1,f2, netRole, roomCode){
           hitReal:false, hitClone:false, poison:a.poison, burn:a.burn, freeze:a.freeze, nullify:a.nullify, chip:a.chip,
           lifesteal:a.lifesteal, slow:a.slow
         });
+        // FEATHER's DOWN DRIFT: a soft cloud of feathers scattered across the cone instead of
+        // a hard-edged shockwave line, matching how light and gentle the move is meant to feel
+        if(p.def.id==='feather'){
+          for(let fp=0; fp<10; fp++){
+            const offAng = ang + (Math.random()-0.5)*halfAngle*1.6;
+            const offDist = 20+Math.random()*70;
+            particles.push({x:p.px+Math.cos(offAng)*offDist, y:p.py+Math.sin(offAng)*offDist, vx:Math.cos(offAng)*0.6, vy:Math.sin(offAng)*0.6-0.4, life:0.6+Math.random()*0.3, color:['#e3ecf7','#ffffff','#c9d8ec'][fp%3], shape:'plume'});
+          }
+        }
         log(`${p.def.name} ปล่อย ${a.name} เป็นคลื่นกว้างพุ่งออกไปไกล`);
       }
     } else if(a.kind==='zodiac'){
@@ -9217,6 +9425,31 @@ function runSimulation(f1,f2, netRole, roomCode){
       p.shieldT = a.dur;
       if(a.immovable){ p.immovableT = a.dur; }
       rings.push({x:p.px,y:p.py,r:p.r,maxR:p.r+14,life:a.dur,maxLife:a.dur,color:p.def.color});
+      // PEBBLE's STONE SKIN: a ring of chunky rock shards locks into place around the body
+      // instead of a plain glow, reading as an actual armored shell forming
+      if(p.def.id==='pebble'){
+        for(let sk=0; sk<8; sk++){
+          const angSk = (Math.PI*2/8)*sk;
+          particles.push({x:p.px+Math.cos(angSk)*p.r*0.9, y:p.py+Math.sin(angSk)*p.r*0.9, vx:Math.cos(angSk)*0.3, vy:Math.sin(angSk)*0.3, life:0.5, color:'#a89f91', shape:'stone'});
+        }
+      }
+      // OBSIDIAN's OBSIDIAN SHELL: jagged violet glass plates snapping into place around the
+      // body instead of a plain glow — sharp-edged and glossy, distinct from PEBBLE's rounded
+      // stones or MUD's soft bubbles
+      if(p.def.id==='obsidian'){
+        for(let gsh=0; gsh<10; gsh++){
+          const angGsh = (Math.PI*2/10)*gsh + Math.random()*0.15;
+          particles.push({x:p.px+Math.cos(angGsh)*p.r*0.95, y:p.py+Math.sin(angGsh)*p.r*0.95, vx:Math.cos(angGsh)*0.2, vy:Math.sin(angGsh)*0.2, life:0.55+Math.random()*0.25, color:['#8f6bd9','#c9b3ff','#4a2f75'][gsh%3], shape:'shard'});
+        }
+      }
+      // MUD's QUICKSAND GUARD: a ring of mud bubbles rising as the body sinks into the muck,
+      // reading as "digging in" rather than the same rock-solid shell PEBBLE gets
+      if(p.def.id==='mud'){
+        for(let mb=0; mb<8; mb++){
+          const angMb = Math.random()*Math.PI*2, distMb = p.r*(0.4+Math.random()*0.6);
+          particles.push({x:p.px+Math.cos(angMb)*distMb, y:p.py+Math.sin(angMb)*distMb, vx:(Math.random()-0.5)*0.4, vy:-0.6-Math.random()*0.8, life:0.55+Math.random()*0.3, color:['#6b5842','#8a7358'][mb%2], shape:'splat'});
+        }
+      }
       log(`${p.def.name} ตั้งการ์ดด้วย ${a.name}`);
     } else if(a.kind==='heal'){
       const healedBefore = p.hp;
@@ -9228,8 +9461,16 @@ function runSimulation(f1,f2, netRole, roomCode){
         p.shieldT = Math.max(p.shieldT, a.shieldDur);
         rings.push({x:p.px,y:p.py,r:p.r,maxR:p.r+16,life:a.shieldDur,maxLife:a.shieldDur,color:'#c9f5ff'});
       }
-      for(let i=0;i<10;i++){
-        particles.push({x:p.px+(Math.random()-0.5)*20,y:p.py+(Math.random()-0.5)*20,vx:(Math.random()-0.5)*1,vy:-1.5-Math.random()*1.5,life:0.7,color:p.def.color,shape:elementShape(p.def.__elemId)});
+      // AMBER's FOSSIL MEND: slow-rising honey-gold bubbles trapped in resin instead of the
+      // plain shape-particle rise every other heal uses, matching its "preserved in amber" feel
+      if(p.def.id==='amber'){
+        for(let ab=0; ab<9; ab++){
+          particles.push({x:p.px+(Math.random()-0.5)*22,y:p.py+(Math.random()-0.5)*10,vx:(Math.random()-0.5)*0.4,vy:-0.6-Math.random()*0.9,life:0.9+Math.random()*0.4,color:['#f2a93d','#ffcf7a','#fff2cf'][ab%3],shape:'circle'});
+        }
+      } else {
+        for(let i=0;i<10;i++){
+          particles.push({x:p.px+(Math.random()-0.5)*20,y:p.py+(Math.random()-0.5)*20,vx:(Math.random()-0.5)*1,vy:-1.5-Math.random()*1.5,life:0.7,color:p.def.color,shape:elementShape(p.def.__elemId)});
+        }
       }
       floaters.push({x:p.px, y:p.py-p.r-24, text:'+'+actualHeal, life:0.9, vy:-32, color:'#5fdc7a', big:true});
       updateHPUI();
@@ -9241,13 +9482,23 @@ function runSimulation(f1,f2, netRole, roomCode){
       // nothing can hit it for a short window right at the start
       if(a.evadeDur){
         p.evadeT = a.evadeDur;
+        const isDustStep = p.def.id==='dust';
         for(let i=0;i<16;i++){
           const angE = Math.random()*Math.PI*2, spdE = 1.5+Math.random()*4;
-          particles.push({x:p.px,y:p.py,vx:Math.cos(angE)*spdE,vy:Math.sin(angE)*spdE,life:0.45,color:p.def.color,shape:'triangle'});
+          particles.push({x:p.px,y:p.py,vx:Math.cos(angE)*spdE,vy:Math.sin(angE)*spdE,life:isDustStep?0.55:0.45,color:isDustStep?['#d4c48a','#b8a870','#e8dcae'][i%3]:p.def.color,shape:isDustStep?'grain':'triangle'});
         }
-        rings.push({x:p.px,y:p.py,r:p.r*0.6,maxR:p.r+22,life:a.evadeDur,maxLife:a.evadeDur,color:'#ffffff'});
+        rings.push({x:p.px,y:p.py,r:p.r*0.6,maxR:p.r+22,life:a.evadeDur,maxLife:a.evadeDur,color:isDustStep?'#c4b58a':'#ffffff'});
       }
       rings.push({x:p.px,y:p.py,r:p.r,maxR:p.r+10,life:0.3,maxLife:0.3,color:p.def.color});
+      // EMBER's FLARE UP: a handful of small rising sparks instead of a plain ring, reading
+      // as a quick flush of heat rather than a generic speed buff
+      if(p.def.id==='ember'){
+        for(let fu=0; fu<7; fu++){
+          const angFu = (Math.random()-0.5)*1.2 - Math.PI/2;
+          const spdFu = 0.6+Math.random()*1.6;
+          particles.push({x:p.px+(Math.random()-0.5)*p.r, y:p.py+(Math.random()-0.5)*p.r, vx:Math.cos(angFu)*spdFu*0.4, vy:Math.sin(angFu)*spdFu-0.6, life:0.4+Math.random()*0.25, color:['#ffb347','#ff6b3d','#ffe08a'][fu%3], shape:'spark'});
+        }
+      }
       // PYRO's FLASHOVER detonates whatever burn stacks are already on the opponent —
       // turns the buff into a real follow-up punch instead of a plain speed boost, and
       // siphons back a cut of the blast as HP
@@ -10068,7 +10319,13 @@ function runSimulation(f1,f2, netRole, roomCode){
           }
         }
         toPx(p);
-        particles.push({x:p.px,y:p.py,vx:(Math.random()-0.5)*1.2,vy:(Math.random()-0.5)*1.2,life:0.3,color:p.def.color,shape:elementShape(p.def.__elemId)});
+        // OBSIDIAN's GLASS FANG trail: sharp violet glass splinters instead of the plain
+        // element-shape dust every other dash trail leaves behind
+        if(p.def.id==='obsidian'){
+          particles.push({x:p.px,y:p.py,vx:(Math.random()-0.5)*1.4,vy:(Math.random()-0.5)*1.4,life:0.28,color:['#8f6bd9','#c9b3ff'][Math.random()<0.5?0:1],shape:'shard'});
+        } else {
+          particles.push({x:p.px,y:p.py,vx:(Math.random()-0.5)*1.2,vy:(Math.random()-0.5)*1.2,life:0.3,color:p.def.color,shape:elementShape(p.def.__elemId)});
+        }
         if(o.alive){
           const dist = Math.hypot((o.x-p.x)*W(), (o.y-p.y)*H());
           if(dist < p.r+o.r+10 && p.pendingDashDmg){
@@ -10083,6 +10340,16 @@ function runSimulation(f1,f2, netRole, roomCode){
             }
             p.vx -= p.dashDir.x * 0.15;
             p.vy -= p.dashDir.y * 0.15;
+            // OBSIDIAN's GLASS FANG impact: the shard shatters into a violet burst on contact,
+            // reading as an actual breaking-glass hit rather than just a knockback shove
+            if(p.def.id==='obsidian'){
+              toPx(o);
+              for(let gs=0; gs<12; gs++){
+                const angGs = Math.random()*Math.PI*2, spdGs = 1.5+Math.random()*4;
+                particles.push({x:o.px,y:o.py,vx:Math.cos(angGs)*spdGs,vy:Math.sin(angGs)*spdGs,life:0.4+Math.random()*0.25,color:['#8f6bd9','#c9b3ff','#4a2f75','#ffffff'][gs%4],shape:'shard'});
+              }
+              rings.push({x:o.px,y:o.py,r:o.r*0.4,maxR:o.r+22,life:0.3,maxLife:0.3,color:'#8f6bd9'});
+            }
             p.pendingDashDmg = null;
             p.dashT = 0;
           } else if(p.pendingDashDmg && o.cloneHP>0 && tryHitClone(o, p.px, p.py, p.r+10, p.pendingDashDmg, p.def.name, p.pendingDashName)){
@@ -10413,6 +10680,27 @@ function runSimulation(f1,f2, netRole, roomCode){
             for(let bl=0; bl<10; bl++){
               const angBl2 = Math.random()*Math.PI*2, spdBl2 = 1.2+Math.random()*3.4;
               particles.push({x:t.px,y:t.py,vx:Math.cos(angBl2)*spdBl2,vy:Math.sin(angBl2)*spdBl2,life:0.4+Math.random()*0.25,color:['#8a0e30','#ff3d5c','#c81f45'][bl%3],shape:'droplet'});
+            }
+          }
+          if(pr.mudBlob){
+            // MUD SLING lands: a heavy wet splatter kicked outward and sagging down instead of
+            // shooting off in every direction — reads as thick mud smacking the target, not
+            // a light poof, and the clods fall rather than scatter cleanly
+            toPx(t);
+            rings.push({x:t.px,y:t.py,r:t.r*0.4,maxR:t.r+14,life:0.32,maxLife:0.32,color:'#6b5842'});
+            for(let mdi=0; mdi<10; mdi++){
+              const angMd = Math.random()*Math.PI*2, spdMd = 0.8+Math.random()*2.6;
+              particles.push({x:t.px,y:t.py,vx:Math.cos(angMd)*spdMd,vy:Math.sin(angMd)*spdMd*0.6+0.8,life:0.4+Math.random()*0.25,color:['#6b5842','#8a7358','#4d3f2e'][mdi%3],shape:'splat'});
+            }
+          }
+          if(pr.fastSpark){
+            // EMBER SPARK lands: a quick puff of embers instead of a plain poof, so the hit
+            // reads as a coal striking home rather than an electric zap
+            toPx(t);
+            rings.push({x:t.px,y:t.py,r:t.r*0.3,maxR:t.r+14,life:0.24,maxLife:0.24,color:'#ffb347'});
+            for(let esi=0; esi<8; esi++){
+              const angEsi = Math.random()*Math.PI*2, spdEsi = 1+Math.random()*2.8;
+              particles.push({x:t.px,y:t.py,vx:Math.cos(angEsi)*spdEsi,vy:Math.sin(angEsi)*spdEsi-0.5,life:0.3+Math.random()*0.2,color:['#ffb347','#ff6b3d','#ffe08a'][esi%3],shape:'spark'});
             }
           }
           projectiles.splice(i,1);
@@ -13649,6 +13937,47 @@ function runSimulation(f1,f2, netRole, roomCode){
         ctx.fillStyle = '#ffb3c0';
         ctx.beginPath();
         ctx.arc(3,-0.6,1.1,0,Math.PI*2);
+        ctx.fill();
+        ctx.restore();
+      } else if(pr.amberDrop){
+        // AMBER's RESIN SHOT — a heavy, syrupy teardrop of amber instead of a plain circle:
+        // a thick honey-gold gradient body with a glassy highlight, leaving thin sticky
+        // strands stretched out behind it in the trail rather than a fading dot-trail
+        pr.trail.forEach((tp,i)=>{
+          const fracA = pr.trail.length>1 ? i/(pr.trail.length-1) : 1;
+          if(i%2===0){
+            ctx.globalAlpha = fracA*0.45;
+            ctx.strokeStyle = '#c9860f';
+            ctx.lineWidth = 1.2*fracA;
+            ctx.beginPath();
+            ctx.moveTo(tp.x, tp.y-1.5*fracA);
+            ctx.lineTo(tp.x, tp.y+1.5*fracA);
+            ctx.stroke();
+          }
+        });
+        ctx.globalAlpha = 1;
+        ctx.save();
+        const angAmb = Math.atan2(pr.vy, pr.vx);
+        ctx.translate(pr.x, pr.y);
+        ctx.rotate(angAmb);
+        ctx.shadowColor = '#f2a93d';
+        ctx.shadowBlur = 14;
+        const ambGrad = ctx.createRadialGradient(-1.5,-1.5,0, 0,0,6.5);
+        ambGrad.addColorStop(0,'#fff2cf');
+        ambGrad.addColorStop(0.5,'#f2a93d');
+        ambGrad.addColorStop(1,'#c9860f');
+        ctx.fillStyle = ambGrad;
+        ctx.beginPath();
+        ctx.moveTo(7,0);
+        ctx.quadraticCurveTo(2,-6, -6,-2.5);
+        ctx.quadraticCurveTo(-8,0,-6,2.5);
+        ctx.quadraticCurveTo(2,6,7,0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.globalAlpha = 0.85;
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(1,-1.6,1.1,0,Math.PI*2);
         ctx.fill();
         ctx.restore();
       } else if(pr.microchipBit){

@@ -3412,15 +3412,12 @@ function redeemCode(raw){
     persistSave();
     return {ok:true, msg:'🎁 กล่องเลือกตัวละครเอพิค! เลือกตัวที่ต้องการได้เลย', epicChoiceBox:true};
   }
-  let grantedCharLabel = null;
   if(reward.charId){
-    const elem = ELEMENTS.find(e=>e.id===reward.charId);
-    if(elem){
-      const isNew = !ownsChar(reward.charId);
-      if(isNew){ saveData.roster[reward.charId] = {level:1, shards:0, item:null}; }
-      if(reward.charShards) saveData.roster[reward.charId].shards += reward.charShards;
-      grantedCharLabel = `${elem.name}${isNew?'':' (มีแล้ว)'}`;
-    }
+    // don't grant anything yet — mark the code as consumed, then let wireRedeemEvents play
+    // the normal gacha charge/reveal animation before actually crediting the character (and
+    // the rest of the reward), same as every other character grant in the game.
+    persistSave();
+    return {ok:true, msg:'', charGrant:true, charId:reward.charId, charShards:reward.charShards||0, rewardRest:reward};
   }
   if(reward.gems) saveData.gems += reward.gems;
   if(reward.gold) saveData.gold += reward.gold;
@@ -3431,8 +3428,6 @@ function redeemCode(raw){
   persistSave();
   refreshGemsUI();
   const parts = [];
-  if(grantedCharLabel) parts.push(`⭐ ${grantedCharLabel}`);
-  if(reward.charShards) parts.push(`+${reward.charShards}เศษ`);
   if(reward.gems) parts.push(`+${reward.gems}💎`);
   if(reward.gold) parts.push(`+${reward.gold}🪙`);
   if(reward.gear) parts.push(`+${reward.gear}🔩`);
@@ -3462,6 +3457,34 @@ function wireRedeemEvents(){
       document.getElementById('listModalTitle').textContent = '🎁 เลือกตัวละครเอพิค';
       document.getElementById('listModalBody').innerHTML = renderEpicChoiceBody(result.msg);
       wireEpicChoiceEvents();
+      return;
+    }
+    if(result.ok && result.charGrant){
+      const elem = ELEMENTS.find(e=>e.id===result.charId);
+      if(elem && window.gachaPull){
+        window.gachaPull(()=>elem, ()=>{
+          const isNew = !ownsChar(result.charId);
+          if(isNew){ saveData.roster[result.charId] = {level:1, shards:0, item:null}; }
+          if(result.charShards) saveData.roster[result.charId].shards += result.charShards;
+          const rw = result.rewardRest || {};
+          if(rw.gems) saveData.gems += rw.gems;
+          if(rw.gold) saveData.gold += rw.gold;
+          if(rw.gear) saveData.gear = (saveData.gear||0) + rw.gear;
+          if(rw.items){ rw.items.forEach(iid=>{ saveData.itemInventory[iid] = (saveData.itemInventory[iid]||0) + 1; }); }
+          persistSave();
+          refreshGemsUI();
+          const parts = [`⭐ ${elem.name}${isNew?' (ตัวใหม่!)':' (มีแล้ว)'}`];
+          if(result.charShards) parts.push(`+${result.charShards}เศษ`);
+          if(rw.gems) parts.push(`+${rw.gems}💎`);
+          if(rw.gold) parts.push(`+${rw.gold}🪙`);
+          if(rw.gear) parts.push(`+${rw.gear}🔩`);
+          if(rw.items) rw.items.forEach(iid=>{ const idef=getItemDef(iid); if(idef) parts.push(`${idef.icon} ${idef.name}`); });
+          const msg = {ok:true, msg:`รับรางวัลแล้ว! ${parts.join(' ')}`};
+          document.getElementById('listModalTitle').textContent = 'แลกโค้ดรับรางวัล';
+          document.getElementById('listModalBody').innerHTML = renderRedeemBody(msg);
+          wireRedeemEvents();
+        });
+      }
       return;
     }
     document.getElementById('listModalTitle').textContent = 'แลกโค้ดรับรางวัล';

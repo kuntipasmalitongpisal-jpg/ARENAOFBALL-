@@ -880,6 +880,7 @@
   .theme-shadow.map-card{ border-left:3px solid #8a5cff; background:radial-gradient(circle at 25% 0%, rgba(138,92,255,0.10), transparent 65%), rgba(255,255,255,0.02); }
   .theme-desert.map-card{ border-left:3px solid #ffb93f; background:radial-gradient(circle at 25% 0%, rgba(255,185,63,0.10), transparent 65%), rgba(255,255,255,0.02); }
   .theme-cosmic.map-card{ border-left:3px solid #c264ff; background:radial-gradient(circle at 25% 0%, rgba(194,100,255,0.10), transparent 65%), rgba(255,255,255,0.02); }
+  .theme-astral.map-card{ border-left:3px solid #ffcf5c; background:radial-gradient(circle at 25% 0%, rgba(255,207,92,0.10), transparent 65%), rgba(255,255,255,0.02); }
   .map-card-bar{ margin-top:8px; height:4px; border-radius:3px; background:rgba(255,255,255,0.08); overflow:hidden; }
   .map-card-bar-fill{ height:100%; background:linear-gradient(90deg, var(--accent2), var(--gold)); border-radius:3px; transition:width .25s; }
 
@@ -916,6 +917,7 @@
   .theme-shadow .path-container{ background:radial-gradient(circle at 30% 20%, rgba(138,92,255,0.16), transparent 65%), linear-gradient(180deg,#150f22,#0a0713); }
   .theme-desert .path-container{ background:radial-gradient(circle at 30% 20%, rgba(255,185,63,0.16), transparent 65%), linear-gradient(180deg,#1c1408,#0f0b05); }
   .theme-cosmic .path-container{ background:radial-gradient(circle at 30% 20%, rgba(194,100,255,0.16), transparent 65%), linear-gradient(180deg,#160a1e,#0a0511); }
+  .theme-astral .path-container{ background:radial-gradient(circle at 30% 20%, rgba(255,207,92,0.16), transparent 65%), linear-gradient(180deg,#221806,#120d03); }
 
   .stage-node{
     position:absolute; transform:translateX(-50%); z-index:1; cursor:pointer;
@@ -945,6 +947,7 @@
   .theme-shadow .stage-node-circle{ border-color:#8a5cff55; box-shadow:0 4px 0 #000, 0 0 14px -2px #8a5cff80; }
   .theme-desert .stage-node-circle{ border-color:#ffb93f55; box-shadow:0 4px 0 #000, 0 0 14px -2px #ffb93f80; }
   .theme-cosmic .stage-node-circle{ border-color:#c264ff55; box-shadow:0 4px 0 #000, 0 0 14px -2px #c264ff80; }
+  .theme-astral .stage-node-circle{ border-color:#ffcf5c55; box-shadow:0 4px 0 #000, 0 0 14px -2px #ffcf5c80; }
   .stage-node.locked .stage-node-circle{ box-shadow:0 4px 0 #000; }
   .stage-node.cleared .stage-node-circle{
     background:radial-gradient(circle at 32% 28%, rgba(255,255,255,0.25), transparent 55%), linear-gradient(160deg,#4fd67a,#2a9a54);
@@ -1782,37 +1785,13 @@
   filter:blur(54px);
   will-change:transform;
 }
-.menu-fx-glow.g1{ width:230px; height:230px; top:-50px; left:-50px; background:var(--accent-tech); opacity:0.38; animation:menuGlowDrift1 16s ease-in-out infinite; }
-.menu-fx-glow.g2{ width:270px; height:270px; bottom:-70px; right:-60px; background:var(--accent2); opacity:0.26; animation:menuGlowDrift2 19s ease-in-out infinite; }
-.menu-fx-glow.g3{ width:190px; height:190px; top:38%; left:58%; background:var(--accent1); opacity:0.15; animation:menuGlowDrift3 21s ease-in-out infinite; }
+/* [PERF] cut down to a single, smaller/lighter-blur glow — this was the main source of
+   jank on mobile (3 separate blurred+animated layers compositing every frame). The circuit
+   trace layer (mix-blend-mode:screen + big tiled SVG drifting every frame) and the scan
+   sweep layer were removed outright since blend-mode layers are especially costly to
+   composite on low-power GPUs. */
+.menu-fx-glow.g1{ width:190px; height:190px; top:-50px; left:-50px; background:var(--accent-tech); opacity:0.30; filter:blur(36px); animation:menuGlowDrift1 16s ease-in-out infinite; }
 @keyframes menuGlowDrift1{ 0%,100%{ transform:translate(0,0); } 50%{ transform:translate(32px,26px); } }
-@keyframes menuGlowDrift2{ 0%,100%{ transform:translate(0,0); } 50%{ transform:translate(-26px,-22px); } }
-@keyframes menuGlowDrift3{ 0%,100%{ transform:translate(0,0) scale(1); } 50%{ transform:translate(-22px,16px) scale(1.18); } }
-.menu-fx-circuit{
-  position:absolute; top:-140px; left:-140px; right:-140px; bottom:-140px;
-  opacity:0.2;
-  mix-blend-mode:screen;
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><g fill='none' stroke='%2333ffcf' stroke-width='1'><path d='M10 0V40 H50 V70 H90'/><path d='M140 30H100 V90 H60 V140'/><path d='M0 100 H30 V60'/><circle cx='50' cy='70' r='2.4' fill='%2333ffcf' stroke='none'/><circle cx='90' cy='30' r='2.4' fill='%2333ffcf' stroke='none'/><circle cx='30' cy='100' r='2.4' fill='%2333ffcf' stroke='none'/><circle cx='60' cy='90' r='2.4' fill='%2333ffcf' stroke='none'/></g></svg>");
-  background-size:140px 140px;
-  transform:translate3d(0,0,0);
-  will-change:transform;
-  animation:menuCircuitDrift 30s linear infinite;
-}
-/* was animating background-position (forces a full repaint every frame); the layer is
-   now oversized by one tile (140px) on every edge and slides with transform instead, which
-   the compositor can run on the GPU without repainting anything each frame */
-@keyframes menuCircuitDrift{ from{ transform:translate3d(0,0,0); } to{ transform:translate3d(-140px,-140px,0); } }
-.menu-fx-scan{
-  position:absolute; left:0; right:0; height:130px; top:-130px;
-  background:linear-gradient(180deg, transparent, rgba(51,255,207,0.16), transparent);
-  transform:translateY(0);
-  will-change:transform;
-  animation:menuScanSweep 7s ease-in-out infinite;
-}
-/* was animating top (forces layout reflow every frame); vh is a valid length inside
-   transform so this now composites on the GPU with no reflow/repaint, at the cost of the
-   sweep distance being an approximation of the page height instead of an exact match */
-@keyframes menuScanSweep{ 0%{ transform:translateY(0); } 60%{ transform:translateY(250vh); } 100%{ transform:translateY(250vh); } }
 .menu-fx-particles{ position:absolute; inset:0; }
 .menu-fx-particles span{
   position:absolute; left:var(--l); bottom:-6px;
@@ -1881,18 +1860,10 @@
   <div class="menu-fx" aria-hidden="true">
     <div class="menu-fx-vignette"></div>
     <div class="menu-fx-glow g1"></div>
-    <div class="menu-fx-glow g2"></div>
-    <div class="menu-fx-glow g3"></div>
-    <div class="menu-fx-circuit"></div>
-    <div class="menu-fx-scan"></div>
     <div class="menu-fx-particles">
-      <span style="--l:6%;--d:9s;--dl:0s"></span>
       <span style="--l:16%;--d:11s;--dl:1.4s"></span>
-      <span style="--l:28%;--d:8s;--dl:3s"></span>
       <span style="--l:42%;--d:12s;--dl:0.6s"></span>
-      <span style="--l:58%;--d:9.5s;--dl:2.2s"></span>
       <span style="--l:70%;--d:10.5s;--dl:4s"></span>
-      <span style="--l:83%;--d:8.5s;--dl:1s"></span>
       <span style="--l:92%;--d:11.5s;--dl:3.6s"></span>
     </div>
     <div class="menu-fx-corner tl"></div>
@@ -2386,6 +2357,10 @@ function renderCharDetail(id){
   const isTechDuringEvent = TECH_IDS.includes(id) && isEventActive();
   const gearShardCost = isTechDuringEvent ? gearShardBuyCost(id) : null;
   const canBuyGearShard = !maxed && gearShardCost!=null && (saveData.gear||0)>=gearShardCost;
+  // shard buy cost comes back null once shards on hand already cover this level-up's
+  // requirement — that's a different reason than "can't afford" or "maxed", so it gets its
+  // own label below instead of rendering a button with a null price.
+  const shardsEnough = !maxed && entry.shards>=cost.shards;
   const mult = 1 + (entry.level-1)*0.05;
   const equippedDef = entry.item ? getItemDef(entry.item) : null;
   const bonusPow = equippedDef && equippedDef.stat==='pow' ? itemEffectiveValue(equippedDef) : 0;
@@ -2426,9 +2401,12 @@ function renderCharDetail(id){
     <button type="button" class="btn ghost small roster-lvup-btn" data-elem="${id}" ${canLevel?'':'disabled'}>
       ${maxed?'อัพเกรดสูงสุดแล้ว':`⬆️ อัพเกรด (${cost.gold}🪙+${cost.shards}เศษ)`}
     </button>
-    ${!maxed?(isTechDuringEvent
-      ? `<button type="button" class="btn ghost small roster-buyshard-gear-btn" data-elem="${id}" ${canBuyGearShard?'':'disabled'}>🔩 ซื้อเศษ (${gearShardCost}🔩)</button>`
-      : `<button type="button" class="btn ghost small roster-buyshard-btn" data-elem="${id}" ${canBuyShard?'':'disabled'}>🪙 ซื้อเศษ (${shardCost}🪙)</button>`
+    ${!maxed?(shardsEnough
+      ? `<button type="button" class="btn ghost small" disabled>✅ เศษพอสำหรับอัพเกรดแล้ว</button>`
+      : (isTechDuringEvent
+        ? `<button type="button" class="btn ghost small roster-buyshard-gear-btn" data-elem="${id}" ${canBuyGearShard?'':'disabled'}>🔩 ซื้อเศษ (${gearShardCost}🔩)</button>`
+        : `<button type="button" class="btn ghost small roster-buyshard-btn" data-elem="${id}" ${canBuyShard?'':'disabled'}>🪙 ซื้อเศษ (${shardCost}🪙)</button>`
+      )
     ):''}
   </div>
   <label style="display:block;font-size:0.6rem;letter-spacing:1.5px;color:var(--dim);margin:16px 0 9px;text-transform:uppercase;">🎒 เปลี่ยนไอเทมที่สวมใส่</label>
@@ -2602,7 +2580,9 @@ function wireRosterListEvents(){
         onlineStatusMsg(`${elem?elem.name:'ตัวละคร'} ได้เศษอัพเกรด +1 (ใช้ Gear)`);
         openRosterModal();
       } else {
-        onlineStatusMsg('Gear ไม่พอ');
+        const e = rosterEntry(id);
+        const alreadyEnough = e && e.level<LEVEL_CAP && e.shards>=levelUpCost(e.level).shards;
+        onlineStatusMsg(alreadyEnough ? 'เศษพอสำหรับอัพเกรดแล้ว' : 'Gear ไม่พอ');
       }
     };
   });
@@ -3416,11 +3396,10 @@ const REDEEM_CODES = {
   'TECHNO': {gems:500, gold:1000},
   'COMPUTER': {gems:250},
   'MICROCHIP': {gems:120, gold:800},
-  // grants a "pick your own epic character" box instead of a random pull — redeeming just
-  // consumes the code, the actual character grant happens once the player picks one in the
-  // epic-choice screen (see renderEpicChoiceBody/wireEpicChoiceEvents below).
-  'NEWPVP': {epicChoiceBox:true},
   'GEARGOD': {gear:250, gems:360},
+  // direct grant of a specific character (ZODIAC) plus bonus shards for it — unlike the
+  // epicChoiceBox codes, this always gives this exact character, not a pick from a list.
+  'ZODIAC': {charId:'zodiac', charShards:7, gold:3500},
 };
 function redeemCode(raw){
   const code = (raw||'').trim().toUpperCase();
@@ -3433,6 +3412,16 @@ function redeemCode(raw){
     persistSave();
     return {ok:true, msg:'🎁 กล่องเลือกตัวละครเอพิค! เลือกตัวที่ต้องการได้เลย', epicChoiceBox:true};
   }
+  let grantedCharLabel = null;
+  if(reward.charId){
+    const elem = ELEMENTS.find(e=>e.id===reward.charId);
+    if(elem){
+      const isNew = !ownsChar(reward.charId);
+      if(isNew){ saveData.roster[reward.charId] = {level:1, shards:0, item:null}; }
+      if(reward.charShards) saveData.roster[reward.charId].shards += reward.charShards;
+      grantedCharLabel = `${elem.name}${isNew?'':' (มีแล้ว)'}`;
+    }
+  }
   if(reward.gems) saveData.gems += reward.gems;
   if(reward.gold) saveData.gold += reward.gold;
   if(reward.gear) saveData.gear = (saveData.gear||0) + reward.gear;
@@ -3442,6 +3431,8 @@ function redeemCode(raw){
   persistSave();
   refreshGemsUI();
   const parts = [];
+  if(grantedCharLabel) parts.push(`⭐ ${grantedCharLabel}`);
+  if(reward.charShards) parts.push(`+${reward.charShards}เศษ`);
   if(reward.gems) parts.push(`+${reward.gems}💎`);
   if(reward.gold) parts.push(`+${reward.gold}🪙`);
   if(reward.gear) parts.push(`+${reward.gear}🔩`);
@@ -3488,7 +3479,7 @@ function wireRedeemEvents(){
   }
 }
 
-/* ---- epic character choice box: reward for codes like NEWPVP. Lets the player pick exactly
+/* ---- epic character choice box: reward for pick-your-own-epic redeem codes. Lets the player pick exactly
    which EPIC-rarity element to receive instead of a random gacha pull. If they already own the
    one they pick, it converts to +1 shard for that character (same as a duplicate gacha pull),
    so the pick is never wasted. ---- */
@@ -3751,6 +3742,10 @@ function shardBuyCost(elemId){
   const entry = rosterEntry(elemId);
   if(!entry || entry.level>=LEVEL_CAP) return null;
   if(TECH_IDS.includes(elemId) && isEventActive()) return null;
+  // [SHARD CAP] once shards on hand already cover the next level-up's requirement, stop
+  // selling more — buying past that just stockpiles shards nothing can spend yet, so the
+  // shop should never charge for more than the upgrade actually needs.
+  if(entry.shards>=levelUpCost(entry.level).shards) return null;
   return 150 + entry.level*110;
 }
 function buyShard(elemId){
@@ -3777,6 +3772,9 @@ function gearShardBuyCost(elemId){
   const entry = rosterEntry(elemId);
   if(!entry || entry.level>=LEVEL_CAP) return null;
   if(!(TECH_IDS.includes(elemId) && isEventActive())) return null;
+  // [SHARD CAP] same rule as shardBuyCost — don't sell shards past what the next level-up
+  // actually needs.
+  if(entry.shards>=levelUpCost(entry.level).shards) return null;
   return 25 + entry.level*18;
 }
 function buyShardWithGear(elemId){
@@ -3903,79 +3901,87 @@ function affixMagnitude(mapIndex){
   return { armor: 5+t*2, vamp: 0.10+t*0.015, regen: 4+t*1.4, ward: 1.4+t*0.25, crit: 0.12+t*0.015 };
 }
 const MAP_DEFS = [
-  {name:'ป่าหลังบ้าน',        emoji:'🌳', theme:'forest',  stageCount:6, boss:'nature', bossName:'เจ้าป่าใบไม้ทอง',
+  {name:'VERDANT HOLLOW',  emoji:'🌳', theme:'forest',  stageCount:6, boss:'nature', bossName:'เจ้าป่าใบไม้ทอง',
     flavor:'สัตว์ป่าหลังบ้านหุ้มเปลือกไม้แข็งและงอกใหม่ได้ไวราวกับพืชพันธุ์ที่ไม่มีวันตาย',
     pool:['nature','toxin','terra','sound'], bossAffixes:['warded','regen'],
     affixNames:{armored:'กระดองเปลือกไม้', vampiric:'รากดูดชีพ', regen:'ใบไม้เยียวยา', warded:'ม่านมอสหนา', berserk:'คำรามเจ้าป่า'}},
-  {name:'ริมธารน้ำใส',        emoji:'💧', theme:'water',   stageCount:6, boss:'aqua',   bossName:'ราชันสายน้ำ',
+  {name:'CRYSTAL SHALLOWS',  emoji:'💧', theme:'water',   stageCount:6, boss:'aqua',   bossName:'ราชันสายน้ำ',
     flavor:'สิ่งมีชีวิตใต้น้ำแฝงกระแสดูดพลังและเกราะฟองคลื่นที่ซัดสาดปกป้องตัวเองตลอดเวลา',
     pool:['aqua','steam','frost','gale'], bossAffixes:['armored','regen'],
     affixNames:{armored:'เกล็ดหินปะการัง', vampiric:'กระแสดูดพลัง', regen:'สายน้ำบำบัด', warded:'ฟองคลื่นปกป้อง', berserk:'คลั่งกระแสน้ำ'}},
-  {name:'ทุ่งภูเขาไฟ',        emoji:'🌋', theme:'volcano', stageCount:6, boss:'pyro',   bossName:'ยักษ์เพลิงแห่งผา',
+  {name:'EMBER WASTES',  emoji:'🌋', theme:'volcano', stageCount:6, boss:'pyro',   bossName:'ยักษ์เพลิงแห่งผา',
     flavor:'ปีศาจเถ้าถ่านแห่งภูเขาไฟดูดพลังจากความร้อนและคลั่งโทสะยิ่งเลือดร่อยหรอ',
     pool:['pyro','steam','terra','metal'], bossAffixes:['berserk','vampiric'],
     affixNames:{armored:'เปลือกลาวาแข็ง', vampiric:'ดูดพลังเถ้าถ่าน', regen:'แกนไฟฟื้นคืน', warded:'ม่านควันปกป้อง', berserk:'โทสะภูเขาไฟ'}},
-  {name:'หุบผาสายลม',        emoji:'🌪️', theme:'storm',   stageCount:6, boss:'gale',   bossName:'จอมพายุสามทิศ',
+  {name:'TEMPEST CANYON',  emoji:'🌪️', theme:'storm',   stageCount:6, boss:'gale',   bossName:'จอมพายุสามทิศ',
     flavor:'ผู้พิทักษ์หุบผาห่มเกราะฟ้าคำรณและคลั่งพลังไปกับแรงลมที่โหมกระหน่ำ',
     pool:['gale','volt','frost','sound'], bossAffixes:['berserk','armored'],
     affixNames:{armored:'เกราะฟ้าคำรณ', vampiric:'ดูดพลังสายฟ้า', regen:'ลมฟื้นลมหายใจ', warded:'กำแพงพายุ', berserk:'จอมคลั่งพายุ'}},
-  {name:'ป่าลึกเสียงสะท้อน',   emoji:'🎋', theme:'jungle',  stageCount:6, boss:'sound',  bossName:'เจ้าแห่งเสียงสะท้อน',
+  {name:'ECHOING CANOPY',   emoji:'🎋', theme:'jungle',  stageCount:6, boss:'sound',  bossName:'เจ้าแห่งเสียงสะท้อน',
     flavor:'สัตว์ป่าลึกใช้เสียงสะกดดูดพลังศัตรูและซ่อนกายในม่านเสียงกังวาน',
     pool:['sound','nature','toxin','shadow'], bossAffixes:['vampiric','warded'],
     affixNames:{armored:'เปลือกโบราณ', vampiric:'เสียงสะกดดูดพลัง', regen:'กังวานฟื้นชีพ', warded:'ม่านเสียงป้องกัน', berserk:'เสียงคำรามป่าลึก'}},
-  {name:'เขาวงกตเงามืด',      emoji:'🌑', theme:'shadow',  stageCount:6, boss:'shadow', bossName:'ราชันเงามืด',
+  {name:'UMBRAL MAZE',      emoji:'🌑', theme:'shadow',  stageCount:6, boss:'shadow', bossName:'ราชันเงามืด',
     flavor:'ผีเงาในเขาวงกตดูดวิญญาณคู่ต่อสู้และฟื้นคืนร่างจากความมืดมิดไม่รู้จบ',
     pool:['shadow','toxin','metal','frost'], bossAffixes:['vampiric','berserk'],
     affixNames:{armored:'เกราะเงาทึบ', vampiric:'ดูดวิญญาณ', regen:'ฟื้นจากความมืด', warded:'ม่านเงาซ่อนกาย', berserk:'คลั่งแค้นในเงามืด'}},
-  {name:'ทะเลทรายเหล็กกล้า',  emoji:'🏜️', theme:'desert',  stageCount:7, boss:'metal',  bossName:'ยักษ์เหล็กกล้าทะเลทราย',
+  {name:'IRON DUNES',  emoji:'🏜️', theme:'desert',  stageCount:7, boss:'metal',  bossName:'ยักษ์เหล็กกล้าทะเลทราย',
     flavor:'ยักษ์เหล็กกล้าแห่งทะเลทรายห่อหุ้มเกราะหนาและซ่อมแซมตัวเองกลางพายุทราย',
     pool:['metal','terra','volt','radiant'], bossAffixes:['armored','warded'],
     affixNames:{armored:'เกราะเหล็กทะเลทราย', vampiric:'ดูดพลังจากทราย', regen:'แกนเหล็กซ่อมแซม', warded:'กำแพงเหล็กกล้า', berserk:'คลั่งพายุทราย'}},
-  {name:'ห้วงจักรวาล',       emoji:'🌌', theme:'cosmic',  stageCount:7, boss:'cosmos', bossName:'เทพจักรวาลมืด',
+  {name:'VOID EXPANSE',       emoji:'🌌', theme:'cosmic',  stageCount:7, boss:'cosmos', bossName:'เทพจักรวาลมืด',
     flavor:'สิ่งมีชีวิตห้วงจักรวาลพกพลังลึกลับที่ทั้งดูดกลืนและคลั่งพลังไปพร้อมกัน',
     pool:['radiant','love','shadow','frost'], bossAffixes:['berserk','vampiric'],
     affixNames:{armored:'เกราะดาวตก', vampiric:'ดูดพลังจักรวาล', regen:'พลังดาราฟื้นคืน', warded:'ม่านหลุมดำป้องกัน', berserk:'พิโรธจักรวาล'}},
-  {name:'ทุนดราน้ำแข็งนิรันดร์', emoji:'🧊', theme:'ice',    stageCount:7, boss:'frost',  bossName:'จักรพรรดิน้ำแข็งนิรันดร์',
+  {name:'FROSTBOUND TUNDRA', emoji:'🧊', theme:'ice',    stageCount:7, boss:'frost',  bossName:'จักรพรรดิน้ำแข็งนิรันดร์',
     flavor:'ดินแดนน้ำแข็งที่ไม่เคยละลาย สัตว์ร้ายในนี้ห่มเกราะน้ำแข็งหนาและฟื้นคืนร่างจากความเยือกเย็นตลอดเวลา',
     pool:['frost','aqua','gale','steam'], bossAffixes:['armored','regen'],
     affixNames:{armored:'เกราะน้ำแข็งหนา', vampiric:'ดูดพลังเยือกแข็ง', regen:'ฟื้นจากความเย็น', warded:'ม่านหิมะปกป้อง', berserk:'พายุหิมะคลั่ง'}},
-  {name:'วิหารแสงศักดิ์สิทธิ์', emoji:'✨', theme:'light',  stageCount:7, boss:'radiant', bossName:'เทพีแห่งแสงศักดิ์สิทธิ์',
+  {name:'SANCTUM OF DAWN', emoji:'✨', theme:'light',  stageCount:7, boss:'radiant', bossName:'เทพีแห่งแสงศักดิ์สิทธิ์',
     flavor:'ผู้พิทักษ์วิหารเปล่งแสงจ้าปกป้องตนเองและฟื้นพลังจากรังสีศักดิ์สิทธิ์ไม่มีวันหมด',
     pool:['radiant','love','sound','volt'], bossAffixes:['warded','regen'],
     affixNames:{armored:'เกราะแสงทอง', vampiric:'ดูดพลังศรัทธา', regen:'รังสีเยียวยา', warded:'ม่านแสงศักดิ์สิทธิ์', berserk:'พิโรธเทพีแสง'}},
-  {name:'ห้องแล็บ TECH ล่าสุด', emoji:'⚙️', theme:'tech',   stageCount:8, boss:'techno', bossName:'เทพเทคโนจอมทำลายล้าง',
+  {name:'THE MAINFRAME', emoji:'⚙️', theme:'tech',   stageCount:8, boss:'techno', bossName:'เทพเทคโนจอมทำลายล้าง',
     flavor:'ห้องทดลองลับที่ทั้งหุ่นยนต์และปัญญาประดิษฐ์คลั่งพลังจากกระแสไฟและซ่อมแซมตัวเองไม่หยุดหย่อน — ด่านสุดท้ายของ TECH UPDATE',
     pool:['microchip','computer','volt','metal'], bossAffixes:['armored','berserk'],
     affixNames:{armored:'เกราะไทเทเนียม', vampiric:'ดูดกระแสไฟ', regen:'ระบบซ่อมแซมอัตโนมัติ', warded:'สนามพลังป้องกัน', berserk:'โอเวอร์คล็อกจอมคลั่ง'}},
   // ===== [NEW WORLDS UPDATE] 7 new worlds / 50 new stages appended after the TECH lab =====
-  {name:'หุบเขาลาวาทมิฬ',      emoji:'🔥', theme:'volcano', stageCount:7, boss:'pyro',   bossName:'จอมเพลิงนรกภูมิ',
+  {name:'OBSIDIAN CALDERA',      emoji:'🔥', theme:'volcano', stageCount:7, boss:'pyro',   bossName:'จอมเพลิงนรกภูมิ',
     flavor:'ดินแดนหลังห้องแล็บ TECH ที่ลาวาไหลไม่หยุดพักและปีศาจเพลิงคลั่งโทสะยิ่งกว่าที่เคยพบมา',
     pool:['pyro','metal','terra','microchip'], bossAffixes:['berserk','armored'],
     affixNames:{armored:'เกราะหินลาวาดำ', vampiric:'ดูดพลังเถ้าถ่านนรก', regen:'แกนเพลิงฟื้นคืน', warded:'ม่านควันดำทึบ', berserk:'โทสะนรกภูมิ'}},
-  {name:'มหาสมุทรลึกสุดหยั่ง', emoji:'🌊', theme:'water',   stageCount:7, boss:'aqua',   bossName:'เทพแห่งห้วงสมุทร',
+  {name:'ABYSSAL TRENCH', emoji:'🌊', theme:'water',   stageCount:7, boss:'aqua',   bossName:'เทพแห่งห้วงสมุทร',
     flavor:'ห้วงน้ำลึกที่แสงส่องไม่ถึง สัตว์ทะเลลึกวิวัฒน์เกราะหนาและดูดพลังคู่ต่อสู้ในความมืดมิด',
     pool:['aqua','frost','shadow','computer'], bossAffixes:['armored','vampiric'],
     affixNames:{armored:'เกราะเปลือกหอยลึก', vampiric:'หนวดดูดพลัง', regen:'สายน้ำเยียวยาลึก', warded:'ฟองอากาศป้องกัน', berserk:'คลั่งกระแสน้ำวน'}},
-  {name:'ทุ่งสายฟ้าอนันต์',    emoji:'⚡', theme:'storm',   stageCount:7, boss:'volt',   bossName:'จักรพรรดิสายฟ้า',
+  {name:'STORMSPIRE REACH',    emoji:'⚡', theme:'storm',   stageCount:7, boss:'volt',   bossName:'จักรพรรดิสายฟ้า',
     flavor:'ทุ่งกว้างที่ฟ้าผ่าไม่เคยหยุด ผู้พิทักษ์แห่งนี้ห่มเกราะไฟฟ้าและฟื้นคืนพลังจากทุกครั้งที่ฟ้าคำรณ',
     pool:['volt','gale','sound','radiant'], bossAffixes:['berserk','regen'],
     affixNames:{armored:'เกราะประจุไฟฟ้า', vampiric:'ดูดกระแสสายฟ้า', regen:'ฟื้นจากพายุฟ้า', warded:'สนามไฟฟ้าป้องกัน', berserk:'จอมคลั่งสายฟ้า'}},
-  {name:'ป่าพิษมรณะ',         emoji:'☠️', theme:'jungle',  stageCount:7, boss:'toxin',  bossName:'ราชินีพิษมรณะ',
+  {name:'BLIGHTWOOD',         emoji:'☠️', theme:'jungle',  stageCount:7, boss:'toxin',  bossName:'ราชินีพิษมรณะ',
     flavor:'ป่าที่อากาศเองก็เป็นพิษ สัตว์ร้ายในนี้ดูดพลังชีวิตศัตรูผ่านพิษร้ายและฟื้นตัวไม่รู้จบ',
     pool:['toxin','nature','shadow','love'], bossAffixes:['vampiric','regen'],
     affixNames:{armored:'เกราะเกล็ดพิษ', vampiric:'เขี้ยวดูดพิษ', regen:'ฟื้นจากพิษร้าย', warded:'ม่านหมอกพิษ', berserk:'คลั่งพิษมรณะ'}},
-  {name:'ปราสาทเงาวิญญาณ',    emoji:'👻', theme:'shadow',  stageCount:7, boss:'shadow', bossName:'จอมราชันวิญญาณเงา',
+  {name:'WRAITHKEEP',    emoji:'👻', theme:'shadow',  stageCount:7, boss:'shadow', bossName:'จอมราชันวิญญาณเงา',
     flavor:'ปราสาทร้างที่วิญญาณพเนจรดูดกลืนพลังชีวิตของผู้บุกรุกและซ่อมแซมร่างจากความมืดตลอดกาล',
     pool:['shadow','frost','toxin','computer'], bossAffixes:['vampiric','warded'],
     affixNames:{armored:'เกราะวิญญาณดำ', vampiric:'ดูดวิญญาณผู้บุกรุก', regen:'ฟื้นจากม่านหมอกเงา', warded:'กำแพงวิญญาณ', berserk:'พิโรธจอมราชันเงา'}},
-  {name:'สวรรค์ชั้นเจ็ด',      emoji:'🕊️', theme:'light',  stageCount:7, boss:'radiant', bossName:'เทพบดินทร์แสงสูงสุด',
+  {name:'SEVENTH HEAVEN',      emoji:'🕊️', theme:'light',  stageCount:7, boss:'radiant', bossName:'เทพบดินทร์แสงสูงสุด',
     flavor:'ดินแดนเบื้องบนที่แสงศักดิ์สิทธิ์เจิดจ้าที่สุด ผู้พิทักษ์สวรรค์ห่มเกราะแสงและฟื้นพลังไม่มีวันหมด',
     pool:['radiant','love','sound','volt'], bossAffixes:['warded','regen'],
     affixNames:{armored:'เกราะปีกแสงทอง', vampiric:'ดูดพลังศรัทธาสูงสุด', regen:'รังสีสวรรค์เยียวยา', warded:'ม่านแสงสวรรค์', berserk:'พิโรธเทพบดินทร์'}},
-  {name:'แดนสนธยาจักรวาลดับ',  emoji:'🕳️', theme:'cosmic',  stageCount:8, boss:'cosmos', bossName:'เทพจักรวาลดับสูญ',
+  {name:'EDGE OF OBLIVION',  emoji:'🕳️', theme:'cosmic',  stageCount:8, boss:'cosmos', bossName:'เทพจักรวาลดับสูญ',
     flavor:'จุดสิ้นสุดของทุกดินแดน หลุมดำกลืนแสงและพลังทุกสิ่ง ทั้งดูดกลืน คลั่งพลัง และซ่อมแซมตัวเองไปพร้อมกัน — ด่านสุดท้ายของการอัพเดทนี้',
     pool:['radiant','love','shadow','frost','computer','microchip'], bossAffixes:['berserk','vampiric','armored'],
     affixNames:{armored:'เกราะหลุมดำ', vampiric:'ดูดกลืนจักรวาล', regen:'ฟื้นจากความว่างเปล่า', warded:'ม่านแรงโน้มถ่วง', berserk:'พิโรธการดับสูญ'}},
+  // ===== [NEW MAP] ASTRAL REQUIEM — the epilogue beyond the cosmic void above: once the old
+  // universe burns out, the stars regroup into a new eternal order. First campaign appearance
+  // of the ZODIAC element (previously player-pull-only), now guarding the last light of
+  // everything that came before.
+  {name:'ASTRAL REQUIEM',    emoji:'🔮', theme:'astral',  stageCount:8, boss:'zodiac', bossName:'ราชันจักรราศีนิรันดร์',
+    flavor:'หลังการดับสูญของจักรวาลเดิม เหล่าดวงดาวที่เหลือรวมตัวกันใหม่เป็นราศีนิรันดร์ เฝ้าปกป้องแสงสุดท้ายของทุกสรรพสิ่งที่เคยมีชีวิตอยู่',
+    pool:['zodiac','love','radiant','cosmos'], bossAffixes:['warded','regen'],
+    affixNames:{armored:'เกราะดาวราศี', vampiric:'ดูดแสงดาวตก', regen:'ฟื้นจากแสงนิรันดร์', warded:'ม่านจักรราศีปกป้อง', berserk:'พิโรธราศีสุดท้าย'}},
 ];
 const MAPS = [];
 const STAGES = [];
@@ -4021,7 +4027,7 @@ function mapIndexForStage(stageId){ return MAPS.findIndex(m=>stageId>=m.stageSta
 // something players just walk into. Map 0 is always free/owned.
 function mapUnlockCost(mapIndex){
   if(!mapIndex || mapIndex<=0) return 0;
-  return Math.round(300 * mapIndex * (1 + mapIndex*0.25));
+  return Math.round(240 * mapIndex * (1 + mapIndex*0.25));
 }
 function isMapPurchased(mapIndex){
   return mapIndex===0 || (saveData.unlockedMaps||[]).includes(mapIndex);
@@ -4439,10 +4445,17 @@ const BOSS_GAME_KIND_BY_ELEM = {
   radiant:'mirror', shadow:'shadowfind', microchip:'circuit', drone:'intercept',
   computer:'datastream', blood:'heartbeat',
 };
-const BOSS_GAME_KIND_FALLBACK = ['sync','mash','memory','reaction'];
+// safety net only — every element actually used as a boss (see MAPS / EVENT_STAGE_DEFS) is
+// already covered above with its own bespoke kind, so this only ever fires for a genuinely
+// new boss element added later without an explicit mapping. Spread across all 18 kinds (not
+// just 4) so even that edge case doesn't feel repetitive.
+const BOSS_GAME_KIND_FALLBACK = ['sync','mash','memory','reaction','constellation','bolts','shatter','flame','catch','bubble','gust','sprout','mirror','shadowfind','circuit','intercept','datastream','heartbeat'];
 function bossGameKindForElem(elemId, seedIndex){
-  return BOSS_GAME_KIND_BY_ELEM[elemId] ||
-    BOSS_GAME_KIND_FALLBACK[((seedIndex||0)%BOSS_GAME_KIND_FALLBACK.length + BOSS_GAME_KIND_FALLBACK.length)%BOSS_GAME_KIND_FALLBACK.length];
+  if(BOSS_GAME_KIND_BY_ELEM[elemId]) return BOSS_GAME_KIND_BY_ELEM[elemId];
+  let h = 0;
+  const s = String(elemId||'') + '|' + (seedIndex||0);
+  for(let i=0;i<s.length;i++) h = (h*31 + s.charCodeAt(i)) >>> 0;
+  return BOSS_GAME_KIND_FALLBACK[h % BOSS_GAME_KIND_FALLBACK.length];
 }
 
 // bossGameState shape varies slightly per kind, but always carries: kind, teamDefs, bodyId,
@@ -6039,14 +6052,19 @@ function renderEventShop(){
     const elem = ELEMENTS.find(e=>e.id===id);
     const entry = rosterEntry(id);
     const maxed = entry.level>=LEVEL_CAP;
-    const gcost = maxed ? null : gearShardBuyCost(id);
-    const affordable = !maxed && gcost!=null && (saveData.gear||0)>=gcost;
+    // shards already covering the next level-up's requirement is a separate state from
+    // "can't afford" — gearShardBuyCost returns null for both, so tell them apart here
+    // rather than showing a row priced at a null cost.
+    const shardsEnough = !maxed && entry.shards>=levelUpCost(entry.level).shards;
+    const gcost = (maxed || shardsEnough) ? null : gearShardBuyCost(id);
+    const affordable = !maxed && !shardsEnough && gcost!=null && (saveData.gear||0)>=gcost;
+    const rowLabel = maxed ? '' : (shardsEnough ? '✅ เศษพอแล้ว' : `+1 เศษ (${gcost}🔩)`);
     return `<div class="event-stage-row" data-shard-buy="${id}" style="${maxed?'opacity:0.5;':(affordable?'':'opacity:0.55;')}">
       <div>
         <div class="esr-name" style="color:${getCharColor(id)}">${elem.name}</div>
         <div class="esr-sub">Lv.${entry.level}${maxed?' (MAX)':''} · เศษสะสม ${entry.shards}</div>
       </div>
-      <div class="esr-go">${maxed?'':`+1 เศษ (${gcost}🔩)`}</div>
+      <div class="esr-go">${rowLabel}</div>
     </div>`;
   }).join('');
   body.innerHTML = eventTabsHTML() + `
@@ -6141,7 +6159,9 @@ function renderEventShop(){
         onlineStatusMsg(`${elem?elem.name:'ตัวละคร'} ได้เศษอัพเกรด +1 (ใช้ Gear)`);
         renderEventShop();
       } else {
-        onlineStatusMsg('Gear ไม่พอ หรืออัพเกรดสูงสุดแล้ว');
+        const e = rosterEntry(id);
+        const alreadyEnough = e && e.level<LEVEL_CAP && e.shards>=levelUpCost(e.level).shards;
+        onlineStatusMsg(alreadyEnough ? 'เศษพอสำหรับอัพเกรดแล้ว ไปกดอัพเกรดได้เลย' : 'Gear ไม่พอ หรืออัพเกรดสูงสุดแล้ว');
       }
     };
   });

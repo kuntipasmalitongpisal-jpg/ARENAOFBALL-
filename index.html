@@ -416,6 +416,25 @@
     padding:5px 14px;
   }
   .gear-badge .n{ font-weight:700; }
+  .crystal-badge{
+    display:flex; align-items:center; gap:6px;
+    font-size:0.72rem; letter-spacing:1px;
+    color:var(--accent-gems2);
+    background:rgba(125,179,255,0.07);
+    border:1px solid rgba(125,179,255,0.32);
+    border-radius:99px;
+    padding:5px 14px;
+  }
+  .crystal-badge .n{ font-weight:700; }
+  /* faceted gem icon used for the 🔷 Crystal currency (GEMS UPDATE) — small inline SVG instead
+     of an emoji glyph so it reads crisply at tiny sizes and matches the violet/sky GEMS palette */
+  .ico-crystal{ width:0.95em; height:0.95em; display:inline-block; vertical-align:-0.12em; overflow:visible; }
+  .ico-crystal .top{ fill:#f4e2ff; }
+  .ico-crystal .left{ fill:var(--accent-gems); }
+  .ico-crystal .right{ fill:var(--accent-gems2); }
+  .ico-crystal .bl{ fill:#6a4fc0; }
+  .ico-crystal .br{ fill:#4f7fd6; }
+  .ico-crystal .outline{ fill:none; stroke:rgba(255,255,255,0.45); stroke-width:0.6; stroke-linejoin:round; }
 
   /* ===== EVENT MODE ===== */
   .event-cta{ border-left:3px solid #8be6ff; background:radial-gradient(circle at 25% 0%, rgba(139,230,255,0.10), transparent 65%), rgba(255,255,255,0.02); }
@@ -459,6 +478,24 @@
     gap:6px;
   }
   .event-shop-section .d{ font-size:0.62rem; color:var(--dim); margin-bottom:12px; line-height:1.55; }
+
+  /* ===== GEMS UPDATE MODE — its own screen + violet/sky palette, fully separate from TECH's teal ===== */
+  .gems-cta{ border-left:3px solid var(--accent-gems); background:radial-gradient(circle at 25% 0%, rgba(224,139,255,0.12), transparent 65%), rgba(255,255,255,0.02); }
+  .gems-bar{
+    font-size:0.72rem; color:var(--accent-gems); letter-spacing:0.5px;
+    margin-bottom:12px; padding:8px 12px;
+    border:1px solid rgba(224,139,255,0.3); border-radius:8px;
+    background:rgba(224,139,255,0.05);
+  }
+  #gemsScreen .event-tabs .btn.active{ border-color:var(--accent-gems); color:var(--accent-gems); background:rgba(224,139,255,0.08); }
+  #gemsScreen .event-stage-row:hover{ border-color:var(--accent-gems); }
+  #gemsScreen .event-stage-row.cleared{ border-color:rgba(224,139,255,0.4); }
+  #gemsScreen .event-stage-row.boss{ border-color:rgba(125,179,255,0.55); background:rgba(125,179,255,0.06); }
+  #gemsScreen .esr-go{ color:var(--accent-gems); }
+  #gemsScreen .event-shop-section{ background:linear-gradient(165deg, rgba(224,139,255,0.06), rgba(125,179,255,0.02) 65%); }
+  #gemsScreen .quest-card.claimed{ border-color:rgba(224,139,255,0.4); }
+  #gemsScreen .quest-bar-fill{ background:linear-gradient(90deg,var(--accent-gems),var(--accent-gems2)); }
+  #gemsScreen .quest-card .qc-status{ color:var(--accent-gems); }
 
   /* ================= BOSS-GAME VISUAL SYSTEM =================
      All boss pre-fight minigames (and the daily Hack-the-Mainframe grid) now render inside a
@@ -850,6 +887,8 @@
   #campaignScreen .section-head{ margin-bottom:16px; }
   #eventScreen{ display:none; }
   #eventScreen .section-head{ margin-bottom:16px; }
+  #gemsScreen{ display:none; }
+  #gemsScreen .section-head{ margin-bottom:16px; }
   #pvpTeamScreen{ display:none; }
   #pvpTeamScreen .section-head{ margin-bottom:16px; }
   .campaign-cta .btn{ margin-top:2px; }
@@ -1018,6 +1057,15 @@
   .team-pick-card .pick-order{
     position:absolute; top:4px; right:6px;
     font-size:0.62rem; font-weight:700; color:var(--gold);
+  }
+  .gems-origin-badge{
+    position:absolute; top:5px; left:6px;
+    font-size:0.74rem; line-height:1;
+    color:var(--accent-gems2);
+    text-shadow:0 0 4px var(--accent-gems);
+    filter:drop-shadow(0 0 3px rgba(0,0,0,0.7));
+    animation:gemsSparkleTwinkle 2.1s ease-in-out infinite;
+    pointer-events:none;
   }
   .btn.ghost.small{
     flex:1 1 100px;
@@ -1925,6 +1973,7 @@
   border:1px solid rgba(255,255,255,.25); color:var(--dim); background:rgba(0,0,0,.5);
 }
 .g10-badge.new{ background:var(--gold); color:#000; border-color:var(--gold); box-shadow:0 0 8px -1px var(--gold); }
+.g10-card .gems-origin-badge{ top:3px; right:3px; left:auto; font-size:.55rem; z-index:2; } /* avoid overlapping the NEW/+1 badge at top-left */
 .g10-dot{
   position:relative; z-index:1; flex:none;
   width:28px; height:28px; border-radius:50%;
@@ -2286,6 +2335,32 @@
   animation:techGearSpin 5s linear infinite;
   pointer-events:none;
 }
+.elem-btn[data-id="emerald"],
+.elem-btn[data-id="topaz"],
+.elem-btn[data-id="amethyst"],
+.elem-btn[data-id="lapizlazuli"],
+.elem-btn[data-id="bismuth"],
+.elem-btn[data-id="opal"]{ position:relative; }
+.elem-btn[data-id="emerald"]::after,
+.elem-btn[data-id="topaz"]::after,
+.elem-btn[data-id="amethyst"]::after,
+.elem-btn[data-id="lapizlazuli"]::after,
+.elem-btn[data-id="bismuth"]::after,
+.elem-btn[data-id="opal"]::after{
+  content:'❖'; /* marks a GEMS UPDATE character, mirrors the ⚙ TECH marker above */
+  position:absolute; bottom:2px; right:6px;
+  font-size:0.62rem;
+  color:var(--accent-gems2);
+  opacity:0.75;
+  text-shadow:0 0 4px var(--accent-gems);
+  animation:gemsSparkleTwinkle 2.1s ease-in-out infinite;
+  pointer-events:none;
+}
+/* GEMS UPDATE — BISMUTH's rainbow-metal dot: its base color (#f5a8ff) is unique in the roster, so any
+   swatch/dot painted with it (element grid, team pickers, gacha cards) becomes an iridescent spectrum */
+[style*="background:#f5a8ff"]{
+  background:conic-gradient(from 30deg,#ff6fae,#ffd23f,#7dffb0,#4dc7ff,#b58aff,#ff6fae) !important;
+}
 </style>
 </head>
 <body>
@@ -2298,6 +2373,7 @@
   <div class="gold-badge">🪙 <span class="n" id="goldDisplay">0</span></div>
   <div class="gems-badge">💎 <span class="n" id="gemsDisplay">0</span></div>
   <div class="gear-badge">🔩 <span class="n" id="gearDisplay">0</span></div>
+  <div class="crystal-badge"><svg class="ico-crystal" viewBox="0 0 20 20" aria-hidden="true"><polygon class="top" points="4,2 10,8 16,2"/><polygon class="left" points="1,8 10,8 4,2"/><polygon class="right" points="19,8 10,8 16,2"/><polygon class="bl" points="1,8 10,8 10,19"/><polygon class="br" points="19,8 10,8 10,19"/><polygon class="outline" points="4,2 16,2 19,8 10,19 1,8"/></svg> <span class="n" id="crystalDisplay">0</span></div>
 </div>
 
 <div class="wrap" id="setupScreen">
@@ -2326,14 +2402,24 @@
     <button type="button" class="btn" id="campaignBtn">🗺️ เข้าสู่แคมเปญ</button>
   </div>
 
-  <div class="section-box event-cta">
+  <div class="section-box event-cta" id="techCta">
     <div class="section-head">
       <div>
-        <div class="t">👾 โหมดอีเว้นท์</div>
-        <div class="d">ด่านพิเศษ 10 ด่าน เจอมอนสเตอร์ 1 ตัวเลือดหนัก 1500-2000 ต่อด่าน — ชนะแล้วได้สกุลเงิน 🔩 Gear ไปสุ่ม/ซื้อตัวละครและไอเทมอีเว้นท์ หรือแลกเป็นเหรียญ/เพชร</div>
+        <div class="t">🔧 TECH UPDATE</div>
+        <div class="d">โหมดอีเว้นท์ TECH — ด่านพิเศษยาวๆ มินิบอส/บอสคั่นเป็นจุด รางวัลเป็น 🔩 Gear · ตู้สุ่มตัวละคร/ไอเทม TECH ของตัวเอง · ร้านค้า มินิเกม และเควสประจำวัน TECH (แยกจาก GEMS UPDATE ทั้งหมด)</div>
       </div>
     </div>
-    <button type="button" class="btn ghost" id="eventBtn">👾 เข้าสู่อีเว้นท์</button>
+    <button type="button" class="btn ghost" id="eventBtn">🔧 เข้าสู่ TECH UPDATE</button>
+  </div>
+
+  <div class="section-box gems-cta" id="gemsCta">
+    <div class="section-head">
+      <div>
+        <div class="t">💎 GEMS UPDATE</div>
+        <div class="d">โหมด GEMS — 20 ด่าน บอส 7 ตัว (มรกต/โทแพซ/อเมทิสต์/บิสมัท/ลาพิสลาซูลี/คอสมอส/โอปอล) รางวัลเป็น <svg class="ico-crystal" viewBox="0 0 20 20" aria-hidden="true"><polygon class="top" points="4,2 10,8 16,2"/><polygon class="left" points="1,8 10,8 4,2"/><polygon class="right" points="19,8 10,8 16,2"/><polygon class="bl" points="1,8 10,8 10,19"/><polygon class="br" points="19,8 10,8 10,19"/><polygon class="outline" points="4,2 16,2 19,8 10,19 1,8"/></svg> คริสตัล (+💎 เพชรเล็กน้อย) · ตู้สุ่มตัวละคร GEMS ของตัวเอง (ไม่ปนกับ TECH) · ร้านค้าและเควสประจำวัน GEMS</div>
+      </div>
+    </div>
+    <button type="button" class="btn ghost" id="gemsBtn">💎 เข้าสู่ GEMS UPDATE</button>
   </div>
 
   <div class="section-box">
@@ -2430,12 +2516,25 @@
 <div class="wrap" id="eventScreen">
   <div class="section-head">
     <div>
-      <div class="t">👾 โหมดอีเว้นท์</div>
-      <div class="d">ลุยด่านอีเว้นท์ สุ่ม/ซื้อตัวละครอีเว้นท์ และรับเควสประจำวัน — ใช้สกุลเงิน 🔩 Gear</div>
+      <div class="t">🔧 TECH UPDATE</div>
+      <div class="d">ลุยด่าน TECH สุ่ม/ซื้อตัวละคร TECH และรับเควสประจำวัน TECH — ใช้สกุลเงิน 🔩 Gear</div>
     </div>
     <button type="button" class="btn ghost small" id="eventBackBtn">← กลับ</button>
   </div>
+  <div class="online-status" id="eventStatus"></div>
   <div id="eventBody"></div>
+</div>
+
+<div class="wrap" id="gemsScreen">
+  <div class="section-head">
+    <div>
+      <div class="t">💎 GEMS UPDATE</div>
+      <div class="d">ลุยด่าน GEMS สุ่ม/ซื้อตัวละคร GEMS และรับเควสประจำวัน GEMS — ใช้สกุลเงิน <svg class="ico-crystal" viewBox="0 0 20 20" aria-hidden="true"><polygon class="top" points="4,2 10,8 16,2"/><polygon class="left" points="1,8 10,8 4,2"/><polygon class="right" points="19,8 10,8 16,2"/><polygon class="bl" points="1,8 10,8 10,19"/><polygon class="br" points="19,8 10,8 10,19"/><polygon class="outline" points="4,2 16,2 19,8 10,19 1,8"/></svg> คริสตัล</div>
+    </div>
+    <button type="button" class="btn ghost small" id="gemsBackBtn">← กลับ</button>
+  </div>
+  <div class="online-status" id="gemsStatus"></div>
+  <div id="gemsBody"></div>
 </div>
 
 <div class="wrap" id="pvpTeamScreen">
@@ -2535,7 +2634,7 @@ function buildFighterFromSaved(t){
   const elem = ELEMENTS.find(e=>e.id===t.elemId) || ELEMENTS[0];
   const pow = typeof t.pow==='number' ? t.pow : elem.pow;
   const spd = typeof t.spd==='number' ? t.spd : elem.spd;
-  return {...elem, pow, spd, name:(t.name||elem.name).toUpperCase(), color:t.color||elem.color, element:elem.name, __elemId:elem.id};
+  return {...elem, pow, spd, name:(t.name||elem.name).toUpperCase(), color:elem.color, element:elem.name, __elemId:elem.id};
 }
 
 // A saved online record now holds a whole squad (`team`: up to 3 member entries) instead of a
@@ -2598,12 +2697,15 @@ function recordOnlineResult(iWon){
 }
 
 function onlineStatusMsg(msg){
-  const el = document.getElementById('onlineStatus');
-  if(!el) return;
-  el.textContent = msg;
-  el.style.opacity = '1';
-  clearTimeout(window._onlineStatusT);
-  window._onlineStatusT = setTimeout(()=>{ el.style.opacity='0'; }, 3200);
+  // the same message is mirrored to the main / TECH / GEMS status lines; only the visible screen's shows
+  ['onlineStatus','eventStatus','gemsStatus'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.textContent = msg;
+    el.style.opacity = '1';
+    clearTimeout(el._t);
+    el._t = setTimeout(()=>{ el.style.opacity='0'; }, 3200);
+  });
 }
 
 function openListModal(title, loaderPromise, renderItem){
@@ -2851,6 +2953,7 @@ function renderCharGrid(ids){
     const dispColor = getCharColor(id);
     return `<div class="char-card" data-elem="${id}" style="--rc:${r.color}">
       ${equipped?`<span class="cc-item-badge" title="${equipped.name}">${equipped.icon}</span>`:''}
+      ${gemsOriginBadge(id)}
       <div class="cc-dot" style="background:${dispColor};color:${dispColor}"></div>
       <div class="cc-name" style="color:${dispColor}">${e.name}</div>
       <div class="cc-lv">Lv.${entry.level}${entry.level>=LEVEL_CAP?' MAX':''}</div>
@@ -2897,9 +3000,6 @@ function renderCharDetail(id){
   }).join('');
 
   const dispColor = getCharColor(id);
-  const colorSwatchesHTML = COLORS.map(c=>
-    `<div class="swatch${c.toLowerCase()===dispColor.toLowerCase()?' sel':''}" data-color="${c}" style="background:${c};--sc:${c}"></div>`
-  ).join('');
   return `
   <div class="wh-back" id="whBackChars">← กลับไปดูรายการทั้งหมด</div>
   <div class="wh-detail-head">
@@ -2908,8 +3008,6 @@ function renderCharDetail(id){
     <div class="wh-detail-tag">${elem.tag}</div>
     <div class="wh-detail-stars" style="color:${rarity.color}">${'★'.repeat(rarity.stars)} ${rarity.labelTH}</div>
   </div>
-  <label style="display:block;font-size:0.6rem;letter-spacing:1.5px;color:var(--dim);margin:14px 0 9px;text-transform:uppercase;">🎨 เลือกสีตัวละคร (ใช้อัตโนมัติเมื่อนำไปต่อสู้)</label>
-  <div class="swatches wh-color-swatches" data-elem="${id}">${colorSwatchesHTML}</div>
   <div class="roster-row-head">
     <span class="roster-name" style="color:${elem.color}">Lv.${entry.level}${maxed?' (MAX)':''}</span>
     <span class="roster-lv">เศษอัพเกรด ${entry.shards}</span>
@@ -3104,16 +3202,6 @@ function wireRosterListEvents(){
       }
     };
   });
-  const colorSwatchRow = document.querySelector('.wh-color-swatches');
-  if(colorSwatchRow){
-    const elemId = colorSwatchRow.dataset.elem;
-    colorSwatchRow.querySelectorAll('.swatch').forEach(sw=>{
-      sw.onclick = ()=>{
-        setCharColor(elemId, sw.dataset.color);
-        openRosterModal();
-      };
-    });
-  }
   document.querySelectorAll('.item-chip-row').forEach(row=>{
     const elemId = row.dataset.elem;
     row.querySelectorAll('.item-chip:not(.unavailable)').forEach(chip=>{
@@ -3357,7 +3445,7 @@ function renderTeamPicker(stage){
     const card = document.createElement('div');
     card.className = 'team-pick-card';
     card.dataset.id = id;
-    card.innerHTML = `<div class="pick-order"></div><div class="dot" style="background:${getCharColor(id)}"></div><div class="en">${elem.name}</div><div class="th">Lv.${entry.level}</div>`;
+    card.innerHTML = `<div class="pick-order"></div>${gemsOriginBadge(id)}<div class="dot" style="background:${getCharColor(id)}"></div><div class="en">${elem.name}</div><div class="th">Lv.${entry.level}</div>`;
     card.onclick = ()=>{
       const idx = _pickedTeam.indexOf(id);
       if(idx>=0){ _pickedTeam.splice(idx,1); card.classList.remove('picked'); }
@@ -3530,7 +3618,7 @@ function renderPvpTeamPicker(){
     card.dataset.id = id;
     const already = _pvpPickedTeam.indexOf(id);
     if(already>=0) card.classList.add('picked');
-    card.innerHTML = `<div class="pick-order">${already>=0?(already+1):''}</div><div class="dot" style="background:${getCharColor(id)}"></div><div class="en">${elem.name}</div><div class="th">Lv.${entry.level}</div>`;
+    card.innerHTML = `<div class="pick-order">${already>=0?(already+1):''}</div>${gemsOriginBadge(id)}<div class="dot" style="background:${getCharColor(id)}"></div><div class="en">${elem.name}</div><div class="th">Lv.${entry.level}</div>`;
     card.onclick = ()=>{
       const idx = _pvpPickedTeam.indexOf(id);
       if(idx>=0){ _pvpPickedTeam.splice(idx,1); card.classList.remove('picked'); }
@@ -3683,7 +3771,19 @@ function runRemoteSpectator(code, hostFighter, myFighter){
     canvas.height = rect.height * DPR;
   }
   fit();
-  window.onresize = fit;
+  // [BUGFIX] same black-arena-after-the-match problem as the main battle: once the room has ended
+  // cleanup() cancels the draw loop, so a resize (which wipes the canvas) left the arena black.
+  function refitAndRepaint(){
+    const rect = canvas.getBoundingClientRect();
+    if(!rect.width || !rect.height) return;
+    fit();
+    if(ended){
+      draw();                                   // paints the last known frame...
+      if(animId) cancelAnimationFrame(animId);  // ...without restarting the finished loop
+    }
+  }
+  window.onresize = refitAndRepaint;
+  window._repaintBattle = refitAndRepaint;
   const W = ()=>canvas.width/DPR;
   const H = ()=>canvas.height/DPR;
   const MAXHP = 1000;
@@ -3796,7 +3896,10 @@ function loadSave(){
       d.pvpTeamName = (typeof d.pvpTeamName === 'string') ? d.pvpTeamName.slice(0,20) : ''; // custom online PVP squad name, optional
       d.gear = d.gear || 0; // event-mode currency
       d.eventStageProgress = d.eventStageProgress || 0; // highest cleared event stage id
-      d.dailyQuests = (d.dailyQuests && typeof d.dailyQuests==='object') ? d.dailyQuests : null; // {date, quests:[...]}
+      d.dailyQuests = (d.dailyQuests && typeof d.dailyQuests==='object') ? d.dailyQuests : null; // {date, quests:[...]} — TECH UPDATE daily quests
+      d.gemsStageProgress = d.gemsStageProgress || 0; // highest cleared GEMS UPDATE stage id
+      d.gemsQuests = (d.gemsQuests && typeof d.gemsQuests==='object') ? d.gemsQuests : null; // {date, quests:[...]} — GEMS UPDATE daily quests
+      d.crystal = d.crystal || 0; // GEMS UPDATE's own currency — replaces 💎 gems as the mode's spend currency (mirrors 🔩 Gear for TECH)
       // world-gate gold purchases — which map indices the player has paid to unlock, on top
       // of the existing "clear the previous map" requirement. Map 0 is always free/owned.
       d.unlockedMaps = Array.isArray(d.unlockedMaps) ? d.unlockedMaps : [0];
@@ -3805,7 +3908,7 @@ function loadSave(){
       return d;
     }
   }catch(e){}
-  return {gems:0, gold:0, roster:{}, itemInventory:{}, itemLevels:{}, redeemedCodes:[], stageProgress:0, pvpTeam:[], pvpTeamName:'', gear:0, eventStageProgress:0, dailyQuests:null, unlockedMaps:[0], minigame:null};
+  return {gems:0, gold:0, roster:{}, itemInventory:{}, itemLevels:{}, redeemedCodes:[], stageProgress:0, pvpTeam:[], pvpTeamName:'', gear:0, eventStageProgress:0, dailyQuests:null, gemsStageProgress:0, gemsQuests:null, unlockedMaps:[0], minigame:null, crystal:0};
 }
 let saveData = loadSave();
 function persistSave(){
@@ -3818,12 +3921,28 @@ function refreshGemsUI(){
   if(cEl) cEl.textContent = saveData.gold;
   const rEl = document.getElementById('gearDisplay');
   if(rEl) rEl.textContent = saveData.gear||0;
+  const gbEl = document.getElementById('gemsBarN'); // live 💎 balance on the GEMS UPDATE screen
+  if(gbEl) gbEl.textContent = saveData.gems||0;
+  const tbEl = document.getElementById('gearBarN'); // live 🔩 balance on the TECH UPDATE screen
+  if(tbEl) tbEl.textContent = saveData.gear||0;
+  const xEl = document.getElementById('crystalDisplay');
+  if(xEl) xEl.textContent = saveData.crystal||0;
+  const xbEl = document.getElementById('crystalBarN'); // live 🔷 balance on the GEMS UPDATE screen
+  if(xbEl) xbEl.textContent = saveData.crystal||0;
 }
 function addGems(n){
   saveData.gems = Math.max(0, saveData.gems + n);
   persistSave();
   refreshGemsUI();
 }
+function addCrystal(n){
+  saveData.crystal = Math.max(0, (saveData.crystal||0) + n);
+  persistSave();
+  refreshGemsUI();
+}
+// faceted gem icon markup for 🔷 Crystal (GEMS UPDATE currency) — used in place of an emoji
+// anywhere the string goes into innerHTML; toast messages (textContent-only) still use plain text.
+const CRYSTAL_ICON = '<svg class="ico-crystal" viewBox="0 0 20 20" aria-hidden="true"><polygon class="top" points="4,2 10,8 16,2"/><polygon class="left" points="1,8 10,8 4,2"/><polygon class="right" points="19,8 10,8 16,2"/><polygon class="bl" points="1,8 10,8 10,19"/><polygon class="br" points="19,8 10,8 10,19"/><polygon class="outline" points="4,2 16,2 19,8 10,19 1,8"/></svg>';
 function addGold(n){
   saveData.gold = Math.max(0, saveData.gold + n);
   persistSave();
@@ -3842,11 +3961,18 @@ refreshGemsUI();
    (b) lets gold buy shards for them again, and (c) hides the event-mode CTA on the main screen. */
 const EVENT_ACTIVE = true;
 const TECH_IDS = ['microchip','computer','techno','glitch','drone','diode']; // TECH UPDATE elements — event-exclusive while EVENT_ACTIVE (GLITCH/DRONE added for the newest event drop, DIODE added as the Hack-the-Mainframe minigame's perfect-clear reward)
-// GEMS UPDATE elements — not gacha-locked like TECH_IDS (they're already in the normal gacha
-// pool), but get their own direct-buy shop row priced in 💎 Gems instead of 🔩 Gear, since Gems
-// update was pitched as a Gems-currency shop rather than another Gear sink.
-const GEMS_IDS = ['emerald','topaz','amethyst','lapizlazuli'];
+// GEMS UPDATE elements — now event-exclusive just like TECH_IDS: while GEMS_ACTIVE they no longer
+// roll from the normal gacha or the TECH gacha, only from the GEMS mode's own gacha / 💎 direct-buy
+// shop. Flip GEMS_ACTIVE to false to release them back into the normal pool.
+const GEMS_ACTIVE = true;
+const GEMS_IDS = ['emerald','topaz','amethyst','lapizlazuli','bismuth','opal'];
+// small 💎 corner badge marking a character as a GEMS UPDATE character, wherever its card is shown
+// (roster, team pickers, gacha reveal) — empty string for everyone else.
+function gemsOriginBadge(elemId){
+  return GEMS_IDS.includes(elemId) ? '<span class="gems-origin-badge" title="มาจาก GEMS UPDATE">❖</span>' : '';
+}
 function isEventActive(){ return EVENT_ACTIVE; }
+function isGemsActive(){ return GEMS_ACTIVE; }
 const GEAR_TO_GOLD_RATE = 1;   // 1 Gear = 1 Gold
 const GEAR_TO_GEMS_RATE = 100; // 100 Gear = 50 Gems (i.e. 2 Gear per Gem)
 const GEAR_TO_GEMS_OUT = 50;
@@ -3870,41 +3996,57 @@ function exchangeGearForGems(gearAmt){
 /* ---- daily quests: 3 random quests re-rolled once per calendar day, auto-claimed the instant
    their target is reached so the reward loop stays frictionless on mobile ---- */
 function todayStr(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-const DAILY_QUEST_POOL = [
-  {id:'gachaChar', desc:'สุ่มตัวละคร 1 ครั้ง (ปกติหรืออีเว้นท์)', type:'gachaChar', target:1, reward:{gold:200}},
-  {id:'levelUp', desc:'อัพเกรดตัวละคร 1 ครั้ง', type:'levelUp', target:1, reward:{gems:15}},
-  {id:'campaignWin', desc:'ผ่านด่านแคมเปญ 1 ด่าน', type:'campaignWin', target:1, reward:{gold:250}},
-  {id:'eventWin1', desc:'ผ่านด่านอีเว้นท์ 1 ด่าน', type:'eventWin', target:1, reward:{gear:25}},
-  {id:'eventWin3', desc:'ผ่านด่านอีเว้นท์ 3 ด่าน', type:'eventWin', target:3, reward:{gear:60, gems:10}},
-  {id:'anyWin3', desc:'ชนะด่าน (แคมเปญ/อีเว้นท์) รวม 3 ครั้ง', type:'anyWin', target:3, reward:{gems:20, gear:15}},
+const DAILY_QUEST_POOL = [ // TECH UPDATE daily quests — paid in 🔩 Gear (GEMS UPDATE has its own set below)
+  {id:'techWin1',  desc:'ผ่านด่าน TECH 1 ด่าน',               type:'eventWin',  target:1, reward:{gear:30}},
+  {id:'techWin3',  desc:'ผ่านด่าน TECH 3 ด่าน',               type:'eventWin',  target:3, reward:{gear:90, gold:150}},
+  {id:'techBoss',  desc:'เอาชนะมินิบอส/บอส TECH 1 ครั้ง',      type:'techBoss',  target:1, reward:{gear:70}},
+  {id:'techGacha', desc:'สุ่มตัวละครที่ตู้ TECH 1 ครั้ง',       type:'techGacha', target:1, reward:{gear:25, gold:100}},
+  {id:'techItem',  desc:'สุ่มไอเทมที่ตู้ TECH 1 ครั้ง',         type:'techItem',  target:1, reward:{gear:20}},
+  {id:'techShard', desc:'ซื้อเศษอัพเกรดด้วย Gear 1 ครั้ง',      type:'techShard', target:1, reward:{gear:30}},
 ];
-function ensureDailyQuests(){
+const GEMS_QUEST_POOL = [ // GEMS UPDATE daily quests — paid in 🔷 Crystal (GEMS UPDATE's own spend currency)
+  {id:'gemsWin1',    desc:'ผ่านด่าน GEMS 1 ด่าน',                  type:'gemsWin',    target:1, reward:{crystal:20}},
+  {id:'gemsWin3',    desc:'ผ่านด่าน GEMS 3 ด่าน',                  type:'gemsWin',    target:3, reward:{crystal:60, gold:200}},
+  {id:'gemsBoss',    desc:'เอาชนะบอส GEMS 1 ครั้ง',                type:'gemsBoss',   target:1, reward:{crystal:50}},
+  {id:'gemsGacha',   desc:'สุ่มตัวละครที่ตู้ GEMS 1 ครั้ง',         type:'gemsGacha',  target:1, reward:{crystal:15, gold:150}},
+  {id:'gemsGacha10', desc:'สุ่มตัวละครที่ตู้ GEMS แบบ ×10 1 ครั้ง',  type:'gemsGacha10',target:1, reward:{crystal:40}},
+  {id:'gemsReplay',  desc:'เล่นซ้ำด่าน GEMS ที่ผ่านแล้ว 1 ครั้ง',    type:'gemsReplay', target:1, reward:{crystal:15, gold:100}},
+];
+function ensureQuestSet(key, pool){
   const t = todayStr();
-  if(!saveData.dailyQuests || saveData.dailyQuests.date!==t){
-    const pool = [...DAILY_QUEST_POOL];
+  if(!saveData[key] || saveData[key].date!==t){
+    const rest = [...pool];
     const picked = [];
-    while(picked.length<3 && pool.length){
-      const i = Math.floor(Math.random()*pool.length);
-      picked.push(pool.splice(i,1)[0]);
+    while(picked.length<3 && rest.length){
+      const i = Math.floor(Math.random()*rest.length);
+      picked.push(rest.splice(i,1)[0]);
     }
-    saveData.dailyQuests = { date:t, quests: picked.map(q=>({...q, progress:0, claimed:false})) };
+    saveData[key] = { date:t, quests: picked.map(q=>({...q, progress:0, claimed:false})) };
     persistSave();
   }
 }
+function ensureDailyQuests(){ ensureQuestSet('dailyQuests', DAILY_QUEST_POOL); }
+function ensureGemsQuests(){ ensureQuestSet('gemsQuests', GEMS_QUEST_POOL); }
+// Both quest sets share one tracker; their quest types never overlap (tech*/eventWin vs gems*),
+// so a TECH action can never advance a GEMS quest or vice versa.
 function questProgress(type, amt){
   ensureDailyQuests();
+  ensureGemsQuests();
   let changed = false;
-  saveData.dailyQuests.quests.forEach(q=>{
-    if(q.type!==type || q.claimed) return;
-    q.progress = Math.min(q.target, q.progress+amt);
-    changed = true;
-    if(q.progress>=q.target){
-      q.claimed = true;
-      if(q.reward.gold) addGold(q.reward.gold);
-      if(q.reward.gems) addGems(q.reward.gems);
-      if(q.reward.gear) addGear(q.reward.gear);
-      onlineStatusMsg(`✅ เควสสำเร็จ: ${q.desc}`);
-    }
+  ['dailyQuests','gemsQuests'].forEach(key=>{
+    saveData[key].quests.forEach(q=>{
+      if(q.type!==type || q.claimed) return;
+      q.progress = Math.min(q.target, q.progress+amt);
+      changed = true;
+      if(q.progress>=q.target){
+        q.claimed = true;
+        if(q.reward.gold) addGold(q.reward.gold);
+        if(q.reward.gems) addGems(q.reward.gems);
+        if(q.reward.gear) addGear(q.reward.gear);
+        if(q.reward.crystal) addCrystal(q.reward.crystal);
+        onlineStatusMsg(`✅ เควสสำเร็จ: ${q.desc}`);
+      }
+    });
   });
   if(changed) persistSave();
 }
@@ -4040,7 +4182,7 @@ function renderEpicChoiceBody(introMsg){
   // DIODE is deliberately excluded from this redeem-code epic picker too — a direct pick-your-
   // reward code would otherwise be a "direct exchange" for it, which the minigame-only rule
   // rules out entirely.
-  const epics = ELEMENTS.filter(e=>e.rarity==='epic' && e.id!=='diode');
+  const epics = ELEMENTS.filter(e=>e.rarity==='epic' && e.id!=='diode' && !(isGemsActive() && GEMS_IDS.includes(e.id)));
   const cards = epics.map(e=>{
     const owned = ownsChar(e.id);
     return `<div class="team-pick-card epic-choice-card" data-id="${e.id}">
@@ -4219,22 +4361,14 @@ function levelUpCost(level){ return {gold: Math.round(150*level*(1+level*0.12)),
 
 function rosterEntry(elemId){ return saveData.roster[elemId] || null; }
 function ownsChar(elemId){ return !!saveData.roster[elemId]; }
-// Effective color for an owned character: the custom color picked for it in the warehouse
-// (คลัง), if any — otherwise the element's own default color. This is the single source of
-// truth for "what color is this fighter" everywhere it matters (battle, team pickers, lists),
-// so picking a color once in the warehouse is all it takes for it to show up everywhere.
+// Character color is always the element's own original color. The old per-character custom color
+// (warehouse swatch picker) was removed to make room for a future skin system — any `color` still
+// saved on old roster entries is simply ignored, not deleted. This stays the single source of truth
+// for "what color is this fighter" (battle, team pickers, lists), so a skin system only needs to
+// change this one function.
 function getCharColor(elemId){
   const elem = ELEMENTS.find(e=>e.id===elemId);
-  if(!elem) return '#ffffff';
-  const entry = saveData.roster[elemId];
-  return (entry && entry.color) || elem.color;
-}
-function setCharColor(elemId, color){
-  const entry = saveData.roster[elemId];
-  if(!entry) return false;
-  entry.color = color;
-  persistSave();
-  return true;
+  return elem ? elem.color : '#ffffff';
 }
 
 // Rolls a character. New -> added to roster at level 1. Duplicate -> +1 shard for that character.
@@ -4320,7 +4454,7 @@ function gearShardBuyCost(elemId){
   // [SHARD CAP] same rule as shardBuyCost — don't sell shards past what the next level-up
   // actually needs.
   if(entry.shards>=levelUpCost(entry.level).shards) return null;
-  return 25 + entry.level*18;
+  return 40 + entry.level*27; // [PRICE UP] was 25 + level*18
 }
 function buyShardWithGear(elemId){
   const entry = rosterEntry(elemId);
@@ -4331,6 +4465,7 @@ function buyShardWithGear(elemId){
   entry.shards++;
   persistSave();
   refreshGemsUI();
+  questProgress('techShard', 1);
   return true;
 }
 // How many spare (not-currently-equipped) copies of an item the player has — optionally
@@ -4879,7 +5014,7 @@ function runEventBattle(stageDef, playerTeamDefs){
       addGear(gearReward);
       persistSave();
       questProgress('eventWin', 1);
-      questProgress('anyWin', 1);
+      if(stageDef.boss) questProgress('techBoss', 1);
       onlineStatusMsg(`ผ่านด่านอีเว้นท์ ${stageDef.id}! +${gearReward}🔩${alreadyCleared?' (เล่นซ้ำ)':''}`);
     } else {
       onlineStatusMsg(`พ่ายมอนสเตอร์อีเว้นท์ด่าน ${stageDef.id} (❤️${stageDef.hp}) — ลองอัพเกรดทีมแล้วมาใหม่`);
@@ -4922,7 +5057,7 @@ function renderEventTeamPicker(stage){
     const card = document.createElement('div');
     card.className = 'team-pick-card';
     card.dataset.id = id;
-    card.innerHTML = `<div class="pick-order"></div><div class="dot" style="background:${getCharColor(id)}"></div><div class="en">${elem.name}</div><div class="th">Lv.${entry.level}</div>`;
+    card.innerHTML = `<div class="pick-order"></div>${gemsOriginBadge(id)}<div class="dot" style="background:${getCharColor(id)}"></div><div class="en">${elem.name}</div><div class="th">Lv.${entry.level}</div>`;
     card.onclick = ()=>{
       const idx = _pickedEventTeam.indexOf(id);
       if(idx>=0){ _pickedEventTeam.splice(idx,1); card.classList.remove('picked'); }
@@ -5011,6 +5146,7 @@ const BOSS_GAME_KIND_BY_ELEM = {
   aqua:'catch', toxin:'bubble', gale:'gust', nature:'sprout',
   radiant:'mirror', shadow:'shadowfind', microchip:'circuit', drone:'intercept',
   computer:'datastream', blood:'heartbeat',
+  emerald:'sprout', topaz:'mirror', amethyst:'shadowfind', lapizlazuli:'constellation', bismuth:'shatter',
 };
 // safety net only — every element actually used as a boss (see MAPS / EVENT_STAGE_DEFS) is
 // already covered above with its own bespoke kind, so this only ever fires for a genuinely
@@ -6523,19 +6659,18 @@ function handleHeartbeatTap(){
 
 /* ---- Event Center: stage list / shop / daily quests, tabbed within #eventScreen ---- */
 let eventTab = 'stages'; // 'stages' | 'shop' | 'quests'
-let eventShopSubTab = 'tech'; // 'tech' | 'gems' — keeps the TECH UPDATE and GEMS UPDATE shop sections fully separate instead of stacked on one scrolling page
-const EVENT_CHAR_SHOP_COST = {common:40, uncommon:90, rare:180, epic:320, legendary:600};
-// GEMS UPDATE direct-buy prices — Gems (💎) are the premium currency (also used for the main
-// character gacha), so these sit well below the Gear table's raw numbers rather than matching
-// them 1:1; roughly in line with the 2 Gear : 1 Gem exchange rate below plus a small premium
-// for skipping the gacha and picking the character directly.
-const EVENT_GEMS_SHOP_COST = {common:25, uncommon:55, rare:110, epic:200, legendary:380};
+// [PRICE UP] every TECH purchase price is now ~1.5x what it used to be (direct-buy was 40/90/180/320/600,
+// char gacha 60, item gacha 40).
+// [PRICE REBALANCE] event pulls are cheaper (char gacha 90 -> 60, item gacha 60 -> 40) while buying a
+// character outright costs 1.5x more (was 60/135/270/480/900) — rolling is now the efficient route
+const EVENT_CHAR_SHOP_COST = {common:90, uncommon:200, rare:400, epic:720, legendary:1350};
 const EVENT_CHAR_GACHA_COST = 60;  // Gear per roll — pool includes TECH elements
 const EVENT_ITEM_GACHA_COST = 40;  // Gear per item roll
 // DIODE is deliberately left out of the event's own character pool too — the ONLY way to get
 // it is a perfect clear of the "แฮ็กเมนเฟรม TECH" minigame (see endHackGame), not the event
-// gacha and not a direct Gear purchase.
-function getEventGachaPool(){ return ELEMENTS.filter(e=>e.id!=='diode'); }
+// gacha and not a direct Gear purchase. GEMS characters are NOT in this pool either — they live
+// in the GEMS mode's own gacha (getGemsGachaPool), so the two banners never mix.
+function getEventGachaPool(){ return ELEMENTS.filter(e=>e.id!=='diode' && !(isGemsActive() && GEMS_IDS.includes(e.id))); }
 
 function openEventScreen(){
   document.getElementById('setupScreen').style.display='none';
@@ -6549,7 +6684,7 @@ function eventTabsHTML(){
   return `<div class="event-tabs">${tabs.map(([k,label])=>
     `<button type="button" class="btn ghost small ${eventTab===k?'active':''}" data-tab="${k}">${label}</button>`
   ).join('')}</div>
-  <div class="event-gear-bar">🔩 Gear ของคุณ: <b>${saveData.gear||0}</b> — 1 Gear = ${GEAR_TO_GOLD_RATE}🪙 · ${GEAR_TO_GEMS_RATE} Gear = ${GEAR_TO_GEMS_OUT}💎</div>`;
+  <div class="event-gear-bar">🔩 Gear ของคุณ: <b id="gearBarN">${saveData.gear||0}</b> — 1 Gear = ${GEAR_TO_GOLD_RATE}🪙 · ${GEAR_TO_GEMS_RATE} Gear = ${GEAR_TO_GEMS_OUT}💎</div>`;
 }
 function wireEventTabs(){
   document.querySelectorAll('#eventBody .event-tabs [data-tab]').forEach(btn=>{
@@ -6591,16 +6726,6 @@ function renderEventStages(){
 }
 function renderEventShop(){
   const body = document.getElementById('eventBody');
-  // GEMS UPDATE — the shop now has its own sub-tab bar so TECH UPDATE and GEMS UPDATE content
-  // are fully separate screens instead of stacked on one long scrolling page. Sub-tab state
-  // persists across re-renders (eventShopSubTab) so re-rendering after a purchase doesn't
-  // silently bounce the player back to the other tab.
-  const subTabsHTML = `
-    <div class="event-shop-subtabs" style="display:flex; gap:8px; margin-bottom:12px;">
-      <button type="button" class="btn ${eventShopSubTab==='tech'?'':'ghost'} small" id="shopSubTabTech">🔧 TECH UPDATE</button>
-      <button type="button" class="btn ${eventShopSubTab==='gems'?'':'ghost'} small" id="shopSubTabGems">💎 GEMS UPDATE</button>
-    </div>`;
-
   const exchangeHTML = `
     <div class="event-shop-section">
       <div class="t">🔁 แลกเหรียญ / เพชร</div>
@@ -6617,60 +6742,6 @@ function renderEventShop(){
     document.getElementById('exGems100').onclick = ()=>{ if(exchangeGearForGems(100)) { onlineStatusMsg('แลก 100🔩 → 50💎 สำเร็จ'); renderEventShop(); } else onlineStatusMsg('Gear ไม่พอ'); };
     document.getElementById('exGems500').onclick = ()=>{ if(exchangeGearForGems(500)) { onlineStatusMsg('แลก 500🔩 → 250💎 สำเร็จ'); renderEventShop(); } else onlineStatusMsg('Gear ไม่พอ'); };
   }
-  function wireShopSubTabs(){
-    document.getElementById('shopSubTabTech').onclick = ()=>{ eventShopSubTab='tech'; renderEventShop(); };
-    document.getElementById('shopSubTabGems').onclick = ()=>{ eventShopSubTab='gems'; renderEventShop(); };
-  }
-
-  if(eventShopSubTab==='gems'){
-    // GEMS UPDATE — direct-buy only (no separate random pull here; these four are already in
-    // the main event gacha pool, and Gems already have their own standard character gacha
-    // elsewhere in the game) — priced in 💎 Gems instead of 🔩 Gear.
-    const gemsShopElems = ELEMENTS.filter(e=>GEMS_IDS.includes(e.id));
-    const gachaCardsGems = gemsShopElems.map(elem=>{
-      const rr = getRarity(elem);
-      const cost = EVENT_GEMS_SHOP_COST[elem.rarity] || 60;
-      const owned = ownsChar(elem.id);
-      const affordable = !owned && (saveData.gems||0) >= cost;
-      const cls = ['team-pick-card','event-buy-card','gems-buy-card'];
-      if(owned) cls.push('owned'); else if(!affordable) cls.push('unavailable');
-      return `<div class="${cls.join(' ')}" data-id="${elem.id}" data-cost="${cost}" style="--rc:${elem.color}">
-        <div class="dot" style="background:${elem.color}"></div>
-        <div class="en">${elem.name}</div>
-        <div class="th">${rr.labelTH}</div>
-        ${owned ? `<div class="ebc-owned-badge">✅ ซื้อแล้ว</div>` : `<div class="ebc-cost">${cost}💎</div>`}
-      </div>`;
-    }).join('');
-    body.innerHTML = eventTabsHTML() + subTabsHTML + `
-      <div class="event-shop-section">
-        <div class="t">💎 ซื้อตัวละคร GEMS UPDATE เจาะจง</div>
-        <div class="d">ซื้อตัวละครชุด GEMS UPDATE (EMERALD/TOPAZ/AMETHYST/LAPIZLAZULI) ตรงๆ ด้วยเพชร แทนการลุ้นจากตู้สุ่ม — แตะเพื่อซื้อทันที (ตัวที่มีแล้วจะล็อก ซื้อซ้ำไม่ได้)</div>
-        <div class="team-pick-grid" id="eventGemsShopGrid">${gachaCardsGems}</div>
-      </div>
-      ${exchangeHTML}
-    `;
-    wireEventTabs();
-    wireShopSubTabs();
-    body.querySelectorAll('.gems-buy-card:not(.owned):not(.unavailable)').forEach(card=>{
-      card.onclick = ()=>{
-        const elemId = card.dataset.id;
-        const cost = parseInt(card.dataset.cost, 10);
-        if((saveData.gems||0) < cost){ onlineStatusMsg('เพชรไม่พอ'); return; }
-        if(ownsChar(elemId)){ renderEventShop(); return; } // safety net if state changed mid-render
-        const elemG = ELEMENTS.find(e=>e.id===elemId);
-        if(!elemG) return;
-        saveData.gems -= cost; persistSave(); refreshGemsUI();
-        window.gachaPull(()=>elemG, ()=>{
-          grantCharacterDirect(elemId);
-          onlineStatusMsg(`${elemG.name} ซื้อแล้ว! เข้าคลังแล้ว 🎉 (-${cost}💎)`);
-          renderEventShop();
-        });
-      };
-    });
-    wireExchangeButtons();
-    return;
-  }
-
   // ===== TECH UPDATE tab (default) =====
   // [TECH UPDATE] direct-buy is restricted to the true event-exclusive TECH characters only —
   // every other (non-event) character can only be obtained through the random event gacha above,
@@ -6721,10 +6792,10 @@ function renderEventShop(){
       <div class="esr-go">${rowLabel}</div>
     </div>`;
   }).join('');
-  body.innerHTML = eventTabsHTML() + subTabsHTML + `
+  body.innerHTML = eventTabsHTML() + `
     <div class="event-shop-section">
       <div class="t">🎲 สุ่มตัวละครอีเว้นท์</div>
-      <div class="d">ใช้ Gear สุ่มตัวละคร — พูลนี้รวมตัวละคร TECH UPDATE (ไมโครชิป/คอมพิวเตอร์/เทคโน/กลิทช์/โดรน) ที่หาไม่ได้จากตู้ปกติระหว่างอีเว้นท์ ส่วนตัวละครทั่วไปนอกอีเว้นท์ต้องสุ่มเอาเท่านั้น ซื้อตรงไม่ได้ (ยกเว้น 🔆 DIODE ที่ไม่อยู่ในพูลสุ่มหรือซื้อตรงใดๆ เลย ต้องผ่านมินิเกม "แฮ็กเมนเฟรม TECH" ให้ครบเท่านั้น) · สุ่มไอเทมที่นี่ยังมีโอกาสได้ไอเทมอีเว้นท์เอ็กซ์คลูซีฟ (NANO REPAIR KIT / OVERCLOCK CHIP / QUANTUM CAPACITOR) ที่หาไม่ได้จากตู้ไอเทมปกติด้วย</div>
+      <div class="d">ใช้ Gear สุ่มตัวละคร — พูลนี้รวมตัวละคร TECH UPDATE (ไมโครชิป/คอมพิวเตอร์/เทคโน/กลิทช์/โดรน) ที่หาไม่ได้จากตู้ปกติระหว่างอีเว้นท์ (ไม่รวมตัวละคร GEMS UPDATE ซึ่งมีตู้สุ่มแยกของตัวเองในโหมด GEMS) ส่วนตัวละครทั่วไปนอกอีเว้นท์ต้องสุ่มเอาเท่านั้น ซื้อตรงไม่ได้ (ยกเว้น 🔆 DIODE ที่ไม่อยู่ในพูลสุ่มหรือซื้อตรงใดๆ เลย ต้องผ่านมินิเกม "แฮ็กเมนเฟรม TECH" ให้ครบเท่านั้น) · สุ่มไอเทมที่นี่ยังมีโอกาสได้ไอเทมอีเว้นท์เอ็กซ์คลูซีฟ (NANO REPAIR KIT / OVERCLOCK CHIP / QUANTUM CAPACITOR) ที่หาไม่ได้จากตู้ไอเทมปกติด้วย</div>
       <div class="exchange-row">
         <button type="button" class="btn ghost small" id="eventCharGachaBtn">🎲 สุ่มตัวละคร (${EVENT_CHAR_GACHA_COST}🔩)</button>
         <button type="button" class="btn ghost small x10-btn" id="eventCharGacha10Btn">🎲 สุ่ม x10 (${EVENT_CHAR_GACHA_COST*10}🔩)</button>
@@ -6747,11 +6818,11 @@ function renderEventShop(){
     ${exchangeHTML}
   `;
   wireEventTabs();
-  wireShopSubTabs();
   document.getElementById('eventCharGachaBtn').onclick = ()=>{
     if((saveData.gear||0) < EVENT_CHAR_GACHA_COST){ onlineStatusMsg('Gear ไม่พอ ต้องการ '+EVENT_CHAR_GACHA_COST+'🔩'); return; }
     saveData.gear -= EVENT_CHAR_GACHA_COST; persistSave(); refreshGemsUI();
     pullCharacter(getEventGachaPool()).then(({picked, isNew})=>{
+      questProgress('techGacha', 1);
       onlineStatusMsg(isNew ? `ได้ตัวละครใหม่: ${picked.name}! เข้าคลังแล้ว` : `${picked.name} ซ้ำ — ได้เศษอัพเกรด +1`);
       renderEventShop();
     });
@@ -6764,7 +6835,7 @@ function renderEventShop(){
     roll:()=>pullCharacterBatch(MULTI_PULL_COUNT, getEventGachaPool()),
     title:'สุ่มตัวละครอีเว้นท์ ×10', subtitle:'รวมตัวละคร TECH UPDATE',
     summaryOf:charBatchSummary,
-    finish:(picks)=>{ questProgress('gachaChar', MULTI_PULL_COUNT); onlineStatusMsg(charBatchSummary(picks)); renderEventShop(); },
+    finish:(picks)=>{ questProgress('techGacha', MULTI_PULL_COUNT); onlineStatusMsg(charBatchSummary(picks)); renderEventShop(); },
     again:()=>runEventChar10()
   });
   document.getElementById('eventCharGacha10Btn').onclick = runEventChar10;
@@ -6772,6 +6843,7 @@ function renderEventShop(){
     if((saveData.gear||0) < EVENT_ITEM_GACHA_COST){ onlineStatusMsg('Gear ไม่พอ ต้องการ '+EVENT_ITEM_GACHA_COST+'🔩'); return; }
     saveData.gear -= EVENT_ITEM_GACHA_COST; persistSave(); refreshGemsUI();
     pullItem(ITEM_DEFS).then(({picked})=>{
+      questProgress('techItem', 1);
       onlineStatusMsg(`ได้ไอเทมอีเว้นท์: ${picked.name} (${picked.tag})`);
       renderEventShop();
     });
@@ -6781,7 +6853,7 @@ function renderEventShop(){
     roll:()=>pullItemBatch(MULTI_PULL_COUNT, ITEM_DEFS),
     title:'สุ่มไอเทมอีเว้นท์ ×10', subtitle:'มีโอกาสได้ไอเทมเอ็กซ์คลูซีฟของอีเว้นท์',
     summaryOf:itemBatchSummary,
-    finish:(picks)=>{ onlineStatusMsg(itemBatchSummary(picks)); renderEventShop(); },
+    finish:(picks)=>{ questProgress('techItem', MULTI_PULL_COUNT); onlineStatusMsg(itemBatchSummary(picks)); renderEventShop(); },
     again:()=>runEventItem10()
   });
   document.getElementById('eventItemGacha10Btn').onclick = runEventItem10;
@@ -7020,6 +7092,360 @@ function renderEventQuests(){
 }
 
 
+/* ================= GEMS UPDATE MODE =================
+   Its own screen (#gemsScreen), fully separate from the TECH event (#eventScreen):
+     - own stages (GEMS_STAGE_DEFS) with progress saved in saveData.gemsStageProgress
+     - own daily quests (GEMS_QUEST_POOL -> saveData.gemsQuests)
+     - own character gacha pool (getGemsGachaPool — GEMS characters + regular ones, NO TECH)
+     - own currency: everything here is priced / paid in 🔷 Crystal (TECH uses 🔩 Gear); stages also
+       drop a small bonus of 💎 Gems on the side, spendable in the main game outside GEMS UPDATE */
+let gemsTab = 'stages'; // 'stages' | 'shop' | 'quests'
+// [PRICE REBALANCE] GEMS direct-buy is now 1.5x (was 50/110/220/400/760) while the banner pull is cheaper
+// (250 -> 150), so rolling is the efficient route and buying a specific character outright is the premium one.
+const GEMS_CHAR_SHOP_COST = {common:75, uncommon:165, rare:330, epic:600, legendary:1140};
+const GEMS_CHAR_GACHA_COST = 150; // 🔷 per pull [PRICE DOWN: 250 -> 150] (the main-menu gacha is 120💎 — this banner carries the GEMS characters)
+function getGemsGachaPool(){
+  return ELEMENTS.filter(e=> e.id!=='diode' && !(isEventActive() && TECH_IDS.includes(e.id)));
+}
+
+const GEMS_STAGE_DEFS = [
+  {elemId:'aqua',        name:'อสูรหยดน้ำผลึกใส'},
+  {elemId:'terra',       name:'ยักษ์หินเหมืองแร่พลอย'},
+  {elemId:'emerald',     name:'ราชินีมรกตพิโรธ', boss:true, preBattleMinigame:true},
+  {elemId:'frost',       name:'ยักษ์น้ำแข็งเพชรเยือกแข็ง'},
+  {elemId:'volt',        name:'จอมสายฟ้าผลึกประกายไฟ'},
+  {elemId:'topaz',       name:'จอมหมัดโทแพซทองคำ', boss:true, preBattleMinigame:true},
+  {elemId:'metal',       name:'ยักษ์เหล็กเจาะเพชร'},
+  {elemId:'radiant',     name:'เทพแสงแก้วสะท้อนหลายมิติ'},
+  {elemId:'amethyst',    name:'เจ้าแส้อเมทิสต์เลือดผลึก', boss:true, preBattleMinigame:true},
+  {elemId:'pyro',        name:'อสูรไฟลุกโชนกลางเหมือง'},
+  {elemId:'gale',        name:'วิญญาณลมหวนวนสุสานคริสตัล'},
+  {elemId:'bismuth',     name:'จอมเรขาคณิตบิสมัทสายรุ้ง', boss:true, preBattleMinigame:true},
+  {elemId:'nature',      name:'ยักษ์ไม้เถาวัลย์คลั่งแค้น'},
+  {elemId:'sound',       name:'เทพเสียงสะท้านมิติ'},
+  {elemId:'lapizlazuli', name:'ราชันย์ลาพิสลาซูลีผู้เป็นอมตะ', boss:true, preBattleMinigame:true},
+  {elemId:'shadow',      name:'ปีศาจเงาไล่ล่าไม่หยุดยั้ง'},
+  {elemId:'zodiac',      name:'เทพจักรราศีผู้พิทักษ์ดวงดาว'},
+  {elemId:'cosmos',      name:'จักรพรรดิจักรวาลมืดมิด', boss:true, preBattleMinigame:true},
+  {elemId:'love',        name:'นางพญาแห่งรักอันบ้าคลั่ง'},
+  {elemId:'opal',        name:'จักรพรรดิโอปอลแสงมุกอมตะ', boss:true, finalBoss:true, preBattleMinigame:true},
+];
+const GEMS_STAGE_COUNT = GEMS_STAGE_DEFS.length;
+const GEMS_STAGES = GEMS_STAGE_DEFS.map((d,i)=>{
+  let hp = Math.round(1400 + (700 * i/(GEMS_STAGE_COUNT-1)));
+  let powMult = 1 + i*0.06;
+  let crystal = 30 + i*12; // 🔷 primary GEMS UPDATE currency — spent in the GEMS shop/gacha
+  let gems = 8 + i*3;      // 💎 smaller bonus of the main game's premium currency, on top of crystal
+  if(d.boss){
+    hp += d.finalBoss ? 1000 : 550;
+    powMult += d.finalBoss ? 0.28 : 0.12;
+    crystal += d.finalBoss ? 150 : 50;
+    gems += d.finalBoss ? 40 : 15;
+  }
+  return { id:i+1, elemId:d.elemId, name:d.name, hp, powMult, crystal, gems,
+    boss:!!d.boss, finalBoss:!!d.finalBoss, preBattleMinigame:d.preBattleMinigame||null };
+});
+function gemsStageUnlocked(st){ return st.id <= (saveData.gemsStageProgress||0)+1; }
+function buildGemsMonsterFighter(stageDef){
+  const elem = ELEMENTS.find(e=>e.id===stageDef.elemId) || ELEMENTS[0];
+  const icon = stageDef.finalBoss ? '👑' : (stageDef.boss ? '💠' : '💎');
+  return {...elem,
+    pow: Math.round(elem.pow*stageDef.powMult),
+    spd: Math.round(elem.spd*Math.min(1.3, stageDef.powMult)),
+    name: `${icon} ${stageDef.name}`, color: elem.color, __elemId: elem.id,
+    __maxHpOverride: stageDef.hp,
+    __sizeMult: stageDef.finalBoss ? 1.42 : (stageDef.boss ? 1.32 : 1.22),
+    __isCampaignBoss: !!stageDef.boss,
+  };
+}
+function runGemsBattle(stageDef, playerTeamDefs){
+  const enemyFighter = buildGemsMonsterFighter(stageDef);
+  let pIdx = 0, carryPlayerHp = null, carryEnemyHp = null;
+
+  function statusLine(){
+    return `💎 GEMS ด่าน ${stageDef.id}: ${stageDef.name} (❤️${stageDef.hp}) — ทีมคุณ ${pIdx+1}/${playerTeamDefs.length}`;
+  }
+  function nextBout(){
+    const pf = {...playerTeamDefs[pIdx]};
+    if(carryPlayerHp!=null) pf.__startHp = carryPlayerHp;
+    const ef = {...enemyFighter};
+    if(carryEnemyHp!=null) ef.__startHp = carryEnemyHp;
+
+    document.getElementById('setupScreen').style.display='none';
+    document.getElementById('gemsScreen').style.display='none';
+    document.getElementById('battleScreen').style.display='block';
+    document.getElementById('result').style.display='none';
+    document.getElementById('bname1').textContent=pf.name+' (คุณ)';
+    document.getElementById('bname2').textContent=ef.name;
+    document.getElementById('hpn1').textContent=pf.name;
+    document.getElementById('hpn2').textContent=ef.name;
+    document.getElementById('log').innerHTML=`<div class="stage-status">${statusLine()}</div>`;
+    document.getElementById('skillInfo').innerHTML = skillInfoHTML(pf) + skillInfoHTML(ef);
+
+    runSimulation(pf, ef, 'stage'); // same campaign-style bout-carry contract as the TECH event
+  }
+
+  window._stageCtx = { stage:{id:'gems-'+stageDef.id, name:stageDef.name, boss:stageDef.boss},
+    playerTeamDefs, enemyTeamDefs:[enemyFighter],
+    onBoutEnd(playerWonBout, finalP1Hp, finalP2Hp){
+      if(playerWonBout){
+        gemsResult(true);
+        return;
+      } else {
+        carryEnemyHp = finalP2Hp;
+        pIdx++;
+        if(pIdx>=playerTeamDefs.length){ gemsResult(false); return; }
+        carryPlayerHp = null;
+      }
+      setTimeout(nextBout, 900);
+    }
+  };
+
+  function gemsResult(cleared){
+    window._stageCtx = null;
+    document.getElementById('battleScreen').style.display='none';
+    document.getElementById('gemsScreen').style.display='block';
+    if(cleared){
+      const alreadyCleared = stageDef.id <= (saveData.gemsStageProgress||0);
+      // first clear pays full reward; replaying a cleared stage pays a reduced 40% cut (same rule as TECH)
+      const crystalReward = alreadyCleared ? Math.max(10, Math.round(stageDef.crystal*0.4)) : stageDef.crystal;
+      const gemsReward = alreadyCleared ? Math.max(3, Math.round(stageDef.gems*0.4)) : stageDef.gems;
+      if(stageDef.id > (saveData.gemsStageProgress||0)) saveData.gemsStageProgress = stageDef.id;
+      addCrystal(crystalReward);
+      addGems(gemsReward);
+      persistSave();
+      questProgress('gemsWin', 1);
+      if(stageDef.boss) questProgress('gemsBoss', 1);
+      if(alreadyCleared) questProgress('gemsReplay', 1);
+      onlineStatusMsg(`ผ่านด่าน GEMS ${stageDef.id}! +${crystalReward} คริสตัล +${gemsReward}💎${alreadyCleared?' (เล่นซ้ำ)':''}`);
+    } else {
+      onlineStatusMsg(`พ่ายมอนสเตอร์ GEMS ด่าน ${stageDef.id} (❤️${stageDef.hp}) — ลองอัพเกรดทีมแล้วมาใหม่`);
+    }
+    renderGemsStages();
+  }
+
+  nextBout();
+}
+
+let _pickedGemsTeam = [];
+function openGemsTeamPicker(stageId){
+  const stage = GEMS_STAGES.find(s=>s.id===stageId);
+  if(!stage || !gemsStageUnlocked(stage)) return;
+  if(!Object.keys(saveData.roster).length){ onlineStatusMsg('ยังไม่มีตัวละคร ลองสุ่มตัวละครก่อน'); return; }
+  _pickedGemsTeam = [];
+  renderGemsTeamPicker(stage);
+}
+function renderGemsTeamPicker(stage){
+  const body = document.getElementById('gemsBody');
+  const ownedIds = Object.keys(saveData.roster);
+  const icon = stage.finalBoss ? '👑' : (stage.boss ? '💠' : '💎');
+  const minigameTag = stage.preBattleMinigame ? ' (มีมินิเกมก่อนสู้)' : '';
+  const bossTag = stage.boss ? (stage.finalBoss ? ` 👑 บอสใหญ่ GEMS${minigameTag}` : ` · มินิบอส GEMS${minigameTag}`) : '';
+  body.innerHTML = `
+    <div class="team-pick-head">
+      <button type="button" class="btn ghost small" id="backToGemsStagesBtn">← กลับ</button>
+      <div class="t">${stage.boss?'👑 ':''}เลือกทีม (สูงสุด 3) — ด่าน GEMS ${stage.id}</div>
+    </div>
+    <div class="stage-enemies">ศัตรู: ${icon} ${stage.name}${bossTag} · ❤️ ${stage.hp} — รางวัล +${stage.crystal}${CRYSTAL_ICON} +${stage.gems}💎</div>
+    <div class="team-pick-grid" id="gemsTeamPickGrid"></div>
+    <button type="button" class="btn" id="enterGemsStageBtn" disabled>เลือกอย่างน้อย 1 ตัว</button>
+  `;
+  const grid = document.getElementById('gemsTeamPickGrid');
+  ownedIds.forEach(id=>{
+    const elem = ELEMENTS.find(e=>e.id===id);
+    if(!elem) return;
+    const entry = saveData.roster[id];
+    const card = document.createElement('div');
+    card.className = 'team-pick-card';
+    card.dataset.id = id;
+    card.innerHTML = `<div class="pick-order"></div>${gemsOriginBadge(id)}<div class="dot" style="background:${getCharColor(id)}"></div><div class="en">${elem.name}</div><div class="th">Lv.${entry.level}</div>`;
+    card.onclick = ()=>{
+      const idx = _pickedGemsTeam.indexOf(id);
+      if(idx>=0){ _pickedGemsTeam.splice(idx,1); }
+      else { if(_pickedGemsTeam.length>=3) return; _pickedGemsTeam.push(id); }
+      grid.querySelectorAll('.team-pick-card').forEach(c=>{
+        const i = _pickedGemsTeam.indexOf(c.dataset.id);
+        c.classList.toggle('picked', i>=0);
+        c.querySelector('.pick-order').textContent = i>=0 ? (i+1) : '';
+      });
+      const enterBtn = document.getElementById('enterGemsStageBtn');
+      enterBtn.disabled = _pickedGemsTeam.length===0;
+      enterBtn.textContent = _pickedGemsTeam.length ? `เข้าด่าน (${_pickedGemsTeam.length} ตัว)` : 'เลือกอย่างน้อย 1 ตัว';
+    };
+    grid.appendChild(card);
+  });
+  document.getElementById('backToGemsStagesBtn').onclick = renderGemsStages;
+  document.getElementById('enterGemsStageBtn').onclick = ()=>{
+    if(!_pickedGemsTeam.length) return;
+    const teamDefs = _pickedGemsTeam.map(id=>{
+      const elem = ELEMENTS.find(e=>e.id===id);
+      const base = {...elem, name:elem.name, color:getCharColor(id), element:elem.name, __elemId:elem.id};
+      return applyRosterBonus(base);
+    });
+    if(stage.preBattleMinigame){
+      const bossElem = ELEMENTS.find(e=>e.id===stage.elemId);
+      startBossPreFight({
+        kind: bossGameKindForElem(stage.elemId, stage.id),
+        teamDefs,
+        bodyId: 'gemsBody',
+        icon: stage.finalBoss ? '👑' : '💠',
+        label: stage.name,
+        color: bossElem ? bossElem.color : null,
+        onCancel: ()=> renderGemsStages(),
+        onComplete: (buffedTeam)=> runGemsBattle(stage, buffedTeam),
+      });
+    } else {
+      runGemsBattle(stage, teamDefs);
+    }
+  };
+}
+
+function openGemsScreen(){
+  document.getElementById('setupScreen').style.display='none';
+  document.getElementById('gemsScreen').style.display='block';
+  gemsTab = 'stages';
+  ensureGemsQuests();
+  renderGemsStages();
+}
+function gemsTabsHTML(){
+  const tabs = [['stages','💎 ด่าน'],['shop','🛒 ร้านค้า / ตู้สุ่ม'],['quests','📋 เควสประจำวัน']];
+  return `<div class="event-tabs">${tabs.map(([k,label])=>
+    `<button type="button" class="btn ghost small ${gemsTab===k?'active':''}" data-tab="${k}">${label}</button>`
+  ).join('')}</div>
+  <div class="gems-bar">${CRYSTAL_ICON} คริสตัลของคุณ: <b id="crystalBarN">${saveData.crystal||0}</b> — โหมด GEMS ใช้คริสตัลซื้อ/สุ่มทุกอย่าง (ไม่ใช้ 💎 เพชร หรือ 🔩 Gear)</div>`;
+}
+function wireGemsTabs(){
+  document.querySelectorAll('#gemsBody .event-tabs [data-tab]').forEach(btn=>{
+    btn.onclick = ()=>{
+      gemsTab = btn.dataset.tab;
+      if(gemsTab==='stages') renderGemsStages();
+      else if(gemsTab==='shop') renderGemsShop();
+      else renderGemsQuests();
+    };
+  });
+}
+function renderGemsStages(){
+  gemsTab = 'stages';
+  const body = document.getElementById('gemsBody');
+  const rows = GEMS_STAGES.map(st=>{
+    const cleared = st.id <= (saveData.gemsStageProgress||0);
+    const unlocked = gemsStageUnlocked(st);
+    const icon = unlocked ? (cleared?'✅':(st.finalBoss?'👑':(st.boss?'💠':'💎'))) : '🔒';
+    const mgTag = st.preBattleMinigame ? ' 🎮' : '';
+    const bossTag = st.boss ? (st.finalBoss ? ` · 👑 บอสใหญ่ GEMS${mgTag}` : ` · 💠 มินิบอส GEMS${mgTag}`) : '';
+    const shownCrystal = cleared ? Math.max(10, Math.round(st.crystal*0.4)) : st.crystal;
+    const shownGems = cleared ? Math.max(3, Math.round(st.gems*0.4)) : st.gems;
+    return `<div class="event-stage-row ${cleared?'cleared':''} ${unlocked?'':'locked'} ${st.boss?'boss':''}" data-stage="${st.id}">
+      <div>
+        <div class="esr-name">${icon} ด่าน GEMS ${st.id}${cleared?' (ผ่านแล้ว)':''}</div>
+        <div class="esr-sub">${st.name}${bossTag} · ❤️ ${st.hp} · รางวัล +${shownCrystal}${CRYSTAL_ICON} +${shownGems}💎${cleared?' (เล่นซ้ำ)':''}</div>
+      </div>
+      <div class="esr-go">${unlocked?'▶':''}</div>
+    </div>`;
+  }).join('');
+  body.innerHTML = gemsTabsHTML() + `<div class="d" style="font-size:0.66rem; color:var(--dim); line-height:1.55; margin-bottom:12px;">ด่านละมอนสเตอร์ตัวเดียวเลือดหนัก มีมินิบอสมรกต/โทแพซ/อเมทิสต์ และบอสใหญ่ลาพิสลาซูลี — ทีมคุณสูงสุด 3 ตัว ตัวที่ชนะแบกเลือดที่เหลือสู้ต่อ ไม่มีฮีล เหมือนแคมเปญ · รางวัลเป็น ${CRYSTAL_ICON} คริสตัล (+ 💎 เพชรเล็กน้อย)</div>${rows}`;
+  wireGemsTabs();
+  body.querySelectorAll('.event-stage-row').forEach(row=>{
+    const stageId = parseInt(row.dataset.stage, 10);
+    const st = GEMS_STAGES.find(s=>s.id===stageId);
+    if(!gemsStageUnlocked(st)) return;
+    row.onclick = ()=> openGemsTeamPicker(stageId);
+  });
+}
+function renderGemsShop(){
+  gemsTab = 'shop';
+  const body = document.getElementById('gemsBody');
+  const gemsShopElems = ELEMENTS.filter(e=>GEMS_IDS.includes(e.id));
+  const buyCards = gemsShopElems.map(elem=>{
+    const rr = getRarity(elem);
+    const cost = GEMS_CHAR_SHOP_COST[elem.rarity] || 100;
+    const owned = ownsChar(elem.id);
+    const affordable = !owned && (saveData.crystal||0) >= cost;
+    const cls = ['team-pick-card','event-buy-card','gems-buy-card'];
+    if(owned) cls.push('owned'); else if(!affordable) cls.push('unavailable');
+    return `<div class="${cls.join(' ')}" data-id="${elem.id}" data-cost="${cost}" style="--rc:${elem.color}">
+      <div class="dot" style="background:${elem.color}"></div>
+      <div class="en">${elem.name}</div>
+      <div class="th">${rr.labelTH}</div>
+      ${owned ? `<div class="ebc-owned-badge">✅ ซื้อแล้ว</div>` : `<div class="ebc-cost">${cost}${CRYSTAL_ICON}</div>`}
+    </div>`;
+  }).join('');
+  body.innerHTML = gemsTabsHTML() + `
+    <div class="event-shop-section">
+      <div class="t">🎲 ตู้สุ่มตัวละคร GEMS</div>
+      <div class="d">ใช้คริสตัลสุ่มตัวละคร — พูลนี้รวมตัวละคร GEMS UPDATE (EMERALD/TOPAZ/AMETHYST/LAPIZLAZULI/BISMUTH) ที่หาไม่ได้จากตู้ปกติหรือตู้ TECH ส่วนตัวละคร TECH UPDATE ไม่อยู่ในตู้นี้ (มีแต่ในตู้ของโหมด TECH เท่านั้น) · ตัวซ้ำ = ได้เศษอัพเกรด +1</div>
+      <div class="exchange-row">
+        <button type="button" class="btn ghost small" id="gemsCharGachaBtn">🎲 สุ่มตัวละคร (${GEMS_CHAR_GACHA_COST}${CRYSTAL_ICON})</button>
+        <button type="button" class="btn ghost small x10-btn" id="gemsCharGacha10Btn">🎲 สุ่ม x10 (${GEMS_CHAR_GACHA_COST*MULTI_PULL_COUNT}${CRYSTAL_ICON})</button>
+        <button type="button" class="btn ghost small rate-toggle-btn" id="gemsRateBtn">📊 อัตราดรอป</button>
+      </div>
+      <div class="rate-panel" id="gemsRatePanel" style="display:none;"></div>
+    </div>
+    <div class="event-shop-section">
+      <div class="t">${CRYSTAL_ICON} ซื้อตัวละคร GEMS UPDATE เจาะจง</div>
+      <div class="d">ซื้อตัวละครชุด GEMS UPDATE ตรงๆ ด้วยคริสตัล แทนการลุ้นจากตู้สุ่ม — แตะเพื่อซื้อทันที (ตัวที่มีแล้วจะล็อก ซื้อซ้ำไม่ได้)</div>
+      <div class="team-pick-grid" id="gemsShopGrid">${buyCards}</div>
+    </div>
+  `;
+  wireGemsTabs();
+  document.getElementById('gemsRateBtn').onclick = ()=> toggleRatePanel('gemsRateBtn','gemsRatePanel', getGemsGachaPool());
+  document.getElementById('gemsCharGachaBtn').onclick = ()=>{
+    if((saveData.crystal||0) < GEMS_CHAR_GACHA_COST){ onlineStatusMsg('คริสตัลไม่พอ ต้องการ '+GEMS_CHAR_GACHA_COST+' คริสตัล'); return; }
+    saveData.crystal -= GEMS_CHAR_GACHA_COST; persistSave(); refreshGemsUI();
+    pullCharacter(getGemsGachaPool()).then(({picked, isNew})=>{
+      questProgress('gemsGacha', 1);
+      onlineStatusMsg(isNew ? `ได้ตัวละครใหม่: ${picked.name}! เข้าคลังแล้ว` : `${picked.name} ซ้ำ — ได้เศษอัพเกรด +1`);
+      renderGemsShop();
+    });
+  };
+  const runGems10 = ()=> runMultiGacha({
+    spend:{key:'crystal', name:'คริสตัล', unit:' คริสตัล', cost:GEMS_CHAR_GACHA_COST*MULTI_PULL_COUNT},
+    roll:()=>pullCharacterBatch(MULTI_PULL_COUNT, getGemsGachaPool()),
+    title:'สุ่มตัวละคร GEMS ×10', subtitle:'รวมตัวละคร GEMS UPDATE',
+    summaryOf:charBatchSummary,
+    finish:(picks)=>{ questProgress('gemsGacha', MULTI_PULL_COUNT); questProgress('gemsGacha10', 1); onlineStatusMsg(charBatchSummary(picks)); renderGemsShop(); },
+    again:()=>runGems10()
+  });
+  document.getElementById('gemsCharGacha10Btn').onclick = runGems10;
+  body.querySelectorAll('.gems-buy-card:not(.owned):not(.unavailable)').forEach(card=>{
+    card.onclick = ()=>{
+      const elemId = card.dataset.id;
+      const cost = parseInt(card.dataset.cost, 10);
+      if((saveData.crystal||0) < cost){ onlineStatusMsg('คริสตัลไม่พอ'); return; }
+      if(ownsChar(elemId)){ renderGemsShop(); return; } // safety net if state changed mid-render
+      const elem = ELEMENTS.find(e=>e.id===elemId);
+      if(!elem) return;
+      saveData.crystal -= cost; persistSave(); refreshGemsUI();
+      window.gachaPull(()=>elem, ()=>{
+        grantCharacterDirect(elemId);
+        onlineStatusMsg(`${elem.name} ซื้อแล้ว! เข้าคลังแล้ว 🎉 (-${cost} คริสตัล)`);
+        renderGemsShop();
+      });
+    };
+  });
+}
+function renderGemsQuests(){
+  gemsTab = 'quests';
+  ensureGemsQuests();
+  const body = document.getElementById('gemsBody');
+  const cards = saveData.gemsQuests.quests.map(q=>{
+    const pct = Math.round(q.progress/q.target*100);
+    const rewardParts = [];
+    if(q.reward.gold) rewardParts.push(`+${q.reward.gold}🪙`);
+    if(q.reward.crystal) rewardParts.push(`+${q.reward.crystal}${CRYSTAL_ICON}`);
+    if(q.reward.gems) rewardParts.push(`+${q.reward.gems}💎`);
+    return `<div class="quest-card ${q.claimed?'claimed':''}">
+      <div class="qc-desc">${q.claimed?'✅ ':''}${q.desc}</div>
+      <div class="qc-reward">รางวัล: ${rewardParts.join(' ')}</div>
+      <div class="quest-bar"><div class="quest-bar-fill" style="width:${pct}%"></div></div>
+      <div class="qc-status">${q.claimed?'รับรางวัลแล้ว':`${q.progress}/${q.target}`}</div>
+    </div>`;
+  }).join('');
+  body.innerHTML = gemsTabsHTML() + `<div class="d" style="font-size:0.66rem; color:var(--dim); line-height:1.55; margin-bottom:12px;">เควส GEMS รีเซ็ตทุกวัน (แยกจากเควส TECH) สำเร็จแล้วรับรางวัลอัตโนมัติทันที</div>${cards}`;
+  wireGemsTabs();
+}
+
+
 let __actx = null; // shared Web Audio context — must exist before sfxCtx() ever runs, or every
 // attack/ability sound throws a ReferenceError mid-frame and aborts that frame's canvas draw
 // entirely (draw() runs after the attack logic in the loop), which is what was freezing the
@@ -7096,6 +7522,11 @@ const ATTACK_SFX = {
     sfxNoise({dur:0.22,vol:0.1,freq:2600,endFreq:900,filterType:'bandpass',Q:0.8});
     sfxTone({freq:1600,endFreq:1200,type:'triangle',dur:0.18,vol:0.08,delay:0.04});
   },
+  bismuth(){ // SHARD STRIKE: two quick glassy ticks with a metallic ring on top
+    sfxTone({freq:2100,endFreq:1500,type:'triangle',dur:0.09,vol:0.1});
+    sfxTone({freq:2900,endFreq:2200,type:'sine',dur:0.08,vol:0.07,delay:0.05});
+    sfxNoise({dur:0.05,vol:0.06,freq:6000,filterType:'highpass'});
+  },
   terra(){ // QUAKE SLAM lock-on: ground begins to crack under the marked spot (the big boom happens on actual detonation, see playQuakeSFX)
     sfxTone({freq:65,endFreq:95,type:'sine',dur:0.28,vol:0.16});
     sfxNoise({dur:0.22,vol:0.12,freq:350,filterType:'lowpass'});
@@ -7154,6 +7585,11 @@ function playMetalShotSFX(){ // per-shot clang for metal's rapid volley
 
 // distinct sound signature for each element's secondary/utility ability
 const SUPPORT_SFX = {
+  bismuth(){ // CRYSTAL MATRIX: an electric sweep that resolves into a run of crystal chimes
+    sfxNoise({dur:0.35,vol:0.16,freq:1200,endFreq:6000,filterType:'bandpass',Q:1.4});
+    sfxTone({freq:300,endFreq:1200,type:'sawtooth',dur:0.3,vol:0.08});
+    [1400,1900,2500].forEach((fq,i)=> sfxTone({freq:fq,type:'sine',dur:0.25,vol:0.07,delay:0.08+i*0.06}));
+  },
   aqua(){ sfxNoise({dur:0.4,vol:0.14,freq:2200,endFreq:900,filterType:'bandpass',Q:0.5}); sfxTone({freq:700,endFreq:500,type:'sine',dur:0.3,vol:0.1}); }, // MIST VEIL — misty shimmer
   pyro(){ sfxNoise({dur:0.22,vol:0.16,freq:700,endFreq:2500,filterType:'bandpass',Q:0.7}); sfxTone({freq:200,endFreq:500,type:'sawtooth',dur:0.2,vol:0.12}); }, // EMBER SURGE — crackling flare-up
   volt(){ sfxTone({freq:300,endFreq:1400,type:'sawtooth',dur:0.25,vol:0.14}); sfxNoise({dur:0.15,vol:0.1,freq:4000,filterType:'highpass'}); }, // OVERCURRENT — rising electric hum
@@ -7466,11 +7902,6 @@ function playSolarTickSFX(){ // Solar Farm — soft chime for each heal/beam tic
   sfxTone({freq:2000,type:'triangle',dur:0.12,vol:0.05,delay:0.03});
 }
 
-const COLORS = ['#2fb8ff','#ff5a36','#f4e04d','#b4813f','#9fe8ff','#8bffd6','#8dff4d','#ffe37a','#8a5cff','#c7ced6','#5fb84c','#ff6fae','#c04dff','#ff4d94','#f2e9dc','#4dff9e','#5ce1ff','#33ffcf','#e619ff','#ff9d4d','#dc143c'];
-// the 3 entries before the last 3 match MICROCHIP / COMPUTER / TECHNO's own element color
-// exactly, so picking one of those 3 characters now auto-selects a swatch that actually matches
-// their icon (previously their colors weren't in this list at all, so the ball kept whatever
-// color was already picked instead of following the character, unlike every other element).
 // The next entries (#e619ff, #ff9d4d) do the same for GLITCH and DRONE, and the final entry
 // (#dc143c) does the same for BLOOD.
 
@@ -7509,10 +7940,17 @@ function getRarity(elemOrId){
 // [TECH UPDATE] when no explicit pool is given, TECH elements are excluded while the event is
 // active — they're event-exclusive, only reachable via the event gacha/shop which passes its
 // own pool (including TECH) explicitly.
+// The plain (main-menu) gacha pool: no DIODE ever, and no TECH / GEMS characters while their
+// update modes are active — each of those only rolls from its own mode's gacha.
+function getMainGachaPool(){
+  return ELEMENTS.filter(e=> e.id!=='diode'
+    && !(isEventActive() && TECH_IDS.includes(e.id))
+    && !(isGemsActive() && GEMS_IDS.includes(e.id)));
+}
 function pickRandomElementWeighted(pool){
   // DIODE is a minigame-only reward — it never appears in ANY default weighted pool, event
   // active or not, so it can't be pulled from a normal or event gacha roll by chance.
-  pool = pool && pool.length ? pool : (isEventActive() ? ELEMENTS.filter(e=>!TECH_IDS.includes(e.id)) : ELEMENTS.filter(e=>e.id!=='diode'));
+  pool = pool && pool.length ? pool : getMainGachaPool();
   const total = pool.reduce((sum,e)=> sum + (getRarity(e).weight||1), 0);
   let roll = Math.random()*total;
   for(const e of pool){
@@ -7675,6 +8113,40 @@ const ELEMENTS = [
     abB:{name:'LAPIS WARD', desc:'สร้างเกราะน้ำผลึกลาพิสลาซูลีห่อหุ้มตัว ลดความเสียหายที่ได้รับชั่วคราว', kind:'shield', reduce:0.6, cd:4.5, dur:1.5},
     passiveAquaGems:true, aquaGemsDur:5, aquaGemsHeal:300, aquaGemsAuraR:90, aquaGemsTick:0.4, aquaGemsAuraMul:0.35, aquaGemsLifesteal:0.6, aquaGemsBurstR:150, aquaGemsBurstMul:1.6,
     passiveDesc:'AQUA GEMS — เมื่อโดนโจมตีจนเลือดจะหมดเป็นครั้งแรกในแมตช์ เลือดจะค้างอยู่ที่ 1 และเป็นอมตะนาน 5 วิ พร้อมสร้างออร่าน้ำรอบตัวที่ทำความเสียหายและดูดเลือดศัตรูที่เข้าใกล้ พอครบ 5 วิออร่าจะระเบิดรอบตัวเป็นประกายสีฟ้า ทำความเสียหายศัตรูที่อยู่ใกล้ และฮีลเลือดให้ตัวเอง 300 (ครั้งเดียวต่อแมตช์)',
+  },
+  // ===== GEMS UPDATE — BISMUTH (epic): a rainbow-metal hopper crystal that fences the arena in =====
+  // abA is a new kind, 'shardvolley' (see useAbilityA): a tight burst of tiny armor-piercing shards.
+  // passiveGeoLabyrinth is driven by stepBismuth() (distance walked -> crystal pillars that
+  // bounce+hurt foes), abB 'bismuthmatrix' wires every pillar together into an electric net
+  // (bmCastMatrix), and the two extras — PILLAR RESONANCE (pillars shoot shards) and SPECTRUM
+  // CATACLYSM (once-per-match ultimate, gemUlts kind 'bismuthCataclysm') — hang off the same pillars.
+  {
+    id:'bismuth', rarity:'epic', name:'BISMUTH', tag:'ธาตุบิสมัท', color:'#f5a8ff', pow:72, spd:62,
+    abA:{name:'SHARD STRIKE', desc:'ยิงกระสุนคริสตัลชิ้นเล็ก 3 นัดติดกันใส่ศัตรูอัตโนมัติขณะเคลื่อนที่ ความเร็วสูง ทำความเสียหายเจาะเกราะ — ไม่ถูกเกราะป้องกันหรือค่าลดดาเมจของศัตรูลดทอนเลย', kind:'shardvolley', dmgMul:0.3, cd:0.85, count:3, spreadAngle:0.09, shardSpeed:8.5, pierceArmor:true},
+    abB:{name:'CRYSTAL MATRIX', desc:'ยิงกระแสไฟฟ้าเชื่อมเสาบิสมัททั้งหมดในสนาม (ต้องมีอย่างน้อย 2 ต้น) เป็นตาข่ายพลังงาน 4 วิ — เส้นตาข่ายเป็นกำแพงไฟฟ้า ใครพุ่งชนจะโดนช็อต เด้งกลับ และหยุดพุ่งทันที ถ้ามีครบ 3 เสา พื้นที่สามเหลี่ยมจะถูกอัปเป็นเขตช็อตที่แรงขึ้นกว่าเท่าตัว และขังศัตรูไว้ข้างใน', kind:'bismuthmatrix', cd:8.0, dur:4.0, formT:0.35, tick:0.3, tickMul:0.42, edgeMul:0.6, minPillars:2},
+    passiveGeoLabyrinth:true, pillarDist:250, pillarLife:7, pillarMax:3, pillarHitDmg:140, pillarHitCd:0.6, pillarBounceStun:0.45,
+    pillarShardCd:1.6, pillarShardMul:0.3,
+    fieldTick:0.3, fieldTickMul:0.2, fieldArm:0.4,
+    passiveBismuthCataclysm:true, cataclysmTriggerHP:200, cataclysmDur:1.0, cataclysmDmgMin:95, cataclysmDmgMax:125, cataclysmRadius:115, cataclysmMatrixDur:4.0, cataclysmTickMul:0.42,
+    passiveDesc:'GEOMETRIC LABYRINTH — เคลื่อนที่ครบทุก 250 หน่วยจะทิ้ง "เสาคริสตัลบิสมัท" ไว้บนสนาม (อยู่ได้ 7 วิ สูงสุด 3 เสา ถ้าเกินจะแทนที่เสาเก่าสุด) ศัตรูที่พุ่งชนเสาจะเด้งกลับและเสียพลัง 140 (ทะลุเกราะ) ถ้ากำลังพุ่งอยู่จะถูกหยุดและสตั้นสั้นๆ ตัว BISMUTH เดินทะลุเสาของตัวเองได้ | PRISM TRIANGLE — เมื่อวางเสาครบ 3 ต้น เสาจะเชื่อมกันเป็นพื้นที่สามเหลี่ยมโดยอัตโนมัติ (ใช้เวลาเชื่อม 0.4 วิ) ศัตรูที่อยู่ในพื้นที่หรือแตะขอบจะโดนช็อตต่อเนื่องแบบทะลุเกราะ และถ้าใช้ CRYSTAL MATRIX ทับจะกลายเป็นเวอร์ชันแรงกว่าเท่าตัวพร้อมกำแพงไฟฟ้า | PILLAR RESONANCE — เสาแต่ละต้นยิงเศษคริสตัลเจาะเกราะใส่ศัตรูเองทุก ~1.6 วิ | SPECTRUM CATACLYSM (ท่าไม้ตาย) — เมื่อ HP เหลือ 200 ครั้งแรกในแมตช์ ยืนชาร์จ 1 วิ (ไม่มีเกราะป้องกัน โดนน็อคก่อนท่านี้จะไม่ทำงาน) ก่อนสร้างเสาใหม่ 3 ต้นล้อมศัตรู ยิงลำแสงสเปกตรัมใส่แบบไม่พลาด 95-125 ต่อลำ แล้วขังไว้ในตาข่ายพลังงาน 4 วิ (ครั้งเดียวต่อแมตช์)',
+  },
+  // ===== GEMS UPDATE — OPAL (rare): a plain pearl-white gem whose ricochets dazzle anyone nearby =====
+  // abA is a plain 'slash' (same shape as TOPAZ/AMETHYST's melee dash-hit) with one extra bit
+  // bolted on: if the target's shadow clone is standing near the point of impact it takes a 20%
+  // magic-flavored splash on top. abB is a new kind, 'prismsplit' (see useAbilityB): OPAL scatters
+  // into 7 light beams and snaps back to the same spot — reuses evadeT for the untargetable window
+  // (same trick GALE's SLIPSTREAM already uses) — then anyone caught nearby when it reforms takes a
+  // heavy magic hit and a flat 50% slow (target.slowT, the same field FROST/AQUA/etc. all share).
+  // passiveOpalDazzle is driven by tryOpalDazzle(): called from every wall bounce and every
+  // ball-ball collision in stepInner, it flashes DAZZLE (dazzleT) onto whoever's standing close —
+  // 50% of their attacks simply whiff (same shape as TECH's ERROR) and their very next bounce off
+  // a wall/ball gets its angle randomly kicked instead of a clean physical reflection.
+  {
+    id:'opal', rarity:'rare', name:'OPAL', tag:'ธาตุโอปอล', color:'#f0f0ea', pow:62, spd:64,
+    abA:{name:'PRISMATIC IMPACT', desc:'พุ่งกระแทกเป้าหมายทำความเสียหายกายภาพระยะไกล พร้อมปล่อยคลื่นแสงมุกขาววงกว้างออกจากจุดที่ชน ตัวสำรอง (โคลน) ของคู่ต่อสู้ที่อยู่ใกล้จุดกระแทกจะได้รับความเสียหายเวทเพิ่มเติม 20%', kind:'slash', dmgMul:1.25, cd:1.2, range:150},
+    abB:{name:'PRISMATIC SPLIT', desc:'สลายร่างเป็นลำแสงมุกขาว 7 สาย พุ่งกระจายออกไป 7 ทิศทางรอบตัวเป็นระยะไกล ก่อนพุ่งกลับมารวมร่าง ณ จุดเดิมอย่างรวดเร็ว ศัตรูที่อยู่ในระยะจะโดนความเสียหายเวทมหาศาลและถูกลดความเร็วเคลื่อนที่ลง 50% เป็นเวลา 2.5 วิ ขณะกำลังสลายร่าง (0.8 วิ) โอปอลจะกลายเป็นอมตะ ไม่ตกเป็นเป้าหมายและไม่ได้รับความเสียหายใดๆ', kind:'prismsplit', dmgMul:2.4, cd:6.0, range:200, splitDur:0.8, slowDur:2.5},
+    passiveOpalDazzle:true, dazzleDur:1.5, dazzleRadius:95,
+    passiveDesc:'PLAY OF COLOR — ทุกครั้งที่โอปอลพุ่งชนผนังสนามหรือบอลศัตรู จะปล่อยแฟลชแสงมุกขาวสว่างจ้าออกมา ทำให้ศัตรูที่อยู่ใกล้ติดสถานะ DAZZLE (ตาพร่า) เป็นเวลา 1.5 วิ — ระหว่างนี้ 50% ของการโจมตีจะพลาด และการกระดอนครั้งต่อไปจะเบี่ยงไปผิดทิศทาง | เมื่อเคลื่อนที่จะทิ้งละอองแสงมุกขาวไว้ตามเส้นทาง',
   },
   // ===== TECH UPDATE — 3 new characters + shared ERROR status =====
   // ERROR: while active, every attack attempt (abA or abB) has a 30% chance to simply fail.
@@ -8198,7 +8670,22 @@ function runSimulation(f1,f2, netRole, roomCode){
     canvas.height = rect.height * DPR;
   }
   fit();
-  window.onresize = fit;
+  // [BUGFIX] black arena after the match ends. Assigning canvas.width/height (even to the same value)
+  // wipes the bitmap. While the battle loop runs, the next frame repaints it instantly, but once the
+  // match is over the loop is stopped — so any resize (the mobile URL bar collapsing when the result
+  // panel makes the page taller, rotating the phone, toolbars moving) left the arena permanently
+  // black. A resize / rotation / return-to-tab on a finished battle now re-measures the canvas and
+  // repaints the last frame. (Skipped while the arena is hidden on another screen.)
+  function refitAndRepaint(){
+    const rect = canvas.getBoundingClientRect();
+    if(!rect.width || !rect.height) return;
+    fit();
+    if(!running){
+      try{ draw(); }catch(err){ console.error('repaint after resize failed:', err); }
+    }
+  }
+  window.onresize = refitAndRepaint;
+  window._repaintBattle = refitAndRepaint;
 
   // [TECH UPDATE] event-mode monsters carry their own HP pool (1500-2900, see EVENT_STAGES) via
   // __maxHpOverride on the enemy fighter def — but that pool now belongs ONLY to the enemy side.
@@ -8212,7 +8699,7 @@ function runSimulation(f1,f2, netRole, roomCode){
   const MAXHP2 = (f2 && typeof f2.__maxHpOverride==='number') ? f2.__maxHpOverride : ((f2 && typeof f2.fixedMaxHp==='number') ? f2.fixedMaxHp : 1000); // enemy side
   const R = 34;
 
-  const SHAPES = {aqua:'droplet', pyro:'triangle', volt:'diamond', terra:'square', frost:'diamond', gale:'triangle', toxin:'circle', radiant:'star', shadow:'diamond', metal:'square', nature:'triangle', sound:'circle', cosmos:'ring', love:'heart', steam:'cloud', microchip:'chip', computer:'monitor', techno:'circuit', glitch:'shard', drone:'rotor', blood:'fang', diode:'diamond', zodiac:'star', dust:'grain', pebble:'stone', ember:'spark', mud:'splat', feather:'plume', emerald:'diamond', topaz:'diamond', amethyst:'diamond', lapizlazuli:'diamond'};
+  const SHAPES = {aqua:'droplet', pyro:'triangle', volt:'diamond', terra:'square', frost:'diamond', gale:'triangle', toxin:'circle', radiant:'star', shadow:'diamond', metal:'square', nature:'triangle', sound:'circle', cosmos:'ring', love:'heart', steam:'cloud', microchip:'chip', computer:'monitor', techno:'circuit', glitch:'shard', drone:'rotor', blood:'fang', diode:'diamond', zodiac:'star', dust:'grain', pebble:'stone', ember:'spark', mud:'splat', feather:'plume', emerald:'diamond', topaz:'diamond', amethyst:'diamond', lapizlazuli:'diamond', bismuth:'hopper'};
   function elementShape(id){ return SHAPES[id] || 'circle'; }
 
   // DIODE's four color modes, shared by every DIODE-related system in this battle (the mode
@@ -8535,6 +9022,24 @@ function runSimulation(f1,f2, netRole, roomCode){
         ctx.moveTo(tx+ringR, ty);
         ctx.arc(tx, ty, ringR, 0, Math.PI*2);
       });
+    } else if(shape==='hopper'){
+      // BISMUTH's mark: a stepped "hopper crystal" diamond — each edge climbs in little
+      // terraces the way real bismuth crystals grow, so it reads as a geometric spiral gem
+      // rather than a plain diamond
+      const st = 3;
+      let first = true;
+      for(let q=0;q<4;q++){
+        const cs = Math.cos(q*Math.PI/2), sn = Math.sin(q*Math.PI/2);
+        for(let i=0;i<st;i++){
+          const x1 = (i/st)*size, y1 = -(1-i/st)*size;
+          const x2 = ((i+1)/st)*size, y3 = -(1-(i+1)/st)*size;
+          [[x1,y1],[x2,y1],[x2,y3]].forEach(pt=>{
+            const rx = pt[0]*cs - pt[1]*sn, ry = pt[0]*sn + pt[1]*cs;
+            if(first){ ctx.moveTo(rx,ry); first = false; } else ctx.lineTo(rx,ry);
+          });
+        }
+      }
+      ctx.closePath();
     } else {
       ctx.arc(0,0,size,0,Math.PI*2);
     }
@@ -9121,12 +9626,28 @@ function runSimulation(f1,f2, netRole, roomCode){
       aquaGemMax: 0,
       aquaGemTick: 0,
       _aquaGemsUsed: false,
+      // GEMS UPDATE — BISMUTH: distance walked toward the next pillar, last sampled position,
+      // rainbow trail points, the once-per-match ultimate flag, and two foe-side cooldowns
+      // (wire-zap cooldown while inside a Crystal Matrix)
+      bmDist: 0,
+      bmLastX: null,
+      bmLastY: null,
+      bmTrail: [],
+      bmEdgeT: 0,
+      bmFieldNodes: null, // PRISM TRIANGLE: the three linked pillars (null while BISMUTH owns fewer than 3)
+      bmFieldArm: 0,      // seconds left before a freshly linked triangle goes live
+      bmFieldTick: 0,
+      bmFieldState: 0,    // 0 none, 1 linking, 2 live, 3 upgraded by a Crystal Matrix (the matrix deals the damage)
+      _bismuthCataclysmUsed: false,
       // TECH UPDATE — shared ERROR status (MICROCHIP/COMPUTER/TECHNO) plus TECHNO's own
       // silence ("errordeath") and stun fields, and its independent 2s summon timer.
       errorStacks: 0,
       errorT: 0,
       silenceT: 0,
       stunT: 0,
+      // GEMS UPDATE — OPAL's PLAY OF COLOR: DAZZLE status (attacks whiff 50% of the time, next
+      // bounce goes off at a random angle) — see tryOpalDazzle() and its call sites
+      dazzleT: 0,
       technoSummonT: def.passiveTechnoSummon ? (def.technoSummonInterval||2.0) : 0,
       hazardFieldT: def.passiveHazardField ? (def.passiveHazardField.interval||3.0) : 0,
       // [CAMPAIGN BOSS ULTIMATE REWORK] campaign bosses no longer wait for their own HP to
@@ -9230,6 +9751,8 @@ function runSimulation(f1,f2, netRole, roomCode){
   const jetstreams = []; // GALE's JETSTREAM RAMPAGE ultimate: locked-in windup then a guaranteed multi-hit slash flurry
   const gemUlts = []; // GEMS UPDATE — TOPAZ's GOLDEN FURY (flurry) and AMETHYST's AMETHYST REQUIEM (single burst) ultimates share this array, keyed by kind:'goldenFury'|'amethystRequiem'
   const aquaRings = []; // GEMS UPDATE — LAPIZLAZULI's TIDAL GEM: ground circles that pulse 3 times (3rd = water wave), gem at the center, optional inward pull at low HP
+  const bismuthPillars = []; // GEMS UPDATE — BISMUTH's crystal pillars: {x,y,r,owner,life,maxLife,age,anchor,fireT,hue,hitT}
+  const bismuthMatrices = []; // GEMS UPDATE — BISMUTH's CRYSTAL MATRIX nets: {owner,nodes,t,dur,formT,tick,tickMul,edgeMul,...}
   const blizzards = []; // FROST's ABSOLUTE ZERO ultimate: locked-in freeze channel then a guaranteed cryo blast that force-freezes the opponent
   const verdantPrisons = []; // NATURE's VERDANT PRISON ultimate: locked-in root growth, then a guaranteed root-cage that immobilizes the opponent and drains their HP in ticks instead of one big blast
   const ironConverges = []; // ironjuggernaut's GRAVITIC CONVERGENCE ultimate: locked-in channel, then 3 staggered iron-shard strikes from different bearings, the last one also sundering the foe's defenses
@@ -9343,6 +9866,30 @@ function runSimulation(f1,f2, netRole, roomCode){
     }
     log(`${target.def.name} ระบบขัดข้อง! ติดสถานะ ERROR — โจมตีมีโอกาสพลาด`, true);
   }
+  // GEMS UPDATE — OPAL's PLAY OF COLOR: called from every wall bounce and ball-ball collision this
+  // fighter is involved in (see the movement + collision passes in stepInner). Always flashes at
+  // OPAL's own position; if `o` (the fighter it just bounced off, or whoever's simply standing
+  // close by for a wall bounce) is within dazzleRadius, they get DAZZLE — dazzleT, checked at the
+  // ability-trigger site (50% miss, same shape as TECH's ERROR) and at the wall/collision bounce
+  // site (kicks the reflection angle off instead of a clean bounce).
+  function tryOpalDazzle(p, o){
+    toPx(p);
+    rings.push({x:p.px, y:p.py, r:p.r*0.4, maxR:p.r+70, life:0.4, maxLife:0.4, color:'#ffffff'});
+    const spec = ['#ffffff','#f2f2f8','#e6e6ee','#d8d8e2'];
+    for(let i=0;i<16;i++){
+      const angD = Math.random()*Math.PI*2, spdD = 1+Math.random()*3.5;
+      particles.push({x:p.px,y:p.py,vx:Math.cos(angD)*spdD,vy:Math.sin(angD)*spdD,life:0.4+Math.random()*0.2,color:spec[i%spec.length],shape:'circle'});
+    }
+    sfxTone({freq:1500, endFreq:2400, type:'sine', dur:0.14, vol:0.08});
+    if(!o || !o.alive) return;
+    toPx(o);
+    const distD = Math.hypot(o.px-p.px, o.py-p.py);
+    const radD = p.def.dazzleRadius!=null ? p.def.dazzleRadius : 90;
+    if(distD < p.r+o.r+radD){
+      o.dazzleT = Math.max(o.dazzleT||0, p.def.dazzleDur!=null ? p.def.dazzleDur : 1.5);
+      floaters.push({x:o.px, y:o.py-o.r-30, text:'DAZZLE!', life:0.7, vy:-28, color:'#f2d9ff', big:true});
+    }
+  }
   // GEMS UPDATE — LAPIZLAZULI's AQUA GEMS: the first time it would die in a match its HP holds at 1
   // and it turns immortal for aquaGemsDur seconds, wrapped in a damaging, life-draining water aura
   // (ticked in stepInner); when the timer runs out the aura bursts in blue sparkles and heals.
@@ -9374,7 +9921,521 @@ function runSimulation(f1,f2, netRole, roomCode){
     return true;
   }
 
-  function applyDamage(target, raw, srcName, moveName, poison, burn, freeze, attacker, lifesteal, slow, pull, charm, puddle, scald, chip){
+  // ===================================================================================
+  // GEMS UPDATE — BISMUTH helpers (pillars, matrix, drawing). stepBismuth() runs once per frame
+  // right before the ability triggers; the draw helpers are called from draw().
+  // ===================================================================================
+  let bismuthMatrixSeq = 0;
+  function bmColor(h, l){ return 'hsl('+Math.round(((h%360)+360)%360)+',95%,'+(l!=null?l:68)+'%)'; }
+  function bmColorA(h, l, a){ return 'hsla('+Math.round(((h%360)+360)%360)+',95%,'+(l!=null?l:68)+'%,'+a+')'; }
+  function bmPillarsOf(owner){ return bismuthPillars.filter(pl=>pl.owner===owner && pl.life>0); }
+  function bmBurst(x, y, n, spd){
+    for(let i=0;i<n;i++){
+      const a = Math.random()*Math.PI*2, sp = 1+Math.random()*(spd||4);
+      particles.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:0.45+Math.random()*0.3,color:bmColor(Math.random()*360),shape:i%2?'diamond':'hopper'});
+    }
+  }
+  // BISMUTH's fixed-damage hits (pillar crash, wire zap, matrix ticks, cataclysm beams) all
+  // ignore armor — that's the last positional arg of applyDamage
+  function bmHit(owner, f, dmg, name){
+    applyDamage(f, dmg, owner.def.name, name, null, null, null, owner, null, null, null, null, null, null, null, true);
+  }
+  // Reflects a foe's heading off a surface with normal (nx,ny). A dashing foe has its dash
+  // cancelled outright (dash direction is bounced and the pending dash hit is discarded).
+  // Returns true when the foe was actually moving into the surface.
+  function bmBounce(f, nx, ny, stunT){
+    if(f.dashT>0){
+      const dn = f.dashDir.x*nx + f.dashDir.y*ny;
+      if(dn>=0) return false;
+      f.vx = (f.dashDir.x - 2*dn*nx)*0.3;
+      f.vy = (f.dashDir.y - 2*dn*ny)*0.3;
+      f.dashT = 0; f.pendingDashDmg = null;
+      if(stunT>0) f.stunT = Math.max(f.stunT||0, stunT);
+      return true;
+    }
+    const vn = f.vx*nx + f.vy*ny;
+    if(vn<0){ f.vx -= 2*vn*nx; f.vy -= 2*vn*ny; return true; }
+    return false;
+  }
+  function bmInTri(x, y, a, b, c){
+    const d1 = (x-b.x)*(a.y-b.y)-(a.x-b.x)*(y-b.y);
+    const d2 = (x-c.x)*(b.y-c.y)-(b.x-c.x)*(y-c.y);
+    const d3 = (x-a.x)*(c.y-a.y)-(c.x-a.x)*(y-a.y);
+    return !(((d1<0)||(d2<0)||(d3<0)) && ((d1>0)||(d2>0)||(d3>0)));
+  }
+  function bmSegDist(px, py, A, B){
+    const abx = B.x-A.x, aby = B.y-A.y, len2 = abx*abx+aby*aby || 1;
+    const tt = Math.max(0, Math.min(1, ((px-A.x)*abx + (py-A.y)*aby)/len2));
+    return Math.hypot(px-(A.x+abx*tt), py-(A.y+aby*tt));
+  }
+  // a fighter counts as "in the triangle" when its centre is inside OR its body clips an edge
+  function bmFoeInTri(f, n){
+    if(bmInTri(f.px, f.py, n[0], n[1], n[2])) return true;
+    const reach = f.r*0.6;
+    return bmSegDist(f.px,f.py,n[0],n[1])<reach || bmSegDist(f.px,f.py,n[1],n[2])<reach || bmSegDist(f.px,f.py,n[2],n[0])<reach;
+  }
+  function bmBreakPillar(pl, big){
+    const idx = bismuthPillars.indexOf(pl);
+    if(idx>=0) bismuthPillars.splice(idx,1);
+    pl.life = 0;
+    bmBurst(pl.x, pl.y, big?14:8, 4.5);
+    rings.push({x:pl.x,y:pl.y,r:pl.r*0.5,maxR:pl.r+18,life:0.3,maxLife:0.3,color:bmColor(pl.hue,70)});
+    sfxTone({freq:1800+Math.random()*600,type:'triangle',dur:0.12,vol:0.06});
+  }
+  // Plants a pillar where BISMUTH stands. Returns false when the drop must wait (every pillar it
+  // owns is currently wired into a live matrix, so none can be recycled).
+  function bmDropPillar(b){
+    const d = b.def;
+    const maxN = d.pillarMax || 3;
+    let mine = bmPillarsOf(b);
+    while(mine.length >= maxN){
+      let oldest = null;
+      mine.forEach(pl=>{ if(pl.anchor && !pl.anchor.done) return; if(!oldest || pl.life<oldest.life) oldest = pl; });
+      if(!oldest) return false;
+      bmBreakPillar(oldest, false);
+      mine = bmPillarsOf(b);
+    }
+    toPx(b);
+    const pr = 16, mg = pr+4;
+    let px = Math.max(mg, Math.min(W()-mg, b.px));
+    let py = Math.max(mg, Math.min(H()-mg, b.py));
+    // never plant one inside the foe's body — nudge it clear so it can't spawn "already hit"
+    [p1,p2].forEach(f=>{
+      if(f===b || !f.alive) return;
+      toPx(f);
+      const dd = Math.hypot(px-f.px, py-f.py), need = f.r+pr+4;
+      if(dd<need){
+        const ux = dd>0.5 ? (px-f.px)/dd : 1, uy = dd>0.5 ? (py-f.py)/dd : 0;
+        px = f.px+ux*need; py = f.py+uy*need;
+      }
+    });
+    px = Math.max(mg, Math.min(W()-mg, px));
+    py = Math.max(mg, Math.min(H()-mg, py));
+    const life = d.pillarLife || 6;
+    const hue = Math.random()*360;
+    bismuthPillars.push({x:px, y:py, r:pr, owner:b, life, maxLife:life, age:0, anchor:null,
+      fireT:(d.pillarShardCd||2.0)*(0.5+Math.random()*0.5), hue, hitT:{}});
+    rings.push({x:px,y:py,r:4,maxR:pr+22,life:0.35,maxLife:0.35,color:bmColor(hue,70)});
+    rings.push({x:px,y:py,r:2,maxR:pr+10,life:0.22,maxLife:0.22,color:'#ffffff'});
+    bmBurst(px, py, 8, 3.5);
+    sfxTone({freq:900,endFreq:1700,type:'triangle',dur:0.14,vol:0.08});
+    sfxTone({freq:2300,type:'sine',dur:0.12,vol:0.05,delay:0.05});
+    return true;
+  }
+  // Wires the given pillars together into an energy net. The pillars are held alive for the
+  // whole net (+0.4s) and can't be recycled by new drops until the net collapses.
+  function bmCastMatrix(owner, nodes, dur, o){
+    o = o || {};
+    const m = {id:++bismuthMatrixSeq, owner, nodes:nodes.slice(), t:0, dur,
+      formT:o.formT!=null ? o.formT : 0.35, tick:o.tick||0.35, tickMul:o.tickMul||0.24, edgeMul:o.edgeMul||0.4,
+      tickT:0.2, done:false, formed:false, name:o.name||'CRYSTAL MATRIX', ult:!!o.ult};
+    nodes.forEach(pl=>{
+      pl.anchor = m;
+      pl.life = Math.max(pl.life, dur+0.4);
+      pl.maxLife = Math.max(pl.maxLife, pl.life);
+    });
+    bismuthMatrices.push(m);
+    toPx(owner);
+    nodes.forEach((pl,i)=>{
+      const path = makeJaggedPath(owner.px, owner.py, pl.x, pl.y, 6, 12);
+      bolts.push({path, life:0.3, maxLife:0.3, color:bmColor(i*120+Date.now()/6,70), jagged:true});
+      rings.push({x:pl.x,y:pl.y,r:4,maxR:pl.r+26,life:0.4,maxLife:0.4,color:bmColor(pl.hue+60,72)});
+      bmBurst(pl.x, pl.y, 6, 3);
+    });
+    shake.mag = Math.max(shake.mag, 5); shake.t = Math.max(shake.t, 0.2);
+    return m;
+  }
+
+  function stepBismuth(dt){
+    if(!p1.def.passiveGeoLabyrinth && !p2.def.passiveGeoLabyrinth && bismuthPillars.length===0 && bismuthMatrices.length===0) return;
+    const UNIT = 440 / Math.max(200, W()); // "units" = px on a 440px-wide arena, so a phone and a desktop drop pillars at the same rhythm
+    [p1,p2].forEach(f=>{ if(f.bmEdgeT>0) f.bmEdgeT -= dt; });
+
+    // ---- per-BISMUTH: rainbow trail + distance walked -> pillars ----
+    [p1,p2].forEach(b=>{
+      if(!b.def.passiveGeoLabyrinth) return;
+      if(!b.alive){ b.bmTrail.length = 0; return; }
+      toPx(b);
+      if(b.bmLastX==null){ b.bmLastX = b.px; b.bmLastY = b.py; }
+      const moved = Math.hypot(b.px-b.bmLastX, b.py-b.bmLastY);
+      b.bmLastX = b.px; b.bmLastY = b.py;
+      if(moved>1.2){ b.bmTrail.push({x:b.px, y:b.py, t:0}); if(b.bmTrail.length>30) b.bmTrail.shift(); }
+      b.bmTrail.forEach(tp=>{ tp.t += dt; });
+      while(b.bmTrail.length && b.bmTrail[0].t>0.7) b.bmTrail.shift();
+      if(gameOver) return;
+      b.bmDist += Math.min(moved, 60)*UNIT;
+      const step = b.def.pillarDist || 400;
+      if(b.bmDist>=step){
+        if(bmDropPillar(b)) b.bmDist -= step; else b.bmDist = step;
+      }
+    });
+    if(gameOver) return;
+
+    // ---- pillars: lifetime, PILLAR RESONANCE shards, solid vs foes ----
+    for(let i=bismuthPillars.length-1;i>=0;i--){
+      const pl = bismuthPillars[i];
+      const owner = pl.owner;
+      if(!owner.alive || owner.hp<=0){ bmBreakPillar(pl, true); continue; }
+      pl.age += dt;
+      pl.life -= dt;
+      if(pl.life<=0){ bmBreakPillar(pl, true); continue; }
+      if(Math.random()<0.08){
+        particles.push({x:pl.x+(Math.random()-0.5)*pl.r*1.4, y:pl.y-pl.r*0.4, vx:(Math.random()-0.5)*0.4, vy:-0.5-Math.random()*0.8, life:0.5, color:bmColor(Math.random()*360), shape:'diamond'});
+      }
+      const foe = owner===p1 ? p2 : p1;
+      if(owner.def.pillarShardCd){
+        pl.fireT -= dt;
+        if(pl.fireT<=0){
+          pl.fireT = owner.def.pillarShardCd*(0.9+Math.random()*0.2);
+          if(foe.alive && foe.hp>0){
+            toPx(foe);
+            const ddx = foe.px-pl.x, ddy = foe.py-pl.y, dd = Math.hypot(ddx,ddy)||1;
+            projectiles.push({x:pl.x, y:pl.y, vx:ddx/dd*7.5, vy:ddy/dd*7.5, owner, target:foe,
+              dmg:35*dmgFactor(owner)*(owner.def.pillarShardMul||0.22), color:owner.def.color, life:2.0,
+              name:'PILLAR RESONANCE', trail:[], trailMax:6, hitRadius:5, shape:'diamond', hitCooldown:0,
+              pierceArmor:true, bismuthShard:true, hue:pl.hue, spin:Math.random()*Math.PI*2});
+            rings.push({x:pl.x,y:pl.y,r:3,maxR:pl.r+10,life:0.2,maxLife:0.2,color:bmColor(pl.hue,72)});
+            sfxTone({freq:2400,endFreq:1800,type:'triangle',dur:0.06,vol:0.05});
+          }
+        }
+      }
+      for(const key in pl.hitT){ if(pl.hitT[key]>0) pl.hitT[key] -= dt; }
+      // the pillar is a solid wall to everyone but its owner
+      [p1,p2].forEach(f=>{
+        if(f===owner || !f.alive) return;
+        toPx(f);
+        const dxp = f.px-pl.x, dyp = f.py-pl.y;
+        const dd = Math.hypot(dxp,dyp)||0.001;
+        const touch = f.r+pl.r;
+        if(dd>=touch) return;
+        const nx = dxp/dd, ny = dyp/dd;
+        f.x += nx*(touch-dd+1)/W();
+        f.y += ny*(touch-dd+1)/H();
+        toPx(f);
+        const wasDash = f.dashT>0;
+        bmBounce(f, nx, ny, owner.def.pillarBounceStun||0.45);
+        if(!(pl.hitT[f.side]>0)){
+          pl.hitT[f.side] = owner.def.pillarHitCd || 0.6;
+          const dmgP = owner.def.pillarHitDmg || 100;
+          bmHit(owner, f, dmgP, 'GEOMETRIC LABYRINTH (เสาบิสมัท)');
+          floaters.push({x:f.px, y:f.py-f.r-18, text:'-'+dmgP+' เสาบิสมัท!', life:0.8, vy:-30, color:bmColor(pl.hue,70), big:true});
+          rings.push({x:pl.x,y:pl.y,r:pl.r*0.5,maxR:pl.r+30,life:0.4,maxLife:0.4,color:bmColor(pl.hue,72)});
+          rings.push({x:pl.x,y:pl.y,r:pl.r*0.3,maxR:pl.r+16,life:0.26,maxLife:0.26,color:'#ffffff'});
+          bmBurst(pl.x+nx*pl.r, pl.y+ny*pl.r, 14, 5);
+          shake.mag = Math.max(shake.mag, 7); shake.t = Math.max(shake.t, 0.25);
+          sfxNoise({dur:0.07,vol:0.16,freq:5500,filterType:'highpass'});
+          sfxTone({freq:1500,endFreq:800,type:'triangle',dur:0.16,vol:0.1});
+          if(wasDash) floaters.push({x:f.px, y:f.py-f.r-36, text:'พุ่งชนเสา! หยุดชะงัก', life:0.8, vy:-28, color:'#ffffff', big:false});
+          log(`${f.def.name} พุ่งชนเสาบิสมัทของ ${owner.def.name} เด้งกลับและเสีย ${dmgP} HP!`, true);
+          updateHPUI();
+        }
+      });
+    }
+
+    // ---- CRYSTAL MATRIX nets ----
+    for(let mi=bismuthMatrices.length-1; mi>=0; mi--){
+      const m = bismuthMatrices[mi];
+      m.t += dt;
+      const nodes = m.nodes.filter(pl=>pl.life>0);
+      if(m.t>=m.dur || nodes.length<2 || !m.owner.alive){
+        m.done = true;
+        nodes.forEach(pl=>{
+          bmBurst(pl.x, pl.y, 5, 3);
+          rings.push({x:pl.x,y:pl.y,r:pl.r,maxR:pl.r+20,life:0.3,maxLife:0.3,color:bmColor(pl.hue,72)});
+        });
+        bismuthMatrices.splice(mi,1);
+        continue;
+      }
+      if(!m.formed && m.t>=m.formT){
+        m.formed = true;
+        nodes.forEach(pl=>{ rings.push({x:pl.x,y:pl.y,r:4,maxR:pl.r+34,life:0.45,maxLife:0.45,color:'#ffffff'}); });
+        sfxTone({freq:500,endFreq:2600,type:'sawtooth',dur:0.25,vol:0.08});
+        sfxNoise({dur:0.25,vol:0.12,freq:3000,endFreq:8000,filterType:'bandpass',Q:1.2});
+        log(`${m.owner.def.name} เปิดตาข่าย ${m.name} เชื่อมเสา ${nodes.length} ต้น!`, true);
+      }
+      if(!m.formed) continue;
+      m.tickT -= dt;
+      const tickNow = m.tickT<=0;
+      if(tickNow) m.tickT += m.tick;
+      const base = 35*dmgFactor(m.owner);
+      [p1,p2].forEach(f=>{
+        if(f===m.owner || !f.alive || f.hp<=0) return;
+        toPx(f);
+        // 1) the wires are walls: no body — dashing or not — gets through
+        for(let a=0;a<nodes.length;a++){
+          for(let c=a+1;c<nodes.length;c++){
+            const A = nodes[a], B = nodes[c];
+            const abx = B.x-A.x, aby = B.y-A.y;
+            const len2 = abx*abx+aby*aby || 1;
+            let tt = ((f.px-A.x)*abx + (f.py-A.y)*aby)/len2;
+            tt = Math.max(0, Math.min(1, tt));
+            const cx = A.x+abx*tt, cy = A.y+aby*tt;
+            const ex = f.px-cx, ey = f.py-cy;
+            const ed = Math.hypot(ex,ey);
+            const reach = f.r*0.55+3;
+            if(ed>=reach) continue;
+            let nx, ny;
+            if(ed>0.5){ nx = ex/ed; ny = ey/ed; }
+            else { const len = Math.sqrt(len2); nx = -aby/len; ny = abx/len; }
+            f.x += nx*(reach-ed+1)/W();
+            f.y += ny*(reach-ed+1)/H();
+            toPx(f);
+            const wasDash = f.dashT>0;
+            bmBounce(f, nx, ny, 0.4);
+            if(!(f.bmEdgeT>0)){
+              f.bmEdgeT = 0.4;
+              const dmgE = Math.max(1, Math.round(base*m.edgeMul));
+              bmHit(m.owner, f, dmgE, m.name+' (กำแพงไฟฟ้า)');
+              floaters.push({x:f.px, y:f.py-f.r-16, text:wasDash?'ทะลุไม่ได้! -'+dmgE:'ช็อต! -'+dmgE, life:0.7, vy:-28, color:bmColor(A.hue+120,72), big:false});
+              rings.push({x:cx,y:cy,r:3,maxR:22,life:0.25,maxLife:0.25,color:'#ffffff'});
+              bmBurst(cx, cy, 8, 4);
+              sfxNoise({dur:0.08,vol:0.14,freq:4500,filterType:'highpass'});
+              sfxTone({freq:1200,endFreq:400,type:'sawtooth',dur:0.1,vol:0.07});
+              updateHPUI();
+            }
+          }
+        }
+        // 2) anyone caught inside a full triangle is shocked continuously
+        if(tickNow && nodes.length>=3 && bmFoeInTri(f, nodes)){
+          const dmgT = Math.max(1, Math.round(base*m.tickMul));
+          bmHit(m.owner, f, dmgT, m.name+' (ช็อตต่อเนื่อง)');
+          floaters.push({x:f.px+(Math.random()-0.5)*16, y:f.py-f.r-8, text:'ช็อต -'+dmgT, life:0.6, vy:-26, color:bmColor(Math.random()*360,72), big:false});
+          for(let k=0;k<5;k++){
+            const angK = Math.random()*Math.PI*2, spdK = 1+Math.random()*3;
+            particles.push({x:f.px,y:f.py,vx:Math.cos(angK)*spdK,vy:Math.sin(angK)*spdK,life:0.3,color:bmColor(Math.random()*360),shape:'diamond'});
+          }
+          updateHPUI();
+        }
+      });
+    }
+
+    // ---- PRISM TRIANGLE (passive): with all three pillars standing they link up on their own into a
+    // damaging AoE. A live Crystal Matrix on the same three pillars supersedes it (the matrix is
+    // the powered-up version: stronger ticks + walls), so the two never double-dip. ----
+    [p1,p2].forEach(b=>{
+      if(!b.def.passiveGeoLabyrinth) return;
+      const mineF = bmPillarsOf(b);
+      if(!b.alive || mineF.length<3){ b.bmFieldNodes = null; b.bmFieldArm = 0; b.bmFieldState = 0; return; }
+      const trio = mineF.slice(0,3);
+      const same = b.bmFieldNodes && trio.every(pl=>b.bmFieldNodes.indexOf(pl)>=0);
+      if(!same){
+        // a new trio just completed: arc lightning links the three pillars, then the field arms
+        b.bmFieldNodes = trio;
+        b.bmFieldArm = b.def.fieldArm!=null ? b.def.fieldArm : 0.4;
+        b.bmFieldTick = 0.1;
+        for(let e=0;e<3;e++){
+          const A = trio[e], B = trio[(e+1)%3];
+          bolts.push({path:makeJaggedPath(A.x,A.y,B.x,B.y,6,10), life:0.3, maxLife:0.3, color:bmColor(e*120+Date.now()/6,70), jagged:true});
+          rings.push({x:A.x,y:A.y,r:4,maxR:A.r+26,life:0.35,maxLife:0.35,color:bmColor(A.hue+60,72)});
+        }
+        sfxTone({freq:700,endFreq:2000,type:'triangle',dur:0.22,vol:0.08});
+        sfxTone({freq:2600,type:'sine',dur:0.2,vol:0.05,delay:0.1});
+        log(`เสาบิสมัทของ ${b.def.name} ครบ 3 ต้น เชื่อมเป็นพื้นที่สามเหลี่ยม!`);
+      }
+      if(b.bmFieldArm>0){ b.bmFieldArm -= dt; b.bmFieldState = 1; return; }
+      const covered = bismuthMatrices.some(m=>m.owner===b && m.formed && trio.every(pl=>m.nodes.indexOf(pl)>=0));
+      if(covered){ b.bmFieldState = 3; return; }
+      b.bmFieldState = 2;
+      b.bmFieldTick -= dt;
+      if(b.bmFieldTick>0) return;
+      b.bmFieldTick += b.def.fieldTick || 0.3;
+      const baseF = 35*dmgFactor(b)*(b.def.fieldTickMul || 0.2);
+      [p1,p2].forEach(f=>{
+        if(f===b || !f.alive || f.hp<=0) return;
+        toPx(f);
+        if(!bmFoeInTri(f, trio)) return;
+        const dmgF = Math.max(1, Math.round(baseF));
+        bmHit(b, f, dmgF, 'PRISM TRIANGLE (พื้นที่สามเหลี่ยม)');
+        floaters.push({x:f.px+(Math.random()-0.5)*16, y:f.py-f.r-8, text:'-'+dmgF, life:0.5, vy:-24, color:bmColor(Math.random()*360,72), big:false});
+        for(let k=0;k<4;k++){
+          const angK = Math.random()*Math.PI*2, spdK = 1+Math.random()*2.5;
+          particles.push({x:f.px,y:f.py,vx:Math.cos(angK)*spdK,vy:Math.sin(angK)*spdK,life:0.28,color:bmColor(Math.random()*360),shape:'diamond'});
+        }
+        updateHPUI();
+      });
+    });
+  }
+
+  function drawBismuthBody(ctx, p){
+    const t = Date.now()/1000, r = p.r;
+    ctx.save();
+    ctx.beginPath(); ctx.arc(0,0,r-2,0,Math.PI*2); ctx.clip();
+    // stepped hopper facets: nested squares rotated 45deg, each layer its own spectrum hue
+    for(let k=0;k<4;k++){
+      const sz = r*(0.95-k*0.2);
+      ctx.save();
+      ctx.rotate(Math.PI/4 + k*0.12 + Math.sin(t*0.6+k)*0.05);
+      ctx.strokeStyle = bmColor(t*40 + k*70, 62);
+      ctx.globalAlpha = 0.55;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(-sz*0.7,-sz*0.7,sz*1.4,sz*1.4);
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+  function drawBismuthPillar(pl, now){
+    const grow = Math.min(1, pl.age/0.25);
+    const fade = Math.max(0, Math.min(1, pl.life/1.0));
+    const flick = pl.life<1.2 ? (0.55+0.45*Math.sin(now*28)) : 1;
+    const anch = pl.anchor && !pl.anchor.done;
+    ctx.save();
+    ctx.translate(pl.x, pl.y);
+    ctx.globalAlpha = fade*flick;
+    // ground glow + shadow
+    const gg = ctx.createRadialGradient(0,0,2,0,0,pl.r*2.6);
+    gg.addColorStop(0, bmColorA(pl.hue+now*90, 65, anch?0.5:0.32));
+    gg.addColorStop(1, bmColorA(pl.hue+now*90, 65, 0));
+    ctx.fillStyle = gg;
+    ctx.beginPath(); ctx.arc(0,0,pl.r*2.6,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    ctx.beginPath(); ctx.ellipse(0,pl.r*0.55,pl.r*1.05,pl.r*0.42,0,0,Math.PI*2); ctx.fill();
+    // stepped tower: layers shrink and rise, each with its own iridescent hue
+    for(let k=0;k<4;k++){
+      const sz = pl.r*grow*(1-k*0.2);
+      ctx.save();
+      ctx.translate(0, -k*3.2*grow);
+      ctx.rotate(Math.PI/4);
+      const hk = pl.hue + now*70 + k*55;
+      ctx.fillStyle = bmColor(hk, 50+k*6);
+      ctx.shadowColor = bmColor(hk, 70);
+      ctx.shadowBlur = 8 + (anch?6:0);
+      ctx.fillRect(-sz*0.72,-sz*0.72,sz*1.44,sz*1.44);
+      ctx.shadowBlur = 0;
+      ctx.lineWidth = 1.2;
+      ctx.strokeStyle = 'rgba(255,255,255,0.75)';
+      ctx.strokeRect(-sz*0.72,-sz*0.72,sz*1.44,sz*1.44);
+      ctx.restore();
+    }
+    // remaining-life ring
+    ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.arc(0,0,pl.r+6,-Math.PI/2,-Math.PI/2+Math.min(1,pl.life/pl.maxLife)*Math.PI*2);
+    ctx.stroke();
+    ctx.restore();
+  }
+  function drawBismuthLayer(over){
+    if(bismuthPillars.length===0 && bismuthMatrices.length===0 && !(p1.bmTrail&&p1.bmTrail.length) && !(p2.bmTrail&&p2.bmTrail.length)) return;
+    const now = Date.now()/1000;
+    if(!over){
+      // rainbow glow trail behind every BISMUTH
+      [p1,p2].forEach(b=>{
+        if(!b.def.passiveGeoLabyrinth || !b.bmTrail || b.bmTrail.length<2) return;
+        ctx.save();
+        ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+        for(let i=1;i<b.bmTrail.length;i++){
+          const a = b.bmTrail[i-1], c = b.bmTrail[i];
+          const age = Math.min(1, c.t/0.7);
+          ctx.strokeStyle = bmColor(now*120 + i*14, 66);
+          ctx.globalAlpha = Math.max(0, 0.22*(1-age));
+          ctx.lineWidth = Math.max(2, b.r*0.9*(1-age));
+          ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(c.x,c.y); ctx.stroke();
+          ctx.globalAlpha = Math.max(0, 0.6*(1-age));
+          ctx.lineWidth = Math.max(1.2, b.r*0.32*(1-age));
+          ctx.stroke();
+        }
+        ctx.restore();
+      });
+      // net interior tint (triangle) — under the fighters
+      bismuthMatrices.forEach(m=>{
+        const nodes = m.nodes.filter(pl=>pl.life>0);
+        if(nodes.length<3) return;
+        const fadeM = Math.max(0, Math.min(1, (m.dur-m.t)/0.4));
+        const grow = m.formed ? 1 : Math.min(1, m.t/m.formT);
+        ctx.save();
+        ctx.globalAlpha = (m.formed ? 0.16+0.06*Math.sin(now*9) : 0.06)*fadeM*grow;
+        const g = ctx.createLinearGradient(nodes[0].x,nodes[0].y,nodes[2].x,nodes[2].y);
+        g.addColorStop(0,bmColor(now*80,62)); g.addColorStop(0.5,bmColor(now*80+120,62)); g.addColorStop(1,bmColor(now*80+240,62));
+        ctx.fillStyle = g;
+        ctx.beginPath(); ctx.moveTo(nodes[0].x,nodes[0].y); ctx.lineTo(nodes[1].x,nodes[1].y); ctx.lineTo(nodes[2].x,nodes[2].y); ctx.closePath(); ctx.fill();
+        ctx.restore();
+      });
+      // passive PRISM TRIANGLE tint (dimmer while it is still linking)
+      [p1,p2].forEach(b=>{
+        if(!b.bmFieldNodes || (b.bmFieldState!==1 && b.bmFieldState!==2)) return;
+        const n = b.bmFieldNodes;
+        ctx.save();
+        ctx.globalAlpha = b.bmFieldState===2 ? 0.13+0.05*Math.sin(now*8) : 0.05;
+        const g = ctx.createLinearGradient(n[0].x,n[0].y,n[2].x,n[2].y);
+        g.addColorStop(0,bmColor(now*70,62)); g.addColorStop(0.5,bmColor(now*70+120,62)); g.addColorStop(1,bmColor(now*70+240,62));
+        ctx.fillStyle = g;
+        ctx.beginPath(); ctx.moveTo(n[0].x,n[0].y); ctx.lineTo(n[1].x,n[1].y); ctx.lineTo(n[2].x,n[2].y); ctx.closePath(); ctx.fill();
+        ctx.restore();
+      });
+      bismuthPillars.forEach(pl=> drawBismuthPillar(pl, now));
+    } else {
+      // passive PRISM TRIANGLE edges: softer, thinner arcs than the Matrix's wires
+      [p1,p2].forEach(b=>{
+        if(!b.bmFieldNodes || (b.bmFieldState!==1 && b.bmFieldState!==2)) return;
+        const n = b.bmFieldNodes;
+        for(let e=0;e<3;e++){
+          const A = n[e], B = n[(e+1)%3];
+          ctx.save();
+          ctx.lineJoin = 'round';
+          if(b.bmFieldState===1){
+            ctx.globalAlpha = 0.3+0.25*Math.sin(now*36+e);
+            ctx.setLineDash([4,7]);
+            ctx.strokeStyle = bmColor(now*180+e*120,70);
+            ctx.lineWidth = 1.4;
+            ctx.beginPath(); ctx.moveTo(A.x,A.y); ctx.lineTo(B.x,B.y); ctx.stroke();
+          } else {
+            const pts = makeJaggedPath(A.x,A.y,B.x,B.y,8,6);
+            ctx.beginPath();
+            pts.forEach((pt,i)=>{ if(i===0) ctx.moveTo(pt.x,pt.y); else ctx.lineTo(pt.x,pt.y); });
+            ctx.strokeStyle = bmColor(now*160+e*120,68);
+            ctx.lineWidth = 3.4;
+            ctx.shadowColor = ctx.strokeStyle; ctx.shadowBlur = 10;
+            ctx.globalAlpha = 0.42;
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 1.2;
+            ctx.globalAlpha = 0.8;
+            ctx.stroke();
+          }
+          ctx.restore();
+        }
+      });
+      // electric wires between the nodes — over the fighters so a caught body visibly touches them
+      bismuthMatrices.forEach(m=>{
+        const nodes = m.nodes.filter(pl=>pl.life>0);
+        const fadeM = Math.max(0, Math.min(1, (m.dur-m.t)/0.4));
+        let ei = 0;
+        for(let a=0;a<nodes.length;a++){
+          for(let c=a+1;c<nodes.length;c++){
+            const A = nodes[a], B = nodes[c];
+            ctx.save();
+            ctx.lineJoin = 'round';
+            if(!m.formed){
+              ctx.globalAlpha = 0.25+0.25*Math.sin(now*40+ei);
+              ctx.setLineDash([5,7]);
+              ctx.strokeStyle = bmColor(now*200+ei*90,70);
+              ctx.lineWidth = 1.6;
+              ctx.beginPath(); ctx.moveTo(A.x,A.y); ctx.lineTo(B.x,B.y); ctx.stroke();
+            } else {
+              const pts = makeJaggedPath(A.x,A.y,B.x,B.y,9,10);
+              ctx.beginPath();
+              pts.forEach((pt,i)=>{ if(i===0) ctx.moveTo(pt.x,pt.y); else ctx.lineTo(pt.x,pt.y); });
+              ctx.strokeStyle = bmColor(now*200+ei*90,68);
+              ctx.lineWidth = 5;
+              ctx.shadowColor = ctx.strokeStyle; ctx.shadowBlur = 14;
+              ctx.globalAlpha = 0.5*fadeM;
+              ctx.stroke();
+              ctx.shadowBlur = 0;
+              ctx.strokeStyle = '#ffffff';
+              ctx.lineWidth = 1.6;
+              ctx.globalAlpha = 0.95*fadeM;
+              ctx.stroke();
+            }
+            ctx.restore();
+            ei++;
+          }
+        }
+      });
+    }
+  }
+
+  function applyDamage(target, raw, srcName, moveName, poison, burn, freeze, attacker, lifesteal, slow, pull, charm, puddle, scald, chip, pierceArmor){
     if(target.cloneCharge>0){
       target.cloneCharge = 0;
       toPx(target);
@@ -9391,15 +10452,19 @@ function runSimulation(f1,f2, netRole, roomCode){
 
     // GALE's SLIPSTREAM: for a brief window it turns to wind itself — every incoming attack
     // just passes through with nothing to hit
+    // GEMS UPDATE — OPAL's PRISMATIC SPLIT reuses the exact same evadeT window, just with its
+    // own iridescent flavor text/color instead of GALE's wind
     if(target.evadeT>0){
       toPx(target);
-      floaters.push({x:target.px, y:target.py-target.r-14, text:'ลมพัดผ่าน!', life:0.8, vy:-32, color:'#8bffd6', big:true});
+      const isOpalEvade = target.def.id==='opal';
+      floaters.push({x:target.px, y:target.py-target.r-14, text: isOpalEvade ? 'แสงพร่างพราว หลบได้!' : 'ลมพัดผ่าน!', life:0.8, vy:-32, color: isOpalEvade ? '#f2f2f8' : '#8bffd6', big:true});
+      const evadeSpec = isOpalEvade ? ['#ffffff','#f2f2f8','#e6e6ee','#d8d8e2'] : ['#8bffd6'];
       for(let i=0;i<14;i++){
         const ang = Math.random()*Math.PI*2;
         const spd = 1.5+Math.random()*3;
-        particles.push({x:target.px,y:target.py,vx:Math.cos(ang)*spd,vy:Math.sin(ang)*spd,life:0.4,color:'#8bffd6',shape:'triangle'});
+        particles.push({x:target.px,y:target.py,vx:Math.cos(ang)*spd,vy:Math.sin(ang)*spd,life:0.4,color:evadeSpec[i%evadeSpec.length],shape: isOpalEvade ? 'diamond' : 'triangle'});
       }
-      log(`${target.def.name} แปรกายเป็นลมหลบ ${moveName} ของ ${srcName} ได้!`, true);
+      log(`${target.def.name} แปรกายเป็น${isOpalEvade?'แสง':'ลม'}หลบ ${moveName} ของ ${srcName} ได้!`, true);
       return;
     }
 
@@ -9410,8 +10475,10 @@ function runSimulation(f1,f2, netRole, roomCode){
     // body always lands on the real body.
     let dmg = raw;
     let blocked = target.shieldT>0;
-    if(blocked) dmg *= (1-0.5);
-    if(target.def.passiveFlatReduce) dmg = Math.max(1, dmg - target.def.passiveFlatReduce);
+    // GEMS UPDATE — BISMUTH's SHARD STRIKE / pillar hits set pierceArmor: they skip both the 50%
+    // shield reduction and the flat armor reduction
+    if(blocked && !pierceArmor) dmg *= (1-0.5);
+    if(target.def.passiveFlatReduce && !pierceArmor) dmg = Math.max(1, dmg - target.def.passiveFlatReduce);
     // GALE's windborne passive: while riding its own tailwind (hasted), incoming hits are
     // softened — it's already half-gone by the time they land
     if(target.def.passiveWindborne && target.hasteT>0) dmg *= 0.7;
@@ -9670,6 +10737,23 @@ function runSimulation(f1,f2, netRole, roomCode){
       floaters.push({x:target.px, y:target.py-target.r-28, text:'AMETHYST REQUIEM!', life:0.9, vy:-30, color:target.def.color, big:true});
       rings.push({x:target.px, y:target.py, r:target.r, maxR:target.r+34, life:0.45, maxLife:0.45, color:target.def.color});
       log(`${target.def.name} เลือดเหลือ ${target.def.requiemTriggerHP||210} ผลึกอเมทิสต์ปะทุ เริ่มปลุกพลัง AMETHYST REQUIEM!`, true);
+    }
+
+    // GEMS UPDATE — BISMUTH's ท่าไม้ตาย — SPECTRUM CATACLYSM: once per match, the first time its own
+    // HP drops to 200 or below, it locks in place and gathers prismatic light for 1.0s (no
+    // protection — a well-timed kill during the windup denies it entirely), then plants three fresh
+    // pillars in a triangle around the opponent, fires an unmissable spectrum beam from each,
+    // and wires them into a 4s Crystal Matrix cage (see the gemUlts loop in stepInner).
+    if(target.def.passiveBismuthCataclysm && !target._bismuthCataclysmUsed && target.hp>0 && target.hp<=(target.def.cataclysmTriggerHP||200) && !target.def.__isCampaignBoss){
+      target._bismuthCataclysmUsed = true;
+      const durC = target.def.cataclysmDur||2.0;
+      target.revivingT = durC + 0.15;
+      toPx(target);
+      gemUlts.push({p:target, kind:'bismuthCataclysm', t:0, dur:durC, hasStruck:false, struckT:0, color:target.def.color});
+      sfxTone({freq:260, endFreq:1500, type:'triangle', dur:durC, vol:0.13});
+      floaters.push({x:target.px, y:target.py-target.r-28, text:'SPECTRUM CATACLYSM!', life:0.9, vy:-30, color:target.def.color, big:true});
+      rings.push({x:target.px, y:target.py, r:target.r, maxR:target.r+34, life:0.45, maxLife:0.45, color:target.def.color});
+      log(`${target.def.name} เลือดเหลือ ${target.def.cataclysmTriggerHP||200} ผลึกสเปกตรัมเรืองแสง เริ่มปลุกพลัง SPECTRUM CATACLYSM!`, true);
     }
 
     // NATURE's ท่าไม้ตาย — VERDANT PRISON: once per match, the first time its own HP drops to
@@ -10465,6 +11549,29 @@ function runSimulation(f1,f2, netRole, roomCode){
         telegraphT: telegraph, maxTelegraph: telegraph, color:p.def.color
       });
       log(`${p.def.name} เล็งจุดกระแทกด้วย ${a.name}`);
+    } else if(a.kind==='shardvolley'){
+      // GEMS UPDATE — BISMUTH's SHARD STRIKE: a tight burst of tiny, fast crystal shards fired at the
+      // foe. Every shard carries pierceArmor, so shields and flat armor never soften it.
+      toPx(p); toPx(target);
+      const dxS = target.px-p.px, dyS = target.py-p.py;
+      const baseAngS = Math.atan2(dyS,dxS);
+      const nS = a.count||2, spreadS = a.spreadAngle!=null ? a.spreadAngle : 0.07, spdS = a.shardSpeed||8;
+      for(let k=0;k<nS;k++){
+        const offS = nS>1 ? (k/(nS-1)-0.5)*2*spreadS : 0;
+        const angS = baseAngS + offS + (Math.random()-0.5)*0.03;
+        projectiles.push({
+          x:p.px+Math.cos(angS)*p.r*0.8, y:p.py+Math.sin(angS)*p.r*0.8, vx:Math.cos(angS)*spdS, vy:Math.sin(angS)*spdS,
+          owner:p, target, dmg:base*a.dmgMul, color:p.def.color, life:2.0, name:a.name, trail:[], trailMax:7,
+          hitRadius:5, shape:'diamond', hitCooldown:0, pierceArmor:!!a.pierceArmor, bismuthShard:true,
+          hue:Math.random()*360, spin:Math.random()*Math.PI*2
+        });
+      }
+      rings.push({x:p.px,y:p.py,r:p.r,maxR:p.r+14,life:0.22,maxLife:0.22,color:bmColor(Date.now()/5,70)});
+      for(let bs=0; bs<6; bs++){
+        const angBs = baseAngS + (Math.random()-0.5)*0.7, spdBs = 1.5+Math.random()*3;
+        particles.push({x:p.px+Math.cos(baseAngS)*p.r,y:p.py+Math.sin(baseAngS)*p.r,vx:Math.cos(angBs)*spdBs,vy:Math.sin(angBs)*spdBs,life:0.28,color:bmColor(Math.random()*360),shape:'diamond'});
+      }
+      log(`${p.def.name} ยิง ${a.name} (เจาะเกราะ)`);
     } else if(a.kind==='aquaring'){
       // GEMS UPDATE — LAPIZLAZULI's TIDAL GEM: a ground-targeted AoE like TERRA's quake, but the
       // circle keeps pulsing — 3 damage ticks per circle, the 3rd a much bigger water wave — with
@@ -10526,6 +11633,10 @@ function runSimulation(f1,f2, netRole, roomCode){
       // AMETHYST LASH (whip-range hit that bleeds, empowered every 3rd landed hit)
       const isTopazPunch = p.def.id === 'topaz';
       const isAmethystWhip = p.def.id === 'amethyst';
+      // GEMS UPDATE — OPAL's PRISMATIC IMPACT: a plain dash-impact like TOPAZ/AMETHYST's, but the
+      // short rainbow shockwave it leaves at the point of impact also splashes a 20% bonus magic
+      // hit onto the target's shadow clone if one happens to be standing close by
+      const isOpalImpact = p.def.id === 'opal';
       const amethystEmpowered = isAmethystWhip && (p.amethystHitCount||0) >= 3;
       const comboReady = isShadowCombo && (p.slashComboCount||0) >= 4;
       const rng = comboReady ? (a.range||90)*2 : (a.range||90);
@@ -10559,6 +11670,15 @@ function runSimulation(f1,f2, netRole, roomCode){
             p.amethystHitCount = (p.amethystHitCount||0)+1;
           }
         }
+        // OPAL: a short rainbow shockwave rings out from the point of impact; if the target's
+        // shadow clone is standing close to it, it takes a 20% magic-flavored splash on top
+        if(isOpalImpact){
+          toPx(target);
+          rings.push({x:target.px,y:target.py,r:target.r*0.5,maxR:target.r+rng*0.7,life:0.3,maxLife:0.3,color:'#ffffff'});
+          if(target.cloneHP>0){
+            tryHitClone(target, target.px, target.py, rng*0.7, base*dmgMulSlash*0.2, p.def.name, `${a.name} (คลื่นเวท)`);
+          }
+        }
       } else {
         log(`${p.def.name} ฟาด ${a.name} แต่พลาด (ระยะไม่ถึง)`);
       }
@@ -10587,7 +11707,7 @@ function runSimulation(f1,f2, netRole, roomCode){
         const a2 = ang+spread;
         const spd = isBoulderSlam ? (1.5+Math.random()*3) : (isTopazPunch ? (2.5+Math.random()*3.5) : (isAmethystWhip ? (3+Math.random()*5) : (3+Math.random()*(comboReady?7:4))));
         const burstOrigin = isAmethystWhip ? rng*0.85 : (isTopazPunch ? rng*0.7 : rng*0.35);
-        particles.push({x:p.px+Math.cos(ang)*burstOrigin, y:p.py+Math.sin(ang)*burstOrigin, vx:Math.cos(a2)*spd, vy:isBoulderSlam?(Math.sin(a2)*spd*0.5+0.6):Math.sin(a2)*spd, life:comboReady?0.5:(isBoulderSlam?0.4:(isTopazPunch?0.3:(isAmethystWhip?0.35:0.32))), color:isGlitchSlash?glitchBurstColors[i%3]:(isBoulderSlam?stoneBurstColors[i%3]:(isTopazPunch?'#ffab2e':(isAmethystWhip?(amethystEmpowered?'#e8d9ff':'#9d4edd'):p.def.color))), shape:isGlitchSlash?'shard':(isBoulderSlam?'stone':(isAmethystWhip?'droplet':shape))});
+        particles.push({x:p.px+Math.cos(ang)*burstOrigin, y:p.py+Math.sin(ang)*burstOrigin, vx:Math.cos(a2)*spd, vy:isBoulderSlam?(Math.sin(a2)*spd*0.5+0.6):Math.sin(a2)*spd, life:comboReady?0.5:(isBoulderSlam?0.4:(isTopazPunch?0.3:(isAmethystWhip?0.35:0.32))), color:isGlitchSlash?glitchBurstColors[i%3]:(isBoulderSlam?stoneBurstColors[i%3]:(isTopazPunch?'#ffab2e':(isAmethystWhip?(amethystEmpowered?'#e8d9ff':'#9d4edd'):(isOpalImpact?['#ffffff','#f0f0f5','#e2e2ec','#d4d4e2'][i%4]:p.def.color)))), shape:isGlitchSlash?'shard':(isBoulderSlam?'stone':(isAmethystWhip?'droplet':shape))});
       }
       if(isBoulderSlam){
         shake.mag = Math.max(shake.mag, 3.5); shake.t = Math.max(shake.t, 0.18);
@@ -10878,6 +11998,14 @@ function runSimulation(f1,f2, netRole, roomCode){
         log(`${p.def.name} จุดชนวนเลือดที่สะสมบน ${o.def.name} ระเบิด!`, true);
       }
       log(`${p.def.name} เร่งความเร็วด้วย ${a.name}`);
+    } else if(a.kind==='bismuthmatrix'){
+      // GEMS UPDATE — BISMUTH's CRYSTAL MATRIX: arcs of electricity link every pillar it owns into
+      // an energy net (the trigger loop only calls this once at least minPillars stand)
+      const nodesM = bmPillarsOf(p);
+      if(nodesM.length >= (a.minPillars||2)){
+        bmCastMatrix(p, nodesM, a.dur||4.0, {formT:a.formT, tick:a.tick, tickMul:a.tickMul, edgeMul:a.edgeMul, name:a.name});
+        log(`${p.def.name} ใช้ ${a.name} เชื่อมเสาบิสมัท ${nodesM.length} ต้น`);
+      }
     } else if(a.kind==='splitclone'){
       p.cloneHP = a.cloneHP || 200;
       p.cloneMaxHP = p.cloneHP;
@@ -11022,6 +12150,40 @@ function runSimulation(f1,f2, netRole, roomCode){
       applyDamage(o, boltBase*a.dmgMul, p.def.name, a.name, a.poison, a.burn, a.freeze, p, null, null, null, null, null, null, a.chip);
       tryHitClone(o, o.px, o.py, 40, boltBase*a.dmgMul, p.def.name, a.name);
       log(`${p.def.name} ฟาด ${a.name} ใส่ ${o.def.name} ทันที`);
+    } else if(a.kind==='prismsplit'){
+      // GEMS UPDATE — OPAL's PRISMATIC SPLIT: scatters into 7 light beams and snaps back to the
+      // same spot. Reuses evadeT for the untargetable window — the exact same trick GALE's
+      // SLIPSTREAM already uses (see applyDamage's evadeT check) — so "nothing can hit it while
+      // it's dissolved into light" costs no new code in applyDamage at all. The actual detonation
+      // rides TERRA's own quakes[] telegraph engine (centered on OPAL itself instead of the foe's
+      // spot) so it resolves in-step with the sim instead of a raw setTimeout — whoever's standing
+      // nearby when it reforms takes a heavy magic hit and a flat 50% slow (quakes[].slowDur, see
+      // the quake detonation loop in stepInner).
+      const splitDur = a.splitDur!=null ? a.splitDur : 0.8;
+      p.evadeT = Math.max(p.evadeT||0, splitDur);
+      const cx = p.px, cy = p.py;
+      const beamN = 7;
+      const rngP = a.range || 130;
+      const prismBase = 35*dmgFactor(p);
+      const spec = ['#ffffff','#f5f5fa','#e8e8f0','#dcdce6','#ffffff'];
+      for(let k=0;k<beamN;k++){
+        const angK = (Math.PI*2/beamN)*k + Math.random()*0.12;
+        slashes.push({x:cx, y:cy, angle:angK, life:splitDur, maxLife:splitDur, color:spec[k%spec.length], range:rngP, bodyR:p.r*0.55});
+        for(let bp=0;bp<5;bp++){
+          const distBp = Math.random()*rngP;
+          particles.push({x:cx+Math.cos(angK)*distBp, y:cy+Math.sin(angK)*distBp, vx:Math.cos(angK)*1.6, vy:Math.sin(angK)*1.6, life:0.35+Math.random()*0.3, color:spec[bp%spec.length], shape:'diamond'});
+        }
+      }
+      rings.push({x:cx,y:cy,r:p.r,maxR:p.r+rngP,life:splitDur,maxLife:splitDur,color:'#ffffff'});
+      rings.push({x:cx,y:cy,r:p.r*0.5,maxR:p.r+rngP*0.6,life:splitDur*0.7,maxLife:splitDur*0.7,color:p.def.color});
+      sfxTone({freq:1800, endFreq:600, type:'sine', dur:splitDur, vol:0.1});
+      quakes.push({
+        x:cx, y:cy, r:rngP, dmg: prismBase*a.dmgMul, owner:p, name:a.name,
+        telegraphT: splitDur, maxTelegraph: splitDur, color:'#ffffff',
+        ringColor:'#ffffff', particleColors:['#ffffff','#f5f5fa','#e8e8f0','#dcdce6'], particleShape:'diamond',
+        slowDur: a.slowDur!=null ? a.slowDur : 2.5, silent:true
+      });
+      log(`${p.def.name} สลายร่างเป็น ${a.name}!`);
     }
   }
 
@@ -11112,6 +12274,7 @@ function runSimulation(f1,f2, netRole, roomCode){
       if(p.errorT>0){ p.errorT -= dt; if(p.errorT<0) p.errorT=0; }
       if(p.silenceT>0){ p.silenceT -= dt; if(p.silenceT<0) p.silenceT=0; }
       if(p.stunT>0){ p.stunT -= dt; if(p.stunT<0) p.stunT=0; }
+      if(p.dazzleT>0){ p.dazzleT -= dt; if(p.dazzleT<0) p.dazzleT=0; }
       // BLOOD RITUAL: the instant HP drops to the configured threshold or below, a timed
       // window opens where every hit this fighter lands heals it instead of just damaging the
       // enemy — re-arms once HP climbs back above the threshold so it isn't a one-time proc
@@ -12256,13 +13419,35 @@ function runSimulation(f1,f2, netRole, roomCode){
         }
         p.x += p.vx*dt;
         p.y += p.vy*dt;
+        // GEMS UPDATE — OPAL's PLAY OF COLOR: a trail of rainbow dust while gliding
+        if(p.def.id==='opal'){
+          p._opalTrailT = (p._opalTrailT||0) + dt;
+          if(p._opalTrailT > 0.045){
+            p._opalTrailT = 0;
+            toPx(p);
+            const spec = ['#ffffff','#f2f2f8','#e6e6ee','#d8d8e2'];
+            particles.push({x:p.px,y:p.py,vx:(Math.random()-0.5)*0.5,vy:(Math.random()-0.5)*0.5,life:0.5+Math.random()*0.3,color:spec[Math.floor(Math.random()*spec.length)],shape:'circle'});
+          }
+        }
       }
       const marginX = p.r/W();
       const marginY = p.r/H();
-      if(p.x < marginX){ p.x = marginX; p.vx = Math.abs(p.vx)*0.88; }
-      else if(p.x > 1-marginX){ p.x = 1-marginX; p.vx = -Math.abs(p.vx)*0.88; }
-      if(p.y < marginY){ p.y = marginY; p.vy = Math.abs(p.vy)*0.88; }
-      else if(p.y > 1-marginY){ p.y = 1-marginY; p.vy = -Math.abs(p.vy)*0.88; }
+      let wallBounced = false;
+      if(p.x < marginX){ p.x = marginX; p.vx = Math.abs(p.vx)*0.88; wallBounced = true; }
+      else if(p.x > 1-marginX){ p.x = 1-marginX; p.vx = -Math.abs(p.vx)*0.88; wallBounced = true; }
+      if(p.y < marginY){ p.y = marginY; p.vy = Math.abs(p.vy)*0.88; wallBounced = true; }
+      else if(p.y > 1-marginY){ p.y = 1-marginY; p.vy = -Math.abs(p.vy)*0.88; wallBounced = true; }
+      if(wallBounced){
+        // GEMS UPDATE — OPAL's PLAY OF COLOR: every wall bounce flashes DAZZLE onto anyone nearby
+        if(p.def.passiveOpalDazzle) tryOpalDazzle(p, o);
+        // DAZZLE: the next bounce kicks off at a random angle instead of a clean reflection
+        if(p.dazzleT>0){
+          const curSpd = Math.hypot(p.vx,p.vy);
+          const wrongAng = Math.atan2(p.vy,p.vx) + (Math.random()-0.5)*2.2;
+          p.vx = Math.cos(wrongAng)*curSpd;
+          p.vy = Math.sin(wrongAng)*curSpd;
+        }
+      }
     });
 
     // SHADOW's split-clone fights independently — it's a real second body, not just a decoy.
@@ -12353,6 +13538,22 @@ function runSimulation(f1,f2, netRole, roomCode){
             setUnitVel(uB, bvx+(v1n-v2n)*nx, bvy+(v1n-v2n)*ny);
           }
 
+          // GEMS UPDATE — OPAL's PLAY OF COLOR also fires off every ball-ball bounce (own real
+          // body only — the clone doesn't carry the passive)
+          if(!uA.isClone && uA.p.def.passiveOpalDazzle) tryOpalDazzle(uA.p, uB.p);
+          if(!uB.isClone && uB.p.def.passiveOpalDazzle) tryOpalDazzle(uB.p, uA.p);
+          // DAZZLE: a dazzled body's rebound off this collision gets kicked to a random angle
+          // instead of the clean elastic bounce just computed above
+          [uA,uB].forEach(u=>{
+            if(u.isClone || !(u.p.dazzleT>0)) return;
+            const [uvx0,uvy0] = unitVel(u);
+            const spd0 = Math.hypot(uvx0,uvy0);
+            if(spd0>0.0001){
+              const wrongAng = Math.atan2(uvy0,uvx0) + (Math.random()-0.5)*2.2;
+              setUnitVel(u, Math.cos(wrongAng)*spd0, Math.sin(wrongAng)*spd0);
+            }
+          });
+
           // impact flash at the contact point
           const [pax,pay] = unitPos(uA), [pbx,pby] = unitPos(uB);
           const cx = (pax*W()+pbx*W())/2, cy = (pay*H()+pby*H())/2;
@@ -12379,6 +13580,10 @@ function runSimulation(f1,f2, netRole, roomCode){
       }
     }
 
+    // GEMS UPDATE — BISMUTH: pillars, crystal matrix nets, rainbow trail (after movement + collisions,
+    // before the ability triggers so a freshly dropped pillar/net is already in place this frame)
+    stepBismuth(dt);
+
     // ability triggers — both fighters always auto-attack, fully automatic
     [ [p1,p2], [p2,p1] ].forEach(([p,o])=>{
       if(!p.alive || !o.alive || p.freezeT>0 || p.rootT>0 || p.revivingT>0 || p.stunT>0) return;
@@ -12387,18 +13592,19 @@ function runSimulation(f1,f2, netRole, roomCode){
       // cdFactor()/speedFactor() above — so a silenced fighter can still act, just slower.
       if(p.cdA<=0 && p.dashT<=0){
         // TECH UPDATE — ERROR: 30% chance any single attack attempt simply fails while active
-        if(p.errorT>0 && Math.random()<0.3){
+        // GEMS UPDATE — DAZZLE (OPAL's PLAY OF COLOR): same idea, 50% chance while active
+        if((p.errorT>0 && Math.random()<0.3) || (p.dazzleT>0 && Math.random()<0.5)){
           toPx(p);
-          floaters.push({x:p.px, y:p.py-p.r-14, text:'ERROR - พลาด!', life:0.7, vy:-28, color:'#ff3d6d', big:false});
+          floaters.push({x:p.px, y:p.py-p.r-14, text: p.dazzleT>0 ? 'DAZZLE - พลาด!' : 'ERROR - พลาด!', life:0.7, vy:-28, color: p.dazzleT>0 ? '#f2d9ff' : '#ff3d6d', big:false});
         } else {
           useAbilityA(p,o);
         }
         p.cdA = p.def.abA.cd * cdFactor(p) * (0.85+Math.random()*0.3);
       }
-      if(p.cdB<=0){
-        if(p.errorT>0 && Math.random()<0.3){
+      if(p.cdB<=0 && !(p.def.abB.kind==='bismuthmatrix' && bmPillarsOf(p).length < (p.def.abB.minPillars||2))){
+        if((p.errorT>0 && Math.random()<0.3) || (p.dazzleT>0 && Math.random()<0.5)){
           toPx(p);
-          floaters.push({x:p.px, y:p.py-p.r-14, text:'ERROR - พลาด!', life:0.7, vy:-28, color:'#ff3d6d', big:false});
+          floaters.push({x:p.px, y:p.py-p.r-14, text: p.dazzleT>0 ? 'DAZZLE - พลาด!' : 'ERROR - พลาด!', life:0.7, vy:-28, color: p.dazzleT>0 ? '#f2d9ff' : '#ff3d6d', big:false});
         } else {
           useAbilityB(p, o);
         }
@@ -12472,7 +13678,7 @@ function runSimulation(f1,f2, netRole, roomCode){
       toPx(t);
       const dist = Math.hypot(pr.x-t.px, pr.y-t.py);
       if(dist < t.r+(pr.hitRadius||6) && t.hp>0 && t.alive && !(pr.hitCooldown>0)){
-        applyDamage(t, pr.dmg, pr.owner.def.name, pr.name, pr.poison, pr.burn, pr.freeze, pr.owner, pr.lifesteal, pr.slow, pr.pull, pr.charm, pr.puddle, pr.scald, pr.chip);
+        applyDamage(t, pr.dmg, pr.owner.def.name, pr.name, pr.poison, pr.burn, pr.freeze, pr.owner, pr.lifesteal, pr.slow, pr.pull, pr.charm, pr.puddle, pr.scald, pr.chip, pr.pierceArmor);
         if(pr.pierce){
           // piercing shot: keeps flying through the target instead of disappearing on hit,
           // with a brief per-shot cooldown so it can't melt the same target every frame
@@ -12527,6 +13733,16 @@ function runSimulation(f1,f2, netRole, roomCode){
               }
             });
             hitStructuresInRadius(ex2, ey2, rad2, splashDmg, pr.owner);
+          }
+          if(pr.bismuthShard){
+            // BISMUTH's shards landing: a small spectrum pop of diamonds instead of a plain poof
+            toPx(t);
+            rings.push({x:t.px,y:t.py,r:t.r*0.3,maxR:t.r+12,life:0.22,maxLife:0.22,color:bmColor(pr.hue||0,70)});
+            for(let bh=0; bh<6; bh++){
+              const angBh = Math.random()*Math.PI*2, spdBh = 1+Math.random()*3;
+              particles.push({x:t.px,y:t.py,vx:Math.cos(angBh)*spdBh,vy:Math.sin(angBh)*spdBh,life:0.3+Math.random()*0.15,color:bmColor((pr.hue||0)+bh*50),shape:'diamond'});
+            }
+            sfxTone({freq:2600,endFreq:1800,type:'triangle',dur:0.06,vol:0.06});
           }
           if(pr.thornVine){
             // NATURE's THORN VINE lands: a small burst of leaves and thorn fragments instead of
@@ -12815,12 +14031,18 @@ function runSimulation(f1,f2, netRole, roomCode){
           const dist = Math.hypot(f.px-q.x, f.py-q.y);
           if(dist < f.r+q.r){
             applyDamage(f, q.dmg, q.owner.def.name, q.name, null, null, null, q.owner);
+            // GEMS UPDATE — OPAL's PRISMATIC SPLIT: flat 50% slow (target.slowT, same field
+            // FROST/AQUA/etc. all share) on anyone caught in the blast when it reforms
+            if(q.slowDur){
+              f.slowT = Math.max(f.slowT||0, q.slowDur);
+              floaters.push({x:f.px, y:f.py-f.r-30, text:'SLOW!', life:0.7, vy:-28, color:'#e0b3ff', big:true});
+            }
           }
           // the fighter's shadow clone (if any) has its own independent hitbox
           tryHitClone(f, q.x, q.y, q.r, q.dmg, q.owner.def.name, q.name);
         });
         hitStructuresInRadius(q.x, q.y, q.r, q.dmg, q.owner);
-        shake.mag = Math.max(shake.mag, 12); shake.t = Math.max(shake.t, 0.45);
+        shake.mag = Math.max(shake.mag, q.silent ? 5 : 12); shake.t = Math.max(shake.t, q.silent ? 0.25 : 0.45);
         // themed boss-ultimate hits carry their own ring color + particle palette/shape so the
         // impact actually matches the element (sonic pink, frost blue, fire orange, etc.)
         // instead of every quake-based hit in the game defaulting to TERRA's brown dirt burst
@@ -12835,7 +14057,9 @@ function runSimulation(f1,f2, netRole, roomCode){
           const col = partCols[Math.floor(Math.random()*partCols.length)];
           particles.push({x:q.x,y:q.y,vx:Math.cos(ang3)*spd8*0.7,vy:Math.sin(ang3)*spd8*0.5-0.6,life:0.6+Math.random()*0.35,color:col,shape:partShape});
         }
-        playQuakeSFX();
+        // OPAL's PRISMATIC SPLIT reforms silently (its own sfxTone already played at cast time)
+        // instead of TERRA's ground-rumble quake sound
+        if(!q.silent) playQuakeSFX();
         quakes.splice(i,1);
       }
     }
@@ -13560,7 +14784,7 @@ function runSimulation(f1,f2, netRole, roomCode){
       if(Math.random() < 0.4+tg*0.4){
         const angG = Math.random()*Math.PI*2;
         const spawnRG = gu.p.r + 8 + Math.random()*26;
-        particles.push({x:gu.p.px+Math.cos(angG)*spawnRG, y:gu.p.py+Math.sin(angG)*spawnRG, vx:-Math.sin(angG)*(2+tg*4), vy:Math.cos(angG)*(2+tg*4), life:0.4, color:gu.color, shape:gu.kind==='goldenFury'?'diamond':'droplet'});
+        particles.push({x:gu.p.px+Math.cos(angG)*spawnRG, y:gu.p.py+Math.sin(angG)*spawnRG, vx:-Math.sin(angG)*(2+tg*4), vy:Math.cos(angG)*(2+tg*4), life:0.4, color:gu.kind==='bismuthCataclysm'?bmColor(Math.random()*360):gu.color, shape:(gu.kind==='goldenFury'||gu.kind==='bismuthCataclysm')?'diamond':'droplet'});
       }
       if(gu.t>=gu.dur){
         gu.hasStruck = true;
@@ -13594,6 +14818,52 @@ function runSimulation(f1,f2, netRole, roomCode){
             }, h*130);
           }
           log(`${gu.p.def.name} ปลดปล่อย GOLDEN FURY ระดมหมัดรัว!`, true);
+        } else if(gu.kind==='bismuthCataclysm'){
+          // SPECTRUM CATACLYSM: wipe BISMUTH's old pillars, plant three fresh ones around the foe in a
+          // triangle, fire an unmissable beam from each, then wire them into a cage
+          const bd = gu.p.def;
+          toPx(foe);
+          for(let mm=bismuthMatrices.length-1; mm>=0; mm--){
+            if(bismuthMatrices[mm].owner===gu.p){ bismuthMatrices[mm].done = true; bismuthMatrices.splice(mm,1); }
+          }
+          bmPillarsOf(gu.p).forEach(pl=>bmBreakPillar(pl,false));
+          const cageDur = bd.cataclysmMatrixDur||4.0;
+          const R0 = bd.cataclysmRadius||115, prr = 16, marg = R0+prr+6;
+          const cxr = Math.max(marg, Math.min(W()-marg, foe.px));
+          const cyr = Math.max(marg, Math.min(H()-marg, foe.py));
+          const a0 = Math.random()*Math.PI*2;
+          const fresh = [];
+          for(let k=0;k<3;k++){
+            const angK = a0 + k*Math.PI*2/3;
+            const pl = {x:cxr+Math.cos(angK)*R0, y:cyr+Math.sin(angK)*R0, r:prr, owner:gu.p, life:cageDur+0.4, maxLife:cageDur+0.4, age:0, anchor:null, fireT:99, hue:k*120, hitT:{}};
+            bismuthPillars.push(pl);
+            fresh.push(pl);
+            rings.push({x:pl.x,y:pl.y,r:4,maxR:pl.r+30,life:0.4,maxLife:0.4,color:bmColor(pl.hue,72)});
+            bmBurst(pl.x, pl.y, 10, 4);
+          }
+          const dMinB = bd.cataclysmDmgMin||75, dMaxB = bd.cataclysmDmgMax||100;
+          fresh.forEach((pl,k)=>{
+            const pathB = makeJaggedPath(pl.x, pl.y, foe.px, foe.py, 6, 10);
+            bolts.push({path:pathB, life:0.35, maxLife:0.35, color:bmColor(k*120+40,70), jagged:true});
+            setTimeout(()=>{
+              if(gameOver || !foe.alive) return;
+              toPx(foe);
+              const dmgB = Math.round(dMinB + Math.random()*(dMaxB-dMinB));
+              bmHit(gu.p, foe, dmgB, 'SPECTRUM CATACLYSM');
+              floaters.push({x:foe.px, y:foe.py-foe.r-(18+k*10), text:'-'+dmgB, life:0.7, vy:-30, color:bmColor(k*120+40,72), big:false});
+              rings.push({x:foe.px,y:foe.py,r:foe.r*0.4,maxR:foe.r+26,life:0.3,maxLife:0.3,color:bmColor(k*120+40,72)});
+              bmBurst(foe.px, foe.py, 10, 5);
+              shake.mag = Math.max(shake.mag, 8); shake.t = Math.max(shake.t, 0.25);
+              if(k===2) floaters.push({x:foe.px, y:foe.py-foe.r-44, text:'SPECTRUM CATACLYSM!', life:0.95, vy:-34, color:gu.color, big:true});
+              updateHPUI();
+            }, 120 + k*140);
+          });
+          // the beams pin the foe for a beat (it can't dash out of the triangle before the net closes)
+          foe.stunT = Math.max(foe.stunT||0, 0.55);
+          foe.dashT = 0; foe.pendingDashDmg = null;
+          bmCastMatrix(gu.p, fresh, cageDur, {ult:true, formT:0.25, tick:0.35, tickMul:bd.cataclysmTickMul||0.3, edgeMul:0.4, name:'SPECTRUM CATACLYSM'});
+          shake.mag = Math.max(shake.mag, 12); shake.t = Math.max(shake.t, 0.35);
+          log(`${gu.p.def.name} ปลดปล่อย SPECTRUM CATACLYSM สร้างกรงผลึกล้อม ${foe.def.name}!`, true);
         } else if(gu.kind==='amethystRequiem'){
           const dMin = gu.p.def.requiemDmgMin||260, dMax = gu.p.def.requiemDmgMax||340;
           const healPct = gu.p.def.requiemHealPct!=null ? gu.p.def.requiemHealPct : 0.3;
@@ -14382,6 +15652,14 @@ function runSimulation(f1,f2, netRole, roomCode){
       bloodFill.addColorStop(0.55,'#22040b');
       bloodFill.addColorStop(1,'#050507');
       ctx.fillStyle = bloodFill;
+    } else if(p.def.id==='opal'){
+      // GEMS UPDATE — OPAL's body: a plain pearl-white glass gradient instead of the shared flat
+      // black fill, so it reads as an actual milky opal rather than a black disc with a white rim
+      const opalFill = ctx.createRadialGradient(-p.r*0.3,-p.r*0.35,p.r*0.1, 0,0,p.r);
+      opalFill.addColorStop(0,'#ffffff');
+      opalFill.addColorStop(0.55,'#eae8e0');
+      opalFill.addColorStop(1,'#c4c0b4');
+      ctx.fillStyle = opalFill;
     } else {
       ctx.fillStyle = '#050507';
     }
@@ -14390,8 +15668,19 @@ function runSimulation(f1,f2, netRole, roomCode){
     ctx.fill();
     ctx.shadowBlur = 0;
     ctx.lineWidth=2.5;
-    ctx.strokeStyle = p.def.color;
+    // GEMS UPDATE — BISMUTH's rim is a slowly rotating rainbow instead of one flat color.
+    // OPAL used to share this rainbow rim, but its color scheme is now a plain pearl white,
+    // so it just falls through to the flat strokeStyle below like most other characters.
+    if(p.def.passiveGeoLabyrinth && !(p.hitFlash>0) && ctx.createConicGradient){
+      const cgB = ctx.createConicGradient((Date.now()/1400) % (Math.PI*2), 0, 0);
+      const spec = ['#ff6fae','#ffd23f','#7dffb0','#4dc7ff','#b58aff','#ff6fae'];
+      spec.forEach((c,i)=> cgB.addColorStop(i/(spec.length-1), c));
+      ctx.strokeStyle = cgB;
+    } else {
+      ctx.strokeStyle = p.def.color;
+    }
     ctx.stroke();
+    if(p.def.passiveGeoLabyrinth) drawBismuthBody(ctx, p);
     ctx.fillStyle = p.hitFlash>0 ? '#000' : p.def.color;
     ctx.font='bold 13px monospace';
     ctx.textAlign='center';
@@ -16735,6 +18024,32 @@ function runSimulation(f1,f2, netRole, roomCode){
         ctx.arc(2,-0.5,1.4,0,Math.PI*2);
         ctx.fill();
         ctx.restore();
+      } else if(pr.bismuthShard){
+        // GEMS UPDATE — BISMUTH's shards: a tiny faceted sliver whose color slides through the
+        // spectrum along its length, trailing little rainbow diamonds
+        const angBs = Math.atan2(pr.vy, pr.vx);
+        const hueB = (pr.hue||0) + Date.now()/6;
+        pr.trail.forEach((tp,i)=>{
+          const fracB = pr.trail.length>1 ? i/(pr.trail.length-1) : 1;
+          ctx.globalAlpha = fracB*0.55;
+          drawShape(ctx, tp.x, tp.y, 1.8, 'diamond', bmColor(hueB - (pr.trail.length-i)*22, 66), 6);
+        });
+        ctx.globalAlpha = 1;
+        ctx.save();
+        ctx.translate(pr.x, pr.y);
+        ctx.rotate(angBs);
+        ctx.shadowColor = bmColor(hueB,70);
+        ctx.shadowBlur = 14;
+        const gradB = ctx.createLinearGradient(-6,0,6,0);
+        gradB.addColorStop(0,bmColor(hueB,60));
+        gradB.addColorStop(0.5,'#ffffff');
+        gradB.addColorStop(1,bmColor(hueB+120,62));
+        ctx.fillStyle = gradB;
+        ctx.beginPath();
+        ctx.moveTo(6,0); ctx.lineTo(0,-2.6); ctx.lineTo(-6,0); ctx.lineTo(0,2.6);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
       } else if(pr.amberDrop){
         // AMBER's RESIN SHOT — a heavy, syrupy teardrop of amber instead of a plain circle:
         // a thick honey-gold gradient body with a glassy highlight, leaving thin sticky
@@ -16813,11 +18128,13 @@ function runSimulation(f1,f2, netRole, roomCode){
       ctx.globalAlpha=1;
     });
 
+    drawBismuthLayer(false); // GEMS UPDATE — BISMUTH's rainbow trail, net tint and pillars sit under the fighters
     drawDiodeAura(ctx, p1, p2);
     drawDiodeAura(ctx, p2, p1);
     drawFighter(p1);
     drawFighter(p2);
     [p1,p2].forEach(p=>{ if(p.alive && p.cloneHP>0) drawShadowClone(p); });
+    drawBismuthLayer(true); // ...and the electric net wires cross over them
 
     // GEMS UPDATE — LAPIZLAZULI's TIDAL GEM: the lapis gems float ABOVE the fighters (the pool itself
     // is drawn underneath them earlier) so a gem never gets hidden when the foe stands on the center.
@@ -16977,6 +18294,13 @@ document.getElementById('campaignBackBtn').onclick = ()=>{
   document.getElementById('setupScreen').style.display='block';
 };
 document.getElementById('eventBtn').onclick = openEventScreen;
+document.getElementById('gemsBtn').onclick = openGemsScreen;
+document.getElementById('gemsBackBtn').onclick = ()=>{
+  document.getElementById('gemsScreen').style.display='none';
+  document.getElementById('setupScreen').style.display='block';
+};
+if(!isEventActive()) document.getElementById('techCta').style.display='none';
+if(!isGemsActive()) document.getElementById('gemsCta').style.display='none';
 document.getElementById('eventBackBtn').onclick = ()=>{
   document.getElementById('eventScreen').style.display='none';
   document.getElementById('setupScreen').style.display='block';
@@ -16992,7 +18316,7 @@ document.getElementById('redeemBtn').onclick = openRedeemModal;
 // mirrors pickRandomElementWeighted()'s own default-pool logic exactly, so the drop-rate panel
 // never shows odds for a character that isn't actually reachable through the plain gacha button
 // (TECH characters excluded while the event is active; DIODE excluded always — minigame only).
-document.getElementById('charRateBtn').onclick = ()=> toggleRatePanel('charRateBtn','charRatePanel', isEventActive() ? ELEMENTS.filter(e=>!TECH_IDS.includes(e.id)) : ELEMENTS.filter(e=>e.id!=='diode'));
+document.getElementById('charRateBtn').onclick = ()=> toggleRatePanel('charRateBtn','charRatePanel', getMainGachaPool());
 document.getElementById('itemRateBtn').onclick = ()=> toggleRatePanel('itemRateBtn','itemRatePanel', ITEM_DEFS);
 document.getElementById('saveOnlineBtn').onclick = saveMyTeamOnline;
 document.getElementById('challengeBtn').onclick = openChallengeList;
@@ -17002,6 +18326,11 @@ document.getElementById('roomModalClose').onclick = ()=>{
   if(window._roomWaitCleanup){ window._roomWaitCleanup(); window._roomWaitCleanup=null; }
   document.getElementById('roomModal').classList.remove('show');
 };
+// [BUGFIX] companion to refitAndRepaint() in runSimulation/runRemoteSpectator: also repaint a finished
+// battle's arena when the device is rotated or the tab/app returns to the foreground (browsers can drop
+// canvas contents there too)
+window.addEventListener('orientationchange', ()=>{ setTimeout(()=>{ if(window._repaintBattle) window._repaintBattle(); }, 250); });
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden && window._repaintBattle) window._repaintBattle(); });
 document.getElementById('editBtn').onclick = ()=>{
   if(animId) cancelAnimationFrame(animId);
   if(window._stopPlayerControls){ window._stopPlayerControls(); window._stopPlayerControls=null; }
@@ -17220,6 +18549,7 @@ document.getElementById('rematchBtn').onclick = ()=>{
           '<div class="g10-face g10-back"></div>' +
           '<div class="g10-face g10-front">' +
             (p.badge ? '<span class="g10-badge '+(p.badgeType||'')+'">'+p.badge+'</span>' : '') +
+            gemsOriginBadge(it.id) +
             '<div class="g10-dot'+shape+'" style="background:'+it.color+'">' + (it.icon ? '<span class="g10-ico">'+it.icon+'</span>' : '') + '</div>' +
             '<div class="g10-name">'+it.name+'</div>' +
             (single ? '<div class="g10-tag">'+(it.tag||'')+'</div>' : '') +

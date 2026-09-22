@@ -614,6 +614,97 @@
   .hack-node.flash-ok{ border-color:#4fd67a; background:rgba(79,214,122,0.18); box-shadow:0 0 14px -2px #4fd67a; transform:scale(1.05); }
   .hack-node.flash-bad{ border-color:var(--accent1); background:rgba(255,77,109,0.18); box-shadow:0 0 14px -2px var(--accent1); animation:bgShake .3s ease-out; }
 
+  /* ---- GEMS UPDATE — จับผิดพลอย (Spot the Flawed Gem) minigame: a grid of faceted gem tiles,
+     one is a "flawed" gem (desaturated/hue-shifted + slightly rotated+shrunk). A draining timer
+     bar forces a quick decision each round; grid size grows and the timer shortens as rounds
+     climb, and the flaw itself gets subtler each round (--fi, set inline per tile) so later
+     rounds demand real attention instead of just a bigger board. From round 5 a weaker "decoy"
+     gem (--fi at ~55% of the real flaw) can also appear to bait a wrong tap. Every tile idles
+     with a small staggered wobble + shine sweep (--wd/--sd delays, set inline per tile) which
+     doubles as camouflage for the real flaw's rotation. Colors ride --bc/--bcg like every other
+     boss-game kind (set per-round to that round's gem); reuses the shared spark/combo/panel-flash
+     helpers via #bgPanel / #bgSparkLayer for hit payoff. ---- */
+  .spot-timer-track{
+    height:8px; border-radius:99px; overflow:hidden;
+    background:rgba(255,255,255,0.06);
+    margin:2px 0 6px;
+  }
+  .spot-timer-bar{
+    height:100%; width:100%;
+    background:linear-gradient(90deg, var(--bc), var(--gold));
+    box-shadow:0 0 10px 0 var(--bcg);
+    transition:background .25s;
+  }
+  .spot-timer-track.urgent .spot-timer-bar{
+    background:linear-gradient(90deg, var(--accent1), #ff8a4d);
+    animation:spotTimerPulse .4s ease-in-out infinite;
+  }
+  @keyframes spotTimerPulse{ 0%,100%{ opacity:1; } 50%{ opacity:0.5; } }
+  .spot-progress-dots{ display:flex; gap:4px; justify-content:center; flex-wrap:wrap; margin:0 0 10px; }
+  .spot-progress-dots span{
+    width:6px; height:6px; border-radius:50%;
+    background:var(--line); transition:background .2s, box-shadow .2s, transform .2s;
+  }
+  .spot-progress-dots span.done{ background:var(--bc); box-shadow:0 0 6px 0 var(--bc); }
+  .spot-progress-dots span.cur{ background:var(--line-bright); transform:scale(1.35); box-shadow:0 0 8px 1px var(--bc); }
+  .spot-grid{
+    display:grid;
+    gap:8px;
+  }
+  .spot-tile{
+    position:relative;
+    aspect-ratio:1/1;
+    display:flex; align-items:center; justify-content:center;
+    border:none;
+    padding:0;
+    clip-path:polygon(50% 0%, 88% 24%, 100% 64%, 50% 100%, 0% 64%, 12% 24%);
+    background:
+      linear-gradient(155deg, rgba(255,255,255,0.5), transparent 32%),
+      radial-gradient(circle at 50% 28%, var(--gc, var(--bc)) 0%, rgba(0,0,0,0.45) 140%);
+    cursor:pointer;
+    font-family:inherit;
+    transition:filter .12s;
+    animation:gemWobble 3.2s ease-in-out infinite;
+    animation-delay:var(--wd, 0s);
+    will-change:transform;
+  }
+  .spot-tile::after{
+    content:'';
+    position:absolute; top:-30%; left:-60%;
+    width:38%; height:160%;
+    background:linear-gradient(120deg, transparent, rgba(255,255,255,0.55), transparent);
+    transform:rotate(20deg) translateX(-140%);
+    animation:gemShine 3.6s ease-in-out infinite;
+    animation-delay:var(--sd, 0s);
+    pointer-events:none;
+  }
+  @keyframes gemWobble{
+    0%,100%{ transform:rotate(-1.6deg) translateY(0); }
+    50%{ transform:rotate(1.6deg) translateY(-1px); }
+  }
+  @keyframes gemShine{
+    0%,66%{ transform:rotate(20deg) translateX(-140%); }
+    85%,100%{ transform:rotate(20deg) translateX(220%); }
+  }
+  .spot-tile:hover{ filter:brightness(1.12); }
+  .spot-tile:active{ filter:brightness(0.92); }
+  .spot-ico{ position:relative; z-index:2; font-size:1.35rem; filter:drop-shadow(0 0 4px rgba(0,0,0,0.5)); transition:filter .15s, transform .15s; }
+  .spot-tile.odd .spot-ico, .spot-tile.decoy .spot-ico{
+    filter:saturate(calc(1 - 0.5*var(--fi, 1))) brightness(calc(1 - 0.22*var(--fi, 1))) hue-rotate(calc(-16deg*var(--fi, 1))) drop-shadow(0 0 4px rgba(0,0,0,0.5));
+    transform:rotate(calc(-7deg*var(--fi, 1))) scale(calc(1 - 0.09*var(--fi, 1)));
+  }
+  .spot-tile.flash-ok{ animation:spotGoodPulse .45s ease-out; }
+  @keyframes spotGoodPulse{
+    0%{ filter:brightness(1); }
+    40%{ filter:brightness(1.7) saturate(1.3); }
+    100%{ filter:brightness(1); }
+  }
+  .spot-tile.flash-bad{ animation:spotBadShake .35s ease-out; filter:brightness(0.55) saturate(0.3); }
+  @keyframes spotBadShake{
+    0%,100%{ transform:translateX(0); } 20%{ transform:translateX(-5px); }
+    40%{ transform:translateX(5px); } 60%{ transform:translateX(-3px); } 80%{ transform:translateX(3px); }
+  }
+
   /* ---- SYNC minigame: a marker sweeps a track; tap inside the shrinking "sweet zone". Marker
      now trails a short comet tail and the zone breathes gently while active, colored via --bc. ---- */
   .sync-game-wrap{ display:flex; flex-direction:column; gap:12px; }
@@ -1828,6 +1919,56 @@
   25%{ opacity:1; }
   100%{ opacity:0; transform:translate(0,0) scale(.2); }
 }
+
+/* ===== themed CHARGE-UP — when the top pick of a pull is one of the themed legendaries
+   (see LEGEND_THEMES in the script below), the crystal charging animation itself reskins to
+   that character instead of generic rarity gold: the ring/crystal tint targets --tc/--tg
+   instead of --rc/--rg, a per-theme backdrop breathes behind the crystal on .g10-stage::before,
+   and spawnMote() picks up --tc/--tg for its late-stage particles. */
+.g10-stage.theme-cosmos{      --tc:#c04dff; --tg:#e6d4ff; }
+.g10-stage.theme-love{        --tc:#ff4d94; --tg:#ff9fc8; }
+.g10-stage.theme-lapizlazuli{ --tc:#2f7bff; --tg:#8fd0ff; }
+.g10-stage.theme-techno{      --tc:#33ffcf; --tg:#baffef; }
+.g10-stage.theme-icecream{    --tc:#ff8fc0; --tg:#ffe3f0; }
+.g10-stage[class*="theme-"].charging .g10-circle{ animation:g10Spin 7s linear infinite, g10TintTheme var(--chg,2s) ease-in forwards; }
+.g10-stage[class*="theme-"].charging .g10-circle.c2{ animation-direction:reverse, normal; animation-duration:4.5s, var(--chg,2s); }
+@keyframes g10TintTheme{ to{ color:var(--tc); opacity:.95; } }
+.g10-stage[class*="theme-"].charging .g10-gem{ animation:g10ChargeTheme var(--chg,2s) cubic-bezier(.4,0,.9,.6) forwards; }
+@keyframes g10ChargeTheme{
+  0%{ transform:translateY(0) scale(.9); color:var(--accent-gems); filter:drop-shadow(0 0 10px currentColor); }
+  50%{ transform:translateY(-6px) scale(1.02); }
+  100%{ transform:translateY(0) scale(1.3); color:var(--tc); filter:drop-shadow(0 0 36px var(--tg)); }
+}
+.g10-stage::before{ content:''; position:absolute; inset:10%; border-radius:50%; pointer-events:none; z-index:0; opacity:0; }
+
+.g10-stage.theme-cosmos::before{
+  background:
+    radial-gradient(circle at 50% 50%, #000 0%, rgba(0,0,0,.75) 22%, transparent 46%),
+    repeating-conic-gradient(from 0deg, rgba(255,255,255,.10) 0deg 3deg, transparent 3deg 24deg);
+}
+.g10-stage.theme-cosmos.charging::before{ opacity:.85; animation:cosmosChargeSwirl 4.2s linear infinite; }
+@keyframes cosmosChargeSwirl{ to{ transform:rotate(360deg); } }
+
+.g10-stage.theme-love::before{ background:radial-gradient(circle at 50% 50%, rgba(255,77,148,.55), transparent 65%); }
+.g10-stage.theme-love.charging::before{ opacity:1; animation:loveChargePulse 1s ease-in-out infinite; }
+@keyframes loveChargePulse{ 0%,100%{ transform:scale(.9); opacity:.55; } 50%{ transform:scale(1.1); opacity:1; } }
+
+.g10-stage.theme-lapizlazuli::before{ background:repeating-radial-gradient(circle at 50% 50%, rgba(79,163,255,.4) 0 2px, transparent 2px 15px); }
+.g10-stage.theme-lapizlazuli.charging::before{ opacity:.75; animation:lapisChargeRipple 1.6s linear infinite; }
+@keyframes lapisChargeRipple{ 0%{ transform:scale(.8); opacity:.35; } 100%{ transform:scale(1.25); opacity:.75; } }
+
+.g10-stage.theme-techno::before{
+  background:
+    repeating-linear-gradient(0deg, rgba(51,255,207,.2) 0 1px, transparent 1px 10px),
+    repeating-linear-gradient(90deg, rgba(51,255,207,.2) 0 1px, transparent 1px 10px);
+}
+.g10-stage.theme-techno.charging::before{ opacity:.7; animation:technoChargeScan 1.3s linear infinite; }
+@keyframes technoChargeScan{ 0%{ background-position:0 0, 0 0; } 100%{ background-position:0 20px, 20px 0; } }
+
+.g10-stage.theme-icecream::before{ background:conic-gradient(from 0deg, #ffc2e0, #fff6fa, #ffe3f0, #ffc2e0); }
+.g10-stage.theme-icecream.charging::before{ opacity:.55; animation:icecreamChargeSwirl 3.5s linear infinite; }
+@keyframes icecreamChargeSwirl{ to{ transform:rotate(360deg); } }
+
 .g10-fx{ position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:5; }
 .g10-fx .gacha-spark{ margin:-2.5px 0 0 -2.5px; }
 .g10-ring{
@@ -1957,6 +2098,94 @@
   0%,100%{ box-shadow:0 0 14px -3px var(--rg); }
   50%{ box-shadow:0 0 26px 0 var(--rg); }
 }
+
+/* ===== per-character LEGENDARY reveal themes — COSMOS/LOVE/LAPIZLAZULI/METEORITE/TECHNO each
+   get their own animated backdrop + drifting glyph particles on the front face, layered on top
+   of the shared tier-5 glow so "legendary" still reads at a glance but every character also
+   reads as itself. .g10-theme-fx holds the JS-spawned particles; .g10-front::after (free — the
+   sheen lives in the separate .g10-shine span) carries the per-theme animated backdrop. */
+.g10-theme-fx{ position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:0; border-radius:inherit; }
+.g10-theme-p{
+  position:absolute; font-size:.6rem; line-height:1; opacity:0;
+  text-shadow:0 0 6px currentColor;
+  animation:themeFloat 2.6s ease-in-out infinite;
+}
+@keyframes themeFloat{
+  0%{ transform:translateY(6px) scale(.7); opacity:0; }
+  15%{ opacity:.9; }
+  80%{ opacity:.55; }
+  100%{ transform:translateY(-34px) scale(1.05); opacity:0; }
+}
+@keyframes themeFall{
+  0%{ transform:translateY(-6px) scale(.8); opacity:0; }
+  15%{ opacity:.95; }
+  80%{ opacity:.5; }
+  100%{ transform:translateY(34px) scale(.9); opacity:0; }
+}
+@keyframes themeBlip{
+  0%,100%{ opacity:.12; transform:scale(.85); }
+  50%{ opacity:1; transform:scale(1.1); }
+}
+
+/* COSMOS — event-horizon core + a slowly rotating starfield */
+.g10-card.theme-cosmos .g10-front::after{
+  content:''; position:absolute; inset:0; z-index:0; pointer-events:none; border-radius:inherit;
+  background:
+    radial-gradient(circle at 50% 44%, #000 0%, rgba(0,0,0,.85) 14%, transparent 34%),
+    radial-gradient(1.5px 1.5px at 18% 22%, #fff, transparent 60%),
+    radial-gradient(1px 1px at 78% 18%, #fff, transparent 60%),
+    radial-gradient(1.5px 1.5px at 32% 78%, #fff, transparent 60%),
+    radial-gradient(1px 1px at 82% 68%, #fff, transparent 60%),
+    radial-gradient(1px 1px at 60% 88%, #fff, transparent 60%),
+    radial-gradient(1.5px 1.5px at 12% 62%, #fff, transparent 60%);
+  opacity:0;
+}
+.g10-card.theme-cosmos.flipped .g10-front::after{ opacity:.9; animation:cosmosSwirl 6s linear infinite; }
+@keyframes cosmosSwirl{ from{ transform:rotate(0deg); } to{ transform:rotate(360deg); } }
+.g10-card.theme-cosmos .g10-theme-p{ color:#e6d4ff; }
+
+/* LOVE — a warm pink bloom pulsing behind hearts drifting up */
+.g10-card.theme-love .g10-front::after{
+  content:''; position:absolute; inset:0; z-index:0; pointer-events:none; border-radius:inherit;
+  background:radial-gradient(circle at 50% 60%, rgba(255,77,148,.4), transparent 62%);
+  opacity:0;
+}
+.g10-card.theme-love.flipped .g10-front::after{ opacity:1; animation:loveBloom 1.8s ease-in-out infinite; }
+@keyframes loveBloom{ 0%,100%{ transform:scale(1); opacity:.75; } 50%{ transform:scale(1.15); opacity:1; } }
+.g10-card.theme-love .g10-theme-p{ color:#ff7fb8; font-size:.72rem; }
+
+/* LAPIZLAZULI — deep-sea gem: shimmering diagonal water bands + rising bubbles */
+.g10-card.theme-lapizlazuli .g10-front::after{
+  content:''; position:absolute; inset:0; z-index:0; pointer-events:none; border-radius:inherit;
+  background:repeating-linear-gradient(200deg, rgba(79,163,255,.16) 0 6px, transparent 6px 16px);
+  opacity:0;
+}
+.g10-card.theme-lapizlazuli.flipped .g10-front::after{ opacity:1; animation:lapisWaves 3.4s linear infinite; }
+@keyframes lapisWaves{ 0%{ background-position:0 0; } 100%{ background-position:0 -120px; } }
+.g10-card.theme-lapizlazuli .g10-theme-p{ color:#8fd0ff; }
+
+/* ICE CREAM — secret code-only reward: soft-serve pastel swirl with falling sprinkles */
+.g10-card.theme-icecream .g10-front::after{
+  content:''; position:absolute; inset:0; z-index:0; pointer-events:none; border-radius:inherit;
+  background:conic-gradient(from 0deg, #ffc2e0, #fff6fa, #ffe3f0, #ffc2e0);
+  opacity:0;
+}
+.g10-card.theme-icecream.flipped .g10-front::after{ opacity:.55; animation:icecreamSwirl 5s linear infinite; }
+@keyframes icecreamSwirl{ from{ transform:rotate(0deg); } to{ transform:rotate(360deg); } }
+.g10-card.theme-icecream .g10-theme-p{ color:#ff8fc0; animation-name:themeFall; }
+
+/* TECHNO — flickering data blips on a scanning circuit grid */
+.g10-card.theme-techno .g10-front::after{
+  content:''; position:absolute; inset:0; z-index:0; pointer-events:none; border-radius:inherit;
+  background:
+    repeating-linear-gradient(0deg, rgba(51,255,207,.14) 0 1px, transparent 1px 9px),
+    repeating-linear-gradient(90deg, rgba(51,255,207,.14) 0 1px, transparent 1px 9px);
+  opacity:0;
+}
+.g10-card.theme-techno.flipped .g10-front::after{ opacity:1; animation:technoScan 2.4s linear infinite; }
+@keyframes technoScan{ 0%{ background-position:0 0, 0 0; } 100%{ background-position:0 18px, 18px 0; } }
+.g10-card.theme-techno .g10-theme-p{ color:#33ffcf; font-size:.5rem; animation-name:themeBlip; }
+
 .g10-shine{
   position:absolute; inset:-30%; pointer-events:none;
   background:linear-gradient(110deg, transparent 43%, rgba(255,255,255,.4) 50%, transparent 57%);
@@ -2091,8 +2320,11 @@
 @media (prefers-reduced-motion:reduce){
   .g10-circle, .g10-gemwrap, .g10-glint, .g10-back::after, .x10-btn::after,
   .g10-card.t4.flipped .g10-front, .g10-card.t5.flipped .g10-front,
-  .g10-card.t4.flipped .g10-shine, .g10-card.t5.flipped .g10-shine{ animation:none !important; }
+  .g10-card.t4.flipped .g10-shine, .g10-card.t5.flipped .g10-shine,
+  .g10-card .g10-front::after, .g10-theme-p, .g10-stage::before{ animation:none !important; }
   .g10-card.t5.flipped{ animation:none !important; }
+  .g10-theme-p{ opacity:.8 !important; }
+  .g10-stage[class*="theme-"]::before{ opacity:.6 !important; }
 }
 
 .tech-update-badge{
@@ -2341,6 +2573,24 @@
 .elem-btn[data-id="lapizlazuli"],
 .elem-btn[data-id="bismuth"],
 .elem-btn[data-id="opal"]{ position:relative; }
+.elem-btn[data-id="icecream"]{ position:relative; }
+.elem-btn[data-id="icecream"]{ box-shadow:0 0 14px -4px #ffc2e0, inset 0 0 0 1px rgba(255,194,224,0.35); }
+.elem-btn[data-id="icecream"]::after{
+  /* marks the secret, redeem-code-only character — same corner-badge slot as the TECH ⚙
+     and GEMS ❖ markers above, so it reads as "special" in the grid at a glance even before
+     reading its locked tooltip */
+  content:'🍦';
+  position:absolute; bottom:1px; right:5px;
+  font-size:0.72rem;
+  opacity:0.85;
+  text-shadow:0 0 6px #ffc2e0;
+  animation:iceCreamWobble 1.8s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes iceCreamWobble{
+  0%,100%{ transform:translateY(0) rotate(-6deg); }
+  50%{ transform:translateY(-2px) rotate(6deg); }
+}
 .elem-btn[data-id="emerald"]::after,
 .elem-btn[data-id="topaz"]::after,
 .elem-btn[data-id="amethyst"]::after,
@@ -3012,7 +3262,7 @@ function renderCharDetail(id){
     <span class="roster-name" style="color:${elem.color}">Lv.${entry.level}${maxed?' (MAX)':''}</span>
     <span class="roster-lv">เศษอัพเกรด ${entry.shards}</span>
   </div>
-  <div class="roster-row-sub">พลัง ${curPow} · ความเร็ว ${curSpd}${equippedDef?` · สวมใส่: ${equippedDef.icon} ${equippedDef.name}${itemEnhanceLevel(equippedDef.id)>0?` +${itemEnhanceLevel(equippedDef.id)}`:''}`:''}</div>
+  <div class="roster-row-sub">พลัง ${curPow} · ความเร็ว ${curSpd}${equippedDef?` · สวมใส่: ${equippedDef.icon} ${equippedDef.name}${itemEnhanceLevel(equippedDef.id)>0?` +${itemEnhanceLevel(equippedDef.id)}`:''} — ${itemStatDisplay(equippedDef)}`:' · ยังไม่ได้ใส่ไอเทม'}</div>
   <div class="roster-row-actions">
     <button type="button" class="btn ghost small roster-lvup-btn" data-elem="${id}" ${canLevel?'':'disabled'}>
       ${maxed?'อัพเกรดสูงสุดแล้ว':`⬆️ อัพเกรด (${cost.gold}🪙+${cost.shards}เศษ)`}
@@ -3206,7 +3456,18 @@ function wireRosterListEvents(){
     const elemId = row.dataset.elem;
     row.querySelectorAll('.item-chip:not(.unavailable)').forEach(chip=>{
       chip.onclick = ()=>{
-        equipItem(elemId, chip.dataset.item);
+        const itemId = chip.dataset.item;
+        const elem = ELEMENTS.find(e=>e.id===elemId);
+        const idef = itemId ? getItemDef(itemId) : null;
+        if(equipItem(elemId, itemId)){
+          const charName = elem ? elem.name : 'ตัวละคร';
+          if(idef){
+            const lvl = itemEnhanceLevel(idef.id);
+            onlineStatusMsg(`🎒 ใส่ ${idef.icon} ${idef.name}${lvl>0?` +${lvl}`:''} ให้ ${charName} แล้ว — ${itemStatDisplay(idef)}`);
+          } else {
+            onlineStatusMsg(`🎒 ถอดไอเทมออกจาก ${charName} แล้ว`);
+          }
+        }
         openRosterModal();
       };
     });
@@ -3905,10 +4166,11 @@ function loadSave(){
       d.unlockedMaps = Array.isArray(d.unlockedMaps) ? d.unlockedMaps : [0];
       if(!d.unlockedMaps.includes(0)) d.unlockedMaps.push(0);
       d.minigame = (d.minigame && typeof d.minigame==='object') ? d.minigame : null; // {date, plays} — daily Hack-the-Mainframe quota
+      d.gemsMinigame = (d.gemsMinigame && typeof d.gemsMinigame==='object') ? d.gemsMinigame : null; // {date, plays} — daily จับผิดพลอย (Spot the Flawed Gem) quota
       return d;
     }
   }catch(e){}
-  return {gems:0, gold:0, roster:{}, itemInventory:{}, itemLevels:{}, redeemedCodes:[], stageProgress:0, pvpTeam:[], pvpTeamName:'', gear:0, eventStageProgress:0, dailyQuests:null, gemsStageProgress:0, gemsQuests:null, unlockedMaps:[0], minigame:null, crystal:0};
+  return {gems:0, gold:0, roster:{}, itemInventory:{}, itemLevels:{}, redeemedCodes:[], stageProgress:0, pvpTeam:[], pvpTeamName:'', gear:0, eventStageProgress:0, dailyQuests:null, gemsStageProgress:0, gemsQuests:null, unlockedMaps:[0], minigame:null, gemsMinigame:null, crystal:0};
 }
 let saveData = loadSave();
 function persistSave(){
@@ -4064,6 +4326,9 @@ const REDEEM_CODES = {
   // direct grant of a specific character (ZODIAC) plus bonus shards for it — unlike the
   // epicChoiceBox codes, this always gives this exact character, not a pick from a list.
   'ZODIAC': {charId:'zodiac', charShards:7, gold:3500},
+  // secret ICE CREAM character — the ONLY way to obtain it. It's excluded from every gacha
+  // pool (main/event/GEMS) and every direct-buy shop, same "code-only" pattern as DIODE.
+  'ILOVEICECREAM': {charId:'icecream', charShards:10, gold:5000},
 };
 function redeemCode(raw){
   const code = (raw||'').trim().toUpperCase();
@@ -4265,6 +4530,29 @@ const ITEM_DEFS = [
   // the opponent can do to you. Priced/rarity'd like the other top-end items.
   {id:'guardian_charm',name:'GUARDIAN CHARM',tag:'ไม่ติดสถานะทุกชนิด (พิษ/ไฟไหม้/แช่แข็ง/ช้าลง/ลวก/หลงรัก)', color:'#ffe37a', rarity:'epic', stat:'statusImmune', value:1, sell:180, icon:'🧿', shape:'hex'},
   {id:'unbroken_core', name:'UNBROKEN CORE', tag:'การโจมตีของคุณไม่สามารถถูกลบล้างได้ (ต้าน SONIC WAVE และสกิลลบล้างอื่นๆ)', color:'#ff6fae', rarity:'legendary', stat:'nullifyImmune', value:1, sell:340, icon:'🔗', shape:'hex'},
+  // ---- [ITEM EXPANSION] fills every rarity gap that was missing across the existing 9 stat
+  // categories (pow/spd/flatReduce/regen/lifesteal/crit/shield/reflect/maxHp) so every stat now
+  // has a full common→legendary ladder to farm toward, same sell-price table as the originals
+  // (common 40 / uncommon 70 / rare 90 / epic 180 / legendary 340) and zero new engine code —
+  // every one of these just plugs into the same `stat` hooks applyRosterBonus already reads.
+  {id:'sovereign_fang',   name:'SOVEREIGN FANG',    tag:'+30 พลังโจมตี',            color:'#ff4d2e', rarity:'legendary', stat:'pow',        value:30,  sell:340, icon:'👑', shape:'hex'},
+  {id:'lightspeed_core',  name:'LIGHTSPEED CORE',   tag:'+32 ความเร็ว',             color:'#5cffe0', rarity:'legendary', stat:'spd',        value:32,  sell:340, icon:'🌠', shape:'hex'},
+  {id:'steel_barrier',    name:'STEEL BARRIER',     tag:'ลดดาเมจที่ได้รับ 11 คงที่', color:'#9fb0c9', rarity:'rare',      stat:'flatReduce', value:11,  sell:90,  icon:'🚧', shape:'diamond'},
+  {id:'adamant_aegis',    name:'ADAMANT AEGIS',     tag:'ลดดาเมจที่ได้รับ 20 คงที่', color:'#e8ecf2', rarity:'legendary', stat:'flatReduce', value:20,  sell:340, icon:'🛡️', shape:'hex'},
+  {id:'verdant_sprig',    name:'VERDANT SPRIG',     tag:'ฟื้นฟู HP +7/วิ',          color:'#5cd97a', rarity:'rare',      stat:'regen',      value:7,   sell:90,  icon:'🌱', shape:'diamond'},
+  {id:'seraph_bloom',     name:'SERAPH BLOOM',      tag:'ฟื้นฟู HP +9/วิ',          color:'#c8ffb0', rarity:'epic',      stat:'regen',      value:9,   sell:180, icon:'🌸', shape:'hex'},
+  {id:'crimson_thorn',    name:'CRIMSON THORN',     tag:'ดูดเลือด 11% ของดาเมจ',    color:'#ff6b8a', rarity:'uncommon',  stat:'lifesteal',  value:0.11, sell:70, icon:'🥀', shape:'circle'},
+  {id:'abyssal_maw',      name:'ABYSSAL MAW',       tag:'ดูดเลือด 26% ของดาเมจ',    color:'#8a0f2b', rarity:'legendary', stat:'lifesteal',  value:0.26, sell:340, icon:'🦷', shape:'hex'},
+  {id:'sharp_monocle',    name:'SHARP MONOCLE',     tag:'โอกาสคริติคอล 10% (ดาเมจ x1.6)', color:'#ffec9e', rarity:'uncommon', stat:'crit',  value:0.10, sell:70,  icon:'🧐', shape:'circle'},
+  {id:'assassins_edge',   name:"ASSASSIN'S EDGE",   tag:'โอกาสคริติคอล 15.5% (ดาเมจ x1.6)', color:'#ffcf3f', rarity:'epic', stat:'crit', value:0.155, sell:180, icon:'🥷', shape:'hex'},
+  {id:'pocket_ward',      name:'POCKET WARD',       tag:'มีเกราะป้องกันตอนเริ่มด่าน 1.0 วิ', color:'#bfe8ff', rarity:'common', stat:'shield', value:1.0, sell:40, icon:'🔵', shape:'circle'},
+  {id:'travelers_ward',   name:"TRAVELER'S WARD",   tag:'มีเกราะป้องกันตอนเริ่มด่าน 1.4 วิ', color:'#8fd0ff', rarity:'uncommon', stat:'shield', value:1.4, sell:70, icon:'🌐', shape:'circle'},
+  {id:'spiny_hide',       name:'SPINY HIDE',        tag:'สะท้อนดาเมจ 6% กลับคืน',    color:'#a8e86b', rarity:'common',    stat:'reflect',    value:0.06, sell:40, icon:'🌵', shape:'circle'},
+  {id:'barbed_chain',     name:'BARBED CHAIN',      tag:'สะท้อนดาเมจ 16% กลับคืน',   color:'#8fbf3f', rarity:'rare',      stat:'reflect',    value:0.16, sell:90, icon:'⛓️', shape:'diamond'},
+  {id:'vital_charm',      name:'VITAL CHARM',       tag:'+100 พลังชีวิตสูงสุด',      color:'#ffb0c0', rarity:'common',    stat:'maxHp',      value:100, sell:40,  icon:'❤️', shape:'circle'},
+  {id:'sturdy_locket',    name:'STURDY LOCKET',     tag:'+180 พลังชีวิตสูงสุด',      color:'#ff8fa8', rarity:'uncommon',  stat:'maxHp',      value:180, sell:70,  icon:'💗', shape:'circle'},
+  {id:'giant_heart',      name:'GIANT HEART',       tag:'+280 พลังชีวิตสูงสุด',      color:'#ff6b8f', rarity:'rare',      stat:'maxHp',      value:280, sell:90,  icon:'💓', shape:'diamond'},
+  {id:'titan_core',       name:'TITAN CORE',        tag:'+400 พลังชีวิตสูงสุด',      color:'#ff4d7a', rarity:'epic',      stat:'maxHp',      value:400, sell:180, icon:'💖', shape:'hex'},
   // ---- TECH UPDATE event items: exclusive drops from the event's item gacha/shard shop while
   // EVENT_ACTIVE is true (see eventExclusive flag + pickRandomItemWeighted below, same
   // include/exclude pattern already used for the 3 TECH characters). Once the event ends these
@@ -6670,7 +6958,7 @@ const EVENT_ITEM_GACHA_COST = 40;  // Gear per item roll
 // it is a perfect clear of the "แฮ็กเมนเฟรม TECH" minigame (see endHackGame), not the event
 // gacha and not a direct Gear purchase. GEMS characters are NOT in this pool either — they live
 // in the GEMS mode's own gacha (getGemsGachaPool), so the two banners never mix.
-function getEventGachaPool(){ return ELEMENTS.filter(e=>e.id!=='diode' && !(isGemsActive() && GEMS_IDS.includes(e.id))); }
+function getEventGachaPool(){ return ELEMENTS.filter(e=>e.id!=='diode' && e.id!=='icecream' && e.id!=='meteorite' && !(isGemsActive() && GEMS_IDS.includes(e.id))); }
 
 function openEventScreen(){
   document.getElementById('setupScreen').style.display='none';
@@ -7099,13 +7387,13 @@ function renderEventQuests(){
      - own character gacha pool (getGemsGachaPool — GEMS characters + regular ones, NO TECH)
      - own currency: everything here is priced / paid in 🔷 Crystal (TECH uses 🔩 Gear); stages also
        drop a small bonus of 💎 Gems on the side, spendable in the main game outside GEMS UPDATE */
-let gemsTab = 'stages'; // 'stages' | 'shop' | 'quests'
+let gemsTab = 'stages'; // 'stages' | 'shop' | 'minigame' | 'quests'
 // [PRICE REBALANCE] GEMS direct-buy is now 1.5x (was 50/110/220/400/760) while the banner pull is cheaper
 // (250 -> 150), so rolling is the efficient route and buying a specific character outright is the premium one.
 const GEMS_CHAR_SHOP_COST = {common:75, uncommon:165, rare:330, epic:600, legendary:1140};
 const GEMS_CHAR_GACHA_COST = 150; // 🔷 per pull [PRICE DOWN: 250 -> 150] (the main-menu gacha is 120💎 — this banner carries the GEMS characters)
 function getGemsGachaPool(){
-  return ELEMENTS.filter(e=> e.id!=='diode' && !(isEventActive() && TECH_IDS.includes(e.id)));
+  return ELEMENTS.filter(e=> e.id!=='diode' && e.id!=='icecream' && e.id!=='meteorite' && !(isEventActive() && TECH_IDS.includes(e.id)));
 }
 
 const GEMS_STAGE_DEFS = [
@@ -7129,6 +7417,19 @@ const GEMS_STAGE_DEFS = [
   {elemId:'cosmos',      name:'จักรพรรดิจักรวาลมืดมิด', boss:true, preBattleMinigame:true},
   {elemId:'love',        name:'นางพญาแห่งรักอันบ้าคลั่ง'},
   {elemId:'opal',        name:'จักรพรรดิโอปอลแสงมุกอมตะ', boss:true, finalBoss:true, preBattleMinigame:true},
+  // ===== SECRET SUPERBOSS — unlocked only after clearing the GEMS final boss above (OPAL).
+  // A brand-new design (METEORITE, see ELEMENTS above) replacing the old OBSIDIAN superboss —
+  // OBSIDIAN itself is untouched and still pullable elsewhere, just no longer used for this
+  // fight. Stats are hand-set (hpOverride/powMultOverride/crystalOverride/gemsOverride) rather
+  // than the usual formula so it can sit clearly above OPAL without the linear scale creeping
+  // past it — same approach as the TECH UPDATE's BLOOD superboss (see EVENT_STAGE_DEFS above).
+  // bossHazardField grafts a "meteor shower" onto ONLY this one encounter (see
+  // buildGemsMonsterFighter below) — the pullable METEORITE card stays a clean quake+shield kit
+  // without an always-on periodic AoE, the same "graft it onto the fight copy, not the shared
+  // def" trick the story map already uses for its own ascended-boss reuses.
+  {elemId:'meteorite', name:'ราชันย์อุกกาบาตปฐมกาลผู้ให้กำเนิดพลอยทั้งมวล', boss:true, superBoss:true, preBattleMinigame:true,
+    hpOverride:5200, powMultOverride:2.9, crystalOverride:560, gemsOverride:150,
+    bossHazardField:{interval:3.3, telegraph:0.9, radius:62, dmgMin:16, dmgMax:26, label:'สะเก็ดดาวตกกระหน่ำ!', color:'#b3652e', pattern:'cluster', particleShape:'triangle', particleColors:['#ffd23f','#ffffff','#b3652e']}},
 ];
 const GEMS_STAGE_COUNT = GEMS_STAGE_DEFS.length;
 const GEMS_STAGES = GEMS_STAGE_DEFS.map((d,i)=>{
@@ -7142,21 +7443,37 @@ const GEMS_STAGES = GEMS_STAGE_DEFS.map((d,i)=>{
     crystal += d.finalBoss ? 150 : 50;
     gems += d.finalBoss ? 40 : 15;
   }
+  // explicit stat overrides (currently just the secret superboss) win over the formula above
+  if(d.hpOverride!=null) hp = d.hpOverride;
+  if(d.powMultOverride!=null) powMult = d.powMultOverride;
+  if(d.crystalOverride!=null) crystal = d.crystalOverride;
+  if(d.gemsOverride!=null) gems = d.gemsOverride;
   return { id:i+1, elemId:d.elemId, name:d.name, hp, powMult, crystal, gems,
-    boss:!!d.boss, finalBoss:!!d.finalBoss, preBattleMinigame:d.preBattleMinigame||null };
+    boss:!!d.boss, finalBoss:!!d.finalBoss, superBoss:!!d.superBoss, preBattleMinigame:d.preBattleMinigame||null,
+    bossHazardField:d.bossHazardField||null };
 });
 function gemsStageUnlocked(st){ return st.id <= (saveData.gemsStageProgress||0)+1; }
 function buildGemsMonsterFighter(stageDef){
   const elem = ELEMENTS.find(e=>e.id===stageDef.elemId) || ELEMENTS[0];
-  const icon = stageDef.finalBoss ? '👑' : (stageDef.boss ? '💠' : '💎');
-  return {...elem,
+  const icon = stageDef.superBoss ? '🖤' : (stageDef.finalBoss ? '👑' : (stageDef.boss ? '💠' : '💎'));
+  const out = {...elem,
     pow: Math.round(elem.pow*stageDef.powMult),
     spd: Math.round(elem.spd*Math.min(1.3, stageDef.powMult)),
     name: `${icon} ${stageDef.name}`, color: elem.color, __elemId: elem.id,
     __maxHpOverride: stageDef.hp,
-    __sizeMult: stageDef.finalBoss ? 1.42 : (stageDef.boss ? 1.32 : 1.22),
+    __sizeMult: stageDef.superBoss ? 1.55 : (stageDef.finalBoss ? 1.42 : (stageDef.boss ? 1.32 : 1.22)),
     __isCampaignBoss: !!stageDef.boss,
   };
+  // Since `out` is only a per-fight copy (spread off the shared ELEMENTS def above), grafting an
+  // extra encounter-only passiveHazardField here never mutates the real pullable METEORITE card —
+  // it only ever applies to this one boss fight, same trick the story map already uses for its
+  // own ascended-boss reuses (see buildStageEnemyFighter's md.bossHazardField above).
+  if(stageDef.bossHazardField){
+    out.passiveHazardField = stageDef.bossHazardField;
+    const hf = stageDef.bossHazardField;
+    out.passiveDesc = `${out.passiveDesc || ''} | [ร่างประจัญบาน] ทุก ${hf.interval} วิ จะเปิด ${hf.label} รอบตัวคู่ต่อสู้แบบไม่ต้องรอคูลดาวน์ท่าปกติ (เฉพาะการต่อสู้ครั้งนี้เท่านั้น)`.trim();
+  }
+  return out;
 }
 function runGemsBattle(stageDef, playerTeamDefs){
   const enemyFighter = buildGemsMonsterFighter(stageDef);
@@ -7238,9 +7555,10 @@ function openGemsTeamPicker(stageId){
 function renderGemsTeamPicker(stage){
   const body = document.getElementById('gemsBody');
   const ownedIds = Object.keys(saveData.roster);
-  const icon = stage.finalBoss ? '👑' : (stage.boss ? '💠' : '💎');
+  const icon = stage.superBoss ? '🖤' : (stage.finalBoss ? '👑' : (stage.boss ? '💠' : '💎'));
   const minigameTag = stage.preBattleMinigame ? ' (มีมินิเกมก่อนสู้)' : '';
-  const bossTag = stage.boss ? (stage.finalBoss ? ` 👑 บอสใหญ่ GEMS${minigameTag}` : ` · มินิบอส GEMS${minigameTag}`) : '';
+  const bossTag = stage.superBoss ? ` 🖤 บอสลับ GEMS${minigameTag}`
+    : (stage.boss ? (stage.finalBoss ? ` 👑 บอสใหญ่ GEMS${minigameTag}` : ` · มินิบอส GEMS${minigameTag}`) : '');
   body.innerHTML = `
     <div class="team-pick-head">
       <button type="button" class="btn ghost small" id="backToGemsStagesBtn">← กลับ</button>
@@ -7288,7 +7606,7 @@ function renderGemsTeamPicker(stage){
         kind: bossGameKindForElem(stage.elemId, stage.id),
         teamDefs,
         bodyId: 'gemsBody',
-        icon: stage.finalBoss ? '👑' : '💠',
+        icon: stage.superBoss ? '🖤' : (stage.finalBoss ? '👑' : '💠'),
         label: stage.name,
         color: bossElem ? bossElem.color : null,
         onCancel: ()=> renderGemsStages(),
@@ -7308,7 +7626,7 @@ function openGemsScreen(){
   renderGemsStages();
 }
 function gemsTabsHTML(){
-  const tabs = [['stages','💎 ด่าน'],['shop','🛒 ร้านค้า / ตู้สุ่ม'],['quests','📋 เควสประจำวัน']];
+  const tabs = [['stages','💎 ด่าน'],['shop','🛒 ร้านค้า / ตู้สุ่ม'],['minigame','🔍 จับผิดภาพ'],['quests','📋 เควสประจำวัน']];
   return `<div class="event-tabs">${tabs.map(([k,label])=>
     `<button type="button" class="btn ghost small ${gemsTab===k?'active':''}" data-tab="${k}">${label}</button>`
   ).join('')}</div>
@@ -7320,6 +7638,7 @@ function wireGemsTabs(){
       gemsTab = btn.dataset.tab;
       if(gemsTab==='stages') renderGemsStages();
       else if(gemsTab==='shop') renderGemsShop();
+      else if(gemsTab==='minigame') renderGemsMinigame();
       else renderGemsQuests();
     };
   });
@@ -7330,9 +7649,10 @@ function renderGemsStages(){
   const rows = GEMS_STAGES.map(st=>{
     const cleared = st.id <= (saveData.gemsStageProgress||0);
     const unlocked = gemsStageUnlocked(st);
-    const icon = unlocked ? (cleared?'✅':(st.finalBoss?'👑':(st.boss?'💠':'💎'))) : '🔒';
+    const icon = unlocked ? (cleared?'✅':(st.superBoss?'🖤':(st.finalBoss?'👑':(st.boss?'💠':'💎')))) : '🔒';
     const mgTag = st.preBattleMinigame ? ' 🎮' : '';
-    const bossTag = st.boss ? (st.finalBoss ? ` · 👑 บอสใหญ่ GEMS${mgTag}` : ` · 💠 มินิบอส GEMS${mgTag}`) : '';
+    const bossTag = st.superBoss ? ` · 🖤 บอสลับ GEMS${mgTag}`
+      : (st.boss ? (st.finalBoss ? ` · 👑 บอสใหญ่ GEMS${mgTag}` : ` · 💠 มินิบอส GEMS${mgTag}`) : '');
     const shownCrystal = cleared ? Math.max(10, Math.round(st.crystal*0.4)) : st.crystal;
     const shownGems = cleared ? Math.max(3, Math.round(st.gems*0.4)) : st.gems;
     return `<div class="event-stage-row ${cleared?'cleared':''} ${unlocked?'':'locked'} ${st.boss?'boss':''}" data-stage="${st.id}">
@@ -7343,7 +7663,7 @@ function renderGemsStages(){
       <div class="esr-go">${unlocked?'▶':''}</div>
     </div>`;
   }).join('');
-  body.innerHTML = gemsTabsHTML() + `<div class="d" style="font-size:0.66rem; color:var(--dim); line-height:1.55; margin-bottom:12px;">ด่านละมอนสเตอร์ตัวเดียวเลือดหนัก มีมินิบอสมรกต/โทแพซ/อเมทิสต์ และบอสใหญ่ลาพิสลาซูลี — ทีมคุณสูงสุด 3 ตัว ตัวที่ชนะแบกเลือดที่เหลือสู้ต่อ ไม่มีฮีล เหมือนแคมเปญ · รางวัลเป็น ${CRYSTAL_ICON} คริสตัล (+ 💎 เพชรเล็กน้อย)</div>${rows}`;
+  body.innerHTML = gemsTabsHTML() + `<div class="d" style="font-size:0.66rem; color:var(--dim); line-height:1.55; margin-bottom:12px;">ด่านละมอนสเตอร์ตัวเดียวเลือดหนัก มีมินิบอสประจำทางและบอสใหญ่โอปอลปิดท้าย — เอาชนะบอสใหญ่แล้วจะปลดล็อก 🖤 บอสลับอุกกาบาตปฐมกาล ด่านที่โหดที่สุดของ GEMS UPDATE — ทีมคุณสูงสุด 3 ตัว ตัวที่ชนะแบกเลือดที่เหลือสู้ต่อ ไม่มีฮีล เหมือนแคมเปญ · รางวัลเป็น ${CRYSTAL_ICON} คริสตัล (+ 💎 เพชรเล็กน้อย)</div>${rows}`;
   wireGemsTabs();
   body.querySelectorAll('.event-stage-row').forEach(row=>{
     const stageId = parseInt(row.dataset.stage, 10);
@@ -7443,6 +7763,231 @@ function renderGemsQuests(){
   }).join('');
   body.innerHTML = gemsTabsHTML() + `<div class="d" style="font-size:0.66rem; color:var(--dim); line-height:1.55; margin-bottom:12px;">เควส GEMS รีเซ็ตทุกวัน (แยกจากเควส TECH) สำเร็จแล้วรับรางวัลอัตโนมัติทันที</div>${cards}`;
   wireGemsTabs();
+}
+
+/* ---- GEMS UPDATE — 🔍 จับผิดพลอย (Spot the Flawed Gem) daily minigame: a grid of identical
+   gem tiles is shown per round, one tile is a subtly "flawed" gem (desaturated + slightly
+   rotated/shrunk) hiding among the rest. The player must tap the flawed one before a draining
+   timer bar runs out; the grid grows and the timer shortens each round for escalating
+   difficulty. Reward scales with rounds cleared, paid in a mix of 🔷 Crystal and 🪙 Gold — its
+   own daily bonus activity with its own quota, separate from the TECH UPDATE's
+   Hack-the-Mainframe above (see minigameStateToday/hackState). ---- */
+const GEMS_SPOT_DAILY_LIMIT = 5;
+const GEMS_SPOT_MAX_ROUNDS = 10;
+const GEMS_SPOT_CRYSTAL_PER_ROUND = 12;
+const GEMS_SPOT_GOLD_PER_ROUND = 50;
+const GEMS_SPOT_CLEAR_BONUS_CRYSTAL = 110;
+const GEMS_SPOT_CLEAR_BONUS_GOLD = 420;
+const GEMS_SPOT_DECOY_FROM_ROUND = 5; // starting this round a weaker "red herring" flaw can appear
+const GEMS_SPOT_GEM_SKINS = [
+  {icon:'💎', color:'#7db3ff'}, {icon:'🔷', color:'#4dc7ff'}, {icon:'💚', color:'#0fe38f'},
+  {icon:'🧡', color:'#ffab2e'}, {icon:'💜', color:'#9d4edd'}, {icon:'❤️', color:'#ff4d6d'},
+  {icon:'🩵', color:'#2f7bff'}, {icon:'🤍', color:'#f0f0ea'},
+];
+let gemsSpotState = null; // {round, gridSize, oddIdx, skin, timeLimit, timeLeft, lastT, raf, locked}
+
+function gemsSpotStateToday(){
+  const t = todayStr();
+  if(!saveData.gemsMinigame || saveData.gemsMinigame.date!==t) saveData.gemsMinigame = {date:t, plays:0};
+  return saveData.gemsMinigame;
+}
+function renderGemsMinigame(){
+  gemsTab = 'minigame';
+  const body = document.getElementById('gemsBody');
+  const state = gemsSpotStateToday();
+  const playsLeft = Math.max(0, GEMS_SPOT_DAILY_LIMIT - state.plays);
+  body.innerHTML = gemsTabsHTML() + `
+    <div class="event-shop-section">
+      <div class="t">🔍 จับผิดพลอย</div>
+      <div class="d">มินิเกมธีม GEMS — พลอยเหมือนกันเต็มกระดาน ยกเว้นเม็ดเดียวที่ "ตำหนิ" สีหมองกว่าเล็กน้อย แตะเม็ดที่ตำหนิให้ทันก่อนเวลาหมด ยิ่งผ่านหลายรอบกระดานยิ่งใหญ่ เวลายิ่งสั้น และรอยตำหนิยิ่งจางลงจนสังเกตยากขึ้นเรื่อยๆ ตั้งแต่รอบ ${GEMS_SPOT_DECOY_FROM_ROUND} อาจมีพลอยลวงแฝงตัวด้วย ระวังให้ดี! รอบละ ${GEMS_SPOT_CRYSTAL_PER_ROUND}${CRYSTAL_ICON} +${GEMS_SPOT_GOLD_PER_ROUND}🪙 และถ้าผ่านครบ ${GEMS_SPOT_MAX_ROUNDS} รอบรับโบนัสอีก +${GEMS_SPOT_CLEAR_BONUS_CRYSTAL}${CRYSTAL_ICON} +${GEMS_SPOT_CLEAR_BONUS_GOLD}🪙</div>
+      <div class="d" style="margin-bottom:10px;">เหลือโควตาวันนี้: <b>${playsLeft}</b>/${GEMS_SPOT_DAILY_LIMIT}</div>
+      <button type="button" class="btn" id="gemsSpotStartBtn" ${playsLeft<=0?'disabled':''}>${playsLeft>0?'▶ เริ่มเกม':'เล่นครบโควตาวันนี้แล้ว — พรุ่งนี้มาใหม่'}</button>
+    </div>`;
+  wireGemsTabs();
+  const startBtn = document.getElementById('gemsSpotStartBtn');
+  if(startBtn) startBtn.onclick = startGemsSpotGame;
+}
+function startGemsSpotGame(){
+  const state = gemsSpotStateToday();
+  if(state.plays >= GEMS_SPOT_DAILY_LIMIT){
+    onlineStatusMsg(`เล่นครบโควตาวันนี้แล้ว (${GEMS_SPOT_DAILY_LIMIT}/วัน)`);
+    return;
+  }
+  state.plays++;
+  persistSave();
+  gemsSpotState = { round:0, locked:true };
+  nextGemsSpotRound();
+}
+function gemsSpotGridSize(round){ return Math.min(3 + Math.floor((round-1)/1.4), 7); }
+function gemsSpotTimeLimit(round){ return Math.max(1.7, 4.8 - round*0.29); }
+// flaw intensity: 1 = obvious (round 1), tapers down to 0.4 by the late rounds so the tell gets
+// genuinely harder to spot rather than the challenge coming purely from a bigger grid/less time.
+function gemsSpotFlawIntensity(round){ return Math.max(0.4, 1 - (round-1)*0.07); }
+function nextGemsSpotRound(){
+  if(!gemsSpotState) return;
+  const st = gemsSpotState;
+  st.round++;
+  const size = gemsSpotGridSize(st.round);
+  const total = size*size;
+  st.gridSize = size;
+  st.oddIdx = Math.floor(Math.random()*total);
+  st.fi = gemsSpotFlawIntensity(st.round);
+  // from GEMS_SPOT_DECOY_FROM_ROUND on, a coin-flip spawns a second, weaker "flawed-looking"
+  // gem elsewhere on the board — always fainter than the real flaw (0.55x its intensity) so a
+  // careful look still resolves it, but a quick glance can bait a wrong tap.
+  st.decoyIdx = null;
+  if(st.round >= GEMS_SPOT_DECOY_FROM_ROUND && Math.random() < 0.45 && total > 1){
+    let d;
+    do { d = Math.floor(Math.random()*total); } while(d === st.oddIdx);
+    st.decoyIdx = d;
+  }
+  st.skin = GEMS_SPOT_GEM_SKINS[Math.floor(Math.random()*GEMS_SPOT_GEM_SKINS.length)];
+  st.timeLimit = gemsSpotTimeLimit(st.round);
+  st.timeLeft = st.timeLimit;
+  st.locked = false;
+  st.urgent = false;
+  renderGemsSpotGame();
+  st.lastT = performance.now();
+  if(st.raf) cancelAnimationFrame(st.raf);
+  st.raf = requestAnimationFrame(gemsSpotTick);
+}
+function gemsSpotTick(now){
+  const st = gemsSpotState;
+  if(!st || st.locked) return;
+  const dt = (now - st.lastT)/1000;
+  st.lastT = now;
+  st.timeLeft -= dt;
+  const bar = document.getElementById('gemsSpotTimerBar');
+  if(bar) bar.style.width = Math.max(0, (st.timeLeft/st.timeLimit)*100) + '%';
+  const track = document.getElementById('gemsSpotTimerTrack');
+  const urgentNow = (st.timeLeft/st.timeLimit) < 0.32;
+  if(track && urgentNow !== st.urgent){ st.urgent = urgentNow; track.classList.toggle('urgent', urgentNow); }
+  if(st.timeLeft <= 0){
+    st.locked = true;
+    revealGemsSpotOdd();
+    endGemsSpotGame(false, false, true);
+    return;
+  }
+  st.raf = requestAnimationFrame(gemsSpotTick);
+}
+function renderGemsSpotGame(){
+  const body = document.getElementById('gemsBody');
+  const st = gemsSpotState;
+  const total = st.gridSize*st.gridSize;
+  let tilesHTML = '';
+  for(let i=0;i<total;i++){
+    const odd = i===st.oddIdx;
+    const decoy = i===st.decoyIdx;
+    const wd = (Math.random()*3.2).toFixed(2), sd = (Math.random()*3.6).toFixed(2);
+    let style = `--gc:${st.skin.color}; --wd:${wd}s; --sd:${sd}s;`;
+    if(odd) style += `--fi:${st.fi};`;
+    else if(decoy) style += `--fi:${(st.fi*0.55).toFixed(2)};`;
+    tilesHTML += `<button type="button" class="spot-tile${odd?' odd':(decoy?' decoy':'')}" data-idx="${i}" style="${style}">
+      <span class="spot-ico">${st.skin.icon}</span>
+    </button>`;
+  }
+  const dotsHTML = Array.from({length:GEMS_SPOT_MAX_ROUNDS}).map((_,i)=>
+    `<span class="${i<st.round-1?'done':(i===st.round-1?'cur':'')}"></span>`
+  ).join('');
+  body.innerHTML = `
+    <div class="boss-game-panel" id="bgPanel" style="--bc:${st.skin.color}; --bcg:${st.skin.color}59;">
+      <div class="boss-game-spark-layer" id="bgSparkLayer"></div>
+      <div class="hack-game-head">
+        <button type="button" class="btn ghost small" id="gemsSpotQuitBtn">← ออกจากเกม</button>
+        <div class="t">🔍 จับผิดพลอย</div>
+      </div>
+      <div class="d" id="gemsSpotStatusLine">รอบ ${st.round}/${GEMS_SPOT_MAX_ROUNDS} — แตะเม็ดที่สีตำหนิ!</div>
+      <div class="spot-progress-dots">${dotsHTML}</div>
+      <div class="spot-timer-track" id="gemsSpotTimerTrack"><div class="spot-timer-bar" id="gemsSpotTimerBar"></div></div>
+      <div class="spot-grid" style="grid-template-columns:repeat(${st.gridSize}, 1fr);">${tilesHTML}</div>
+    </div>`;
+  document.getElementById('gemsSpotQuitBtn').onclick = ()=>{
+    if(gemsSpotState && gemsSpotState.round>0){
+      if(gemsSpotState.raf) cancelAnimationFrame(gemsSpotState.raf);
+      gemsSpotState.locked = true;
+      endGemsSpotGame(false, true, false);
+    } else { gemsSpotState=null; renderGemsMinigame(); }
+  };
+  body.querySelectorAll('.spot-tile').forEach(btn=>{
+    btn.onclick = ()=> handleGemsSpotClick(parseInt(btn.dataset.idx,10));
+  });
+}
+// small color-aware spark burst for this minigame's own panel — kept separate from
+// spawnBossGameSpark() since that helper pulls its color from the shared bossGameState (used by
+// the four boss pre-fight kinds), which isn't set during this daily activity.
+function gemsSpotSpark(color, count){
+  const layer = document.getElementById('bgSparkLayer');
+  if(!layer) return;
+  for(let i=0;i<(count||8);i++){
+    const s = document.createElement('div');
+    s.className = 'bg-spark';
+    const ang = Math.random()*Math.PI*2, dist = 26+Math.random()*46;
+    s.style.setProperty('--sx', (Math.cos(ang)*dist)+'px');
+    s.style.setProperty('--sy', (Math.sin(ang)*dist)+'px');
+    s.style.background = color;
+    s.style.boxShadow = `0 0 9px 1px ${color}`;
+    layer.appendChild(s);
+    setTimeout(()=>s.remove(), 700);
+  }
+}
+function revealGemsSpotOdd(){
+  const st = gemsSpotState;
+  const body = document.getElementById('gemsBody');
+  const btn = body.querySelector(`.spot-tile[data-idx="${st.oddIdx}"]`);
+  if(btn) btn.classList.add('flash-bad');
+}
+function handleGemsSpotClick(idx){
+  const st = gemsSpotState;
+  if(!st || st.locked) return;
+  const body = document.getElementById('gemsBody');
+  const btn = body.querySelector(`.spot-tile[data-idx="${idx}"]`);
+  if(idx===st.oddIdx){
+    st.locked = true;
+    if(st.raf) cancelAnimationFrame(st.raf);
+    if(btn) btn.classList.add('flash-ok');
+    gemsSpotSpark(st.skin.color, 8 + Math.min(st.round,10));
+    flashBossGamePanel('hitflash');
+    if(st.round>=3) showBossGameCombo(`ต่อเนื่อง x${st.round}!`);
+    sfxTone({freq:700+st.round*20, type:'triangle', dur:0.14, vol:0.18});
+    if(st.round>=GEMS_SPOT_MAX_ROUNDS){
+      endGemsSpotGame(true, false, false);
+    } else {
+      const statusEl = document.getElementById('gemsSpotStatusLine');
+      if(statusEl) statusEl.textContent = `ถูกต้อง! ผ่านรอบ ${st.round} ✅`;
+      setTimeout(nextGemsSpotRound, 650);
+    }
+  } else {
+    st.locked = true;
+    if(st.raf) cancelAnimationFrame(st.raf);
+    if(btn) btn.classList.add('flash-bad');
+    flashBossGamePanel('shake');
+    sfxNoise({dur:0.25, vol:0.2, freq:180, filterType:'lowpass'});
+    revealGemsSpotOdd();
+    endGemsSpotGame(false, false, false);
+  }
+}
+// perfectClear: reached the round cap. quit: player bailed out mid-run via the back button.
+// timedOut: ran out of time on the current round. All three still pay for whatever rounds were
+// already cleared before the run ended, same convention as the TECH Hack-the-Mainframe above.
+function endGemsSpotGame(perfectClear, quit, timedOut){
+  const st = gemsSpotState;
+  const roundsCleared = perfectClear ? st.round : Math.max(0, st.round-1);
+  let crystalWon = roundsCleared * GEMS_SPOT_CRYSTAL_PER_ROUND;
+  let goldWon = roundsCleared * GEMS_SPOT_GOLD_PER_ROUND;
+  if(perfectClear){ crystalWon += GEMS_SPOT_CLEAR_BONUS_CRYSTAL; goldWon += GEMS_SPOT_CLEAR_BONUS_GOLD; }
+  gemsSpotState = null;
+  if(crystalWon>0) addCrystal(crystalWon);
+  if(goldWon>0) addGold(goldWon);
+  setTimeout(()=>{
+    onlineStatusMsg(perfectClear
+      ? `🔍 จับผิดครบ ${GEMS_SPOT_MAX_ROUNDS} รอบ! +${crystalWon} คริสตัล +${goldWon}🪙`
+      : (quit
+          ? `🔍 ออกจากเกม — เก็บได้ ${roundsCleared} รอบ +${crystalWon} คริสตัล +${goldWon}🪙`
+          : (timedOut
+              ? (roundsCleared>0 ? `🔍 หมดเวลา! — ผ่านมา ${roundsCleared} รอบ +${crystalWon} คริสตัล +${goldWon}🪙` : `🔍 หมดเวลาตั้งแต่รอบแรก — ลองใหม่อีกครั้ง`)
+              : (roundsCleared>0 ? `🔍 แตะผิด — ผ่านมา ${roundsCleared} รอบ +${crystalWon} คริสตัล +${goldWon}🪙` : `🔍 แตะผิดตั้งแต่รอบแรก — ลองใหม่อีกครั้ง`))));
+    renderGemsMinigame();
+  }, 550);
 }
 
 
@@ -7923,9 +8468,16 @@ const RARITIES = {
   rare:      { id:'rare',      label:'RARE',      labelTH:'หายาก',     color:'#4da6ff', glow:'#9fcfff', weight:18, stars:3 },
   epic:      { id:'epic',      label:'EPIC',      labelTH:'เอพิค',     color:'#c264ff', glow:'#e2b0ff', weight:11, stars:4 },
   legendary: { id:'legendary', label:'LEGENDARY', labelTH:'ตำนาน',     color:'#ffb93f', glow:'#ffe08a', weight:4,  stars:5 },
+  // SECRET — a rarity tier that sits above LEGENDARY, reserved for redeem-code-only rewards
+  // like ICE CREAM. weight:0 so it can never actually be drawn if it somehow ended up inside
+  // a weighted pool, but every gacha pool function already excludes 'icecream' by id
+  // explicitly (see getMainGachaPool/getEventGachaPool/getGemsGachaPool) — this tier exists
+  // purely so the character sorts, groups, and badges as visibly above LEGENDARY everywhere
+  // rarity is shown (character grid, warehouse, roster count), not to gate a pull chance.
+  secret:    { id:'secret',    label:'SECRET',    labelTH:'ลับสุดยอด', color:'#ff2ec4', glow:'#ffd6f7', weight:0,  stars:7 },
   boss:      { id:'boss',      label:'BOSS',       labelTH:'บอส',       color:'#ff3b3b', glow:'#ff9a9a', weight:0,  stars:6 },
 };
-const RARITY_ORDER = ['common','uncommon','rare','epic','legendary'];
+const RARITY_ORDER = ['common','uncommon','rare','epic','legendary','secret'];
 
 // Look up the full rarity config from either an element def or a raw rarity id string.
 // Always returns something usable (falls back to 'common') so callers never need a null check.
@@ -7943,7 +8495,7 @@ function getRarity(elemOrId){
 // The plain (main-menu) gacha pool: no DIODE ever, and no TECH / GEMS characters while their
 // update modes are active — each of those only rolls from its own mode's gacha.
 function getMainGachaPool(){
-  return ELEMENTS.filter(e=> e.id!=='diode'
+  return ELEMENTS.filter(e=> e.id!=='diode' && e.id!=='icecream' && e.id!=='meteorite'
     && !(isEventActive() && TECH_IDS.includes(e.id))
     && !(isGemsActive() && GEMS_IDS.includes(e.id)));
 }
@@ -8148,6 +8700,26 @@ const ELEMENTS = [
     passiveOpalDazzle:true, dazzleDur:1.5, dazzleRadius:95,
     passiveDesc:'PLAY OF COLOR — ทุกครั้งที่โอปอลพุ่งชนผนังสนามหรือบอลศัตรู จะปล่อยแฟลชแสงมุกขาวสว่างจ้าออกมา ทำให้ศัตรูที่อยู่ใกล้ติดสถานะ DAZZLE (ตาพร่า) เป็นเวลา 1.5 วิ — ระหว่างนี้ 50% ของการโจมตีจะพลาด และการกระดอนครั้งต่อไปจะเบี่ยงไปผิดทิศทาง | เมื่อเคลื่อนที่จะทิ้งละอองแสงมุกขาวไว้ตามเส้นทาง',
   },
+  // ===== GEMS UPDATE — TRUE FINAL BOSS: METEORITE (legendary). Star-iron that fell into the
+  // mine before any gem existed; every crystal in GEMS UPDATE is said to have grown around a
+  // splinter of it. Genuinely new design replacing OBSIDIAN as the GEMS secret superboss —
+  // OBSIDIAN itself is untouched and still pullable elsewhere, just no longer used for this
+  // fight (see GEMS_STAGE_DEFS below). abA is a plain 'quake' ground-impact (same kind as
+  // ECHOAPE/IRONJUGGERNAUT) rather than reusing COSMOS's existing gravbolt/STARFALL niche, so
+  // it doesn't read as a reskin of an already-established GEMS boss. Its ท่าไม้ตาย hooks into
+  // passiveBossUltimate — the one finisher pipeline that's fully data-driven (label/color/
+  // damage all come from this def instead of a fixed name baked into another boss's own
+  // pipeline) — flavored as the meteor's own burning re-entry trail rather than a generic beam.
+  // The extra passiveHazardField "meteor shower" is grafted on ONLY for the actual stage fight
+  // via GEMS_STAGE_DEFS.bossHazardField (see buildGemsMonsterFighter below), so the pullable
+  // card itself stays a clean quake+shield kit without an always-on periodic AoE.
+  {
+    id:'meteorite', rarity:'legendary', name:'METEORITE', tag:'ธาตุอุกกาบาต', color:'#b3652e', pow:88, spd:52,
+    abA:{name:'METEOR STRIKE', desc:'ปลุกพลังแกนอุกกาบาตแล้วทุ่มลงกระแทกพื้นเป็นวงกว้าง หน่วงเวลาสั้นๆ ก่อนจะระเบิด', kind:'quake', dmgMul:1.5, cd:1.9, range:110, telegraph:0.85},
+    abB:{name:'IRON-NICKEL CRUST', desc:'เปลือกโลหะอุกกาบาตแข็งหุ้มตัว ยืนหยัดแน่นไม่ถูกผลัก พร้อมลดความเสียหายที่ได้รับ', kind:'shield', reduce:0.5, cd:5.4, dur:1.7, immovable:true},
+    passiveBossUltimate:{label:'METEOR IMPACT', dur:2.2, dmgMin:270, dmgMax:350, color:'#ffb066'},
+    passiveDesc:'หินจากนอกโลกที่ตกลงมาก่อนกำเนิดพลอยทุกเม็ดในเหมือง — เศษของมันฝังอยู่ในแกนกลางของพลอยทุกชนิดที่นี่ | METEOR IMPACT (ท่าไม้ตาย) — เมื่อ HP เหลือ 240 ครั้งแรกในแมตช์ จะยืนนิ่งชาร์จ 2.2 วิ (มีเกราะป้องกันระหว่างชาร์จ) ก่อนปล่อยลำแสงเพลิงจากการตกกระทบใส่คู่ต่อสู้แบบไม่พลาด ดาเมจ 270-350 (ครั้งเดียวต่อแมตช์)',
+  },
   // ===== TECH UPDATE — 3 new characters + shared ERROR status =====
   // ERROR: while active, every attack attempt (abA or abB) has a 30% chance to simply fail.
   {
@@ -8233,6 +8805,31 @@ const ELEMENTS = [
     abB:{name:'CELESTIAL WARD', desc:'เรียกแสงดาวคุ้มกันร่างกาย ลดความเสียหายที่ได้รับชั่วคราว', kind:'shield', reduce:0.5, cd:5.4, dur:1.6},
     passiveZodiacCycle:true, zodiacCycleInterval:5.0,
     passiveDesc:'วงจรจักรราศี — ทุก 5 วินาที หมู่ดาวราศีที่กำลังใช้งานอยู่จะหมุนเวียนไปเป็นราศีถัดไป พร้อมเปลี่ยนสีพื้นหลังสนามรบให้ตรงกับราศีนั้นๆ ท่า STARMAP STRIKE จะให้ดาเมจและเอฟเฟกต์เสริมต่างกันไปตามราศีที่กำลังใช้งานอยู่ ณ ขณะนั้น',
+  },
+  // ===== NEW: ICE CREAM (SECRET rarity, redeem-code exclusive) — not an event character and
+  // never rolls from ANY gacha pool (main/event/GEMS) or direct-buy shop at any rarity
+  // weight, no matter what. The ONLY way to obtain it is the ILOVEICECREAM redeem code (see
+  // REDEEM_CODES below) — same "code-only, explicitly excluded from every pool function"
+  // pattern already used for DIODE, just without needing the Hack-the-Mainframe minigame,
+  // and one full tier above LEGENDARY (rarity:'secret', 7 stars, its own pink SECRET badge).
+  // Deliberately built as a blatant "cheat" kit on top of that: every field below is a real,
+  // already-engine-supported value (kind:'projectile' generically supports lifesteal/slow/
+  // pierce/explodeOnHit, kind:'shield' generically supports reduce/immovable/dur,
+  // passiveDmgCap/passiveRegenPerSec/passive*Immune/passiveRevive are the same generic
+  // hooks GLITCH/NATURE/frostemperor/LOVE already use) just tuned drastically past normal
+  // balance: a near-instant, piercing, exploding, half-lifesteal main attack; a shield that
+  // blocks 92% of damage; a flat 25-damage cap on every hit it takes on top of that; immunity
+  // to every status ailment in the game; heavy self-regen; and a huge-HP free revive. It is
+  // meant to feel unfair to fight — that's the point of a secret code reward.
+  {
+    id:'icecream', rarity:'secret', name:'ICE CREAM', tag:'ธาตุไอศกรีมลับสุดยอด', color:'#ffc2e0', pow:220, spd:120,
+    abA:{name:'MELTDOWN SCOOP', desc:'ปาลูกไอศกรีมละลายพุ่งเป็นเส้นตรงแรงสูงลิ่ว ทะลุคู่ต่อสู้ได้ไม่หายไปเมื่อโดน ดูดพลังชีวิตกลับคืนสู่ตัวเองครึ่งหนึ่งของดาเมจที่ทำได้ ทำให้เคลื่อนไหวช้าลงอย่างหนักจากความเย็นจัด และแตกกระจายเป็นวงระเบิดครีมขนาดใหญ่เพิ่มดาเมจรอบทิศทางเมื่อโดนเป้าหมาย คูลดาวน์แทบไม่มีจนยิงได้เกือบรัวต่อเนื่องไม่หยุด', kind:'projectile', dmgMul:2.8, cd:0.35, lifesteal:0.5, slow:{dur:2.6}, pierce:true, explodeOnHit:true, explodeDmgMul:1.1, explodeRadius:130},
+    abB:{name:'SUNDAE FORTRESS', desc:'สร้างป้อมปราการซันเดย์ครีมหนาเตอะห่อหุ้มร่างกายทั้งตัว ลดความเสียหายที่ได้รับแทบทั้งหมด ยืนหยัดแน่นไม่ถูกผลักหรือกระเด็นระหว่างใช้งาน คูลดาวน์สั้นจนแทบเปิดใช้งานได้ตลอดเวลา', kind:'shield', reduce:0.92, cd:1.4, dur:3.5, immovable:true},
+    passiveDmgCap:25,
+    passiveRegenPerSec:25,
+    passiveBurnImmune:true, passiveSlowImmune:true, passiveFreezeImmune:true, passivePoisonImmune:true, passiveCharmImmune:true, passiveScaldImmune:true,
+    passiveRevive:true, reviveHP:800,
+    passiveDesc:'🍦 ตัวละครลับสุดโกง — ปลดล็อกได้เฉพาะผู้ที่มีโค้ดลับเท่านั้น ไม่มีทางได้จากการสุ่มใดๆ ทั้งสิ้น | เกราะน้ำแข็งถาวร — ทุกครั้งที่โดนโจมตี ไม่ว่าจะแรงแค่ไหนก็จะโดนไม่เกิน 25 ดาเมจเสมอ (ดาเมจแคป) | ฟื้นฟู HP เองต่อเนื่อง 25/วิ ตลอดเวลาที่ยังมีชีวิต | ภูมิคุ้มกันสถานะทุกชนิด — ไม่ติดไฟลุก ไม่ช้าลง ไม่แช่แข็ง ไม่ติดพิษ ไม่หลงรัก ไม่โดนลวก | SECOND SCOOP (ท่าไม้ตาย) — เมื่อ HP เหลือ 0 ครั้งแรกในแมตช์ จะละลายและก่อร่างขึ้นใหม่ทันทีด้วย HP 800 (ครั้งเดียวต่อแมตช์)',
   },
   // ===== NEW: 5 common-rarity characters — each built around one clean, non-overlapping
   // role (skirmisher / tank / burst-poke / control-anchor / sustain) so the common tier
@@ -8699,7 +9296,7 @@ function runSimulation(f1,f2, netRole, roomCode){
   const MAXHP2 = (f2 && typeof f2.__maxHpOverride==='number') ? f2.__maxHpOverride : ((f2 && typeof f2.fixedMaxHp==='number') ? f2.fixedMaxHp : 1000); // enemy side
   const R = 34;
 
-  const SHAPES = {aqua:'droplet', pyro:'triangle', volt:'diamond', terra:'square', frost:'diamond', gale:'triangle', toxin:'circle', radiant:'star', shadow:'diamond', metal:'square', nature:'triangle', sound:'circle', cosmos:'ring', love:'heart', steam:'cloud', microchip:'chip', computer:'monitor', techno:'circuit', glitch:'shard', drone:'rotor', blood:'fang', diode:'diamond', zodiac:'star', dust:'grain', pebble:'stone', ember:'spark', mud:'splat', feather:'plume', emerald:'diamond', topaz:'diamond', amethyst:'diamond', lapizlazuli:'diamond', bismuth:'hopper'};
+  const SHAPES = {aqua:'droplet', pyro:'triangle', volt:'diamond', terra:'square', frost:'diamond', gale:'triangle', toxin:'circle', radiant:'star', shadow:'diamond', metal:'square', nature:'triangle', sound:'circle', cosmos:'ring', love:'heart', steam:'cloud', microchip:'chip', computer:'monitor', techno:'circuit', glitch:'shard', drone:'rotor', blood:'fang', diode:'diamond', zodiac:'star', dust:'grain', pebble:'stone', ember:'spark', mud:'splat', feather:'plume', emerald:'diamond', topaz:'diamond', amethyst:'diamond', lapizlazuli:'diamond', bismuth:'hopper', icecream:'droplet'};
   function elementShape(id){ return SHAPES[id] || 'circle'; }
 
   // DIODE's four color modes, shared by every DIODE-related system in this battle (the mode
@@ -18475,12 +19072,20 @@ document.getElementById('rematchBtn').onclick = ()=>{
   function spawnMote(){
     const c = center();
     const m = document.createElement('div');
-    m.className = 'g10-mote' + ((performance.now()-t0) > chgMs*0.5 ? ' late' : '');
+    const late = (performance.now()-t0) > chgMs*0.5;
+    m.className = 'g10-mote' + (late ? ' late' : '');
     const ang = Math.random()*Math.PI*2, d = 150 + Math.random()*130;
     m.style.left = c.x+'px'; m.style.top = c.y+'px';
     m.style.setProperty('--mx', Math.cos(ang)*d+'px');
     m.style.setProperty('--my', Math.sin(ang)*d+'px');
     m.style.animationDuration = (0.5 + Math.random()*0.5)+'s';
+    // once the crystal is deep enough into charging, late motes pick up the theme's own
+    // color instead of generic rarity gold, matching the reskinned crystal/backdrop
+    if(late && cfg && cfg.topTheme){
+      const cs = getComputedStyle(stage);
+      const tc = cs.getPropertyValue('--tc').trim(), tg = cs.getPropertyValue('--tg').trim();
+      if(tc){ m.style.background = tc; m.style.boxShadow = '0 0 8px '+(tg||tc); }
+    }
     fx.appendChild(m);
     setTimeout(()=>m.remove(), 1100);
   }
@@ -18533,24 +19138,52 @@ document.getElementById('rematchBtn').onclick = ()=>{
   }
 
   /* ---------- flow ---------- */
+  // per-legendary-character reveal theme: a small icon (used only as a fallback for the dot,
+  // never overwrites a real item.icon) + a set of glyphs that drift across the card once
+  // flipped — see spawnThemeParticles() and the .theme-* CSS above.
+  const LEGEND_THEMES = {
+    cosmos:      { icon:'🌌', glyphs:['✦','✧','·'] },       // หลุมดำ/แกแล็คซี่
+    love:        { icon:'💗', glyphs:['♥','❣'] },            // หัวใจ ความรัก
+    lapizlazuli: { icon:'🌊', glyphs:['○','∘','✧'] },        // อัญมณีแห่งน้ำท้องทะเล
+    techno:      { icon:'⚙️', glyphs:['▮','▯','◆'] },
+    icecream:    { icon:'🍦', glyphs:['●','◆','✦'], dur:2.0 },  // secret code-only reward
+  };
+  function spawnThemeParticles(el, theme){
+    const layer = el.querySelector('.g10-theme-fx');
+    if(!layer) return;
+    const n = theme.count || 7;
+    for(let i=0;i<n;i++){
+      const s = document.createElement('span');
+      s.className = 'g10-theme-p';
+      s.textContent = theme.glyphs[Math.floor(Math.random()*theme.glyphs.length)];
+      s.style.left = (8 + Math.random()*82)+'%';
+      s.style.top = (10 + Math.random()*72)+'%';
+      s.style.animationDelay = (Math.random()*1.8)+'s';
+      s.style.animationDuration = (theme.dur || (2.2 + Math.random()*1.2))+'s';
+      layer.appendChild(s);
+    }
+  }
   function buildCards(picks){
     grid.innerHTML = '';
     cards = picks.map((p, i) => {
       const it = p.item, r = getRarity(it), st = r.stars;
+      const theme = st>=5 ? LEGEND_THEMES[it.id] : null;
       const el = document.createElement('div');
-      el.className = 'g10-card' + (st>=3 ? ' t'+Math.min(st,5) : '');
+      el.className = 'g10-card' + (st>=3 ? ' t'+Math.min(st,5) : '') + (theme ? ' theme-'+it.id : '');
       el.style.setProperty('--rc', r.color);
       el.style.setProperty('--rg', r.glow);
       el.style.setProperty('--i', i);
       const shape = it.shape ? ' shape-'+it.shape : '';
       const single = !!(cfg && cfg.single);
+      const iconChar = it.icon || (theme && theme.icon) || '';
       el.innerHTML =
         '<div class="g10-inner">' +
           '<div class="g10-face g10-back"></div>' +
           '<div class="g10-face g10-front">' +
             (p.badge ? '<span class="g10-badge '+(p.badgeType||'')+'">'+p.badge+'</span>' : '') +
             gemsOriginBadge(it.id) +
-            '<div class="g10-dot'+shape+'" style="background:'+it.color+'">' + (it.icon ? '<span class="g10-ico">'+it.icon+'</span>' : '') + '</div>' +
+            (theme ? '<div class="g10-theme-fx"></div>' : '') +
+            '<div class="g10-dot'+shape+'" style="background:'+it.color+'">' + (iconChar ? '<span class="g10-ico">'+iconChar+'</span>' : '') + '</div>' +
             '<div class="g10-name">'+it.name+'</div>' +
             (single ? '<div class="g10-tag">'+(it.tag||'')+'</div>' : '') +
             '<div class="g10-stars">'+'★'.repeat(st)+'</div>' +
@@ -18559,7 +19192,7 @@ document.getElementById('rematchBtn').onclick = ()=>{
         '</div>';
       el.addEventListener('click', () => { if(phase==='reveal') flipCard(i, false); });
       grid.appendChild(el);
-      return { el, r, st, item: it };
+      return { el, r, st, item: it, theme };
     });
   }
 
@@ -18582,6 +19215,7 @@ document.getElementById('rematchBtn').onclick = ()=>{
       }
       if(c.st >= 4) shake(c.st >= 5);
       if(c.st >= 5) legendFx();
+      if(c.theme) spawnThemeParticles(c.el, c.theme);
     }
     if(revealed >= cards.length) later(showSummary, quick ? 500 : 700);
   }
@@ -18627,13 +19261,21 @@ document.getElementById('rematchBtn').onclick = ()=>{
     clearAll();
     const c = center();
     const topR = cfg.topR;
+    // the shatter flash/burst reads the same --tc/--tg as the charge-up so the moment the
+    // crystal cracks open doesn't suddenly jump back to generic rarity gold
+    let fxR = topR;
+    if(cfg.topTheme){
+      const cs = getComputedStyle(stage);
+      const tc = cs.getPropertyValue('--tc').trim(), tg = cs.getPropertyValue('--tg').trim();
+      if(tc) fxR = { color: tc, glow: tg || tc };
+    }
     stage.classList.add('gone');
     bg.classList.remove('charging'); bg.classList.add('revealed');
     bg.classList.toggle('tier-5', topStars >= 5);
     retrigger(flash, 'pop');
-    burstAt(c.x, c.y, topR, 26 + topStars*4);
-    ringAt(c.x, c.y, topR, 0);
-    if(topStars >= 4) ringAt(c.x, c.y, topR, 160);
+    burstAt(c.x, c.y, fxR, 26 + topStars*4);
+    ringAt(c.x, c.y, fxR, 0);
+    if(topStars >= 4) ringAt(c.x, c.y, fxR, 160);
     sfxShatter();
     if(topStars >= 4) shake(topStars >= 5);
 
@@ -18669,11 +19311,15 @@ document.getElementById('rematchBtn').onclick = ()=>{
     stage.classList.remove('on','gone','charging');
     skipBtn.classList.remove('on');
 
-    // the crystal telegraphs the best rarity in the batch, same idea as the single summon
-    let topR = getRarity(picks[0].item);
-    picks.forEach(p => { const r = getRarity(p.item); if(r.stars > topR.stars) topR = r; });
-    cfg.topR = topR; topStars = topR.stars;
+    // the crystal telegraphs the best rarity in the batch, same idea as the single summon —
+    // and if the top pick is one of the themed legendaries, the whole charge-up (crystal tint,
+    // backdrop, late motes) reskins to that character instead of just generic rarity gold.
+    let topR = getRarity(picks[0].item), topThemeId = picks[0].item.id;
+    picks.forEach(p => { const r = getRarity(p.item); if(r.stars > topR.stars){ topR = r; topThemeId = p.item.id; } });
+    const topTheme = LEGEND_THEMES[topThemeId] || null;
+    cfg.topR = topR; cfg.topTheme = topTheme; topStars = topR.stars;
     ov.style.setProperty('--rc', topR.color); ov.style.setProperty('--rg', topR.glow);
+    stage.className = 'g10-stage' + (topTheme ? ' theme-'+topThemeId : '');
 
     title.textContent = cfg.title || 'SUMMON ×10';
     sub.textContent = cfg.subtitle || '';

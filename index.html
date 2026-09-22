@@ -1857,6 +1857,218 @@
 .g10-overlay .gacha-glow-bg{ z-index:0; }
 
 /* --- crystal stage --- */
+/* ===== legendary-pull CUTSCENE — plays once, right when the overlay opens, only when the top
+   pick of the summon is one of the themed legendaries. A full-screen colored bloom + spinning
+   light rays burst behind a big rising icon and the character's name, then the whole thing
+   fades out into the normal crystal charge-up. Skippable exactly like the charge/reveal phases
+   (see the phase==='cutscene' branches on the overlay/skip click handlers below). */
+.g10-cutscene{
+  position:absolute; inset:0; z-index:4; overflow:hidden;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  opacity:0; pointer-events:none; transition:opacity .45s ease;
+}
+.g10-cutscene.on{ opacity:1; transition:opacity .15s ease; }
+.g10-cs-bg{
+  position:absolute; inset:0;
+  background:radial-gradient(circle at 50% 44%, var(--tc,#fff) 0%, transparent 62%);
+  opacity:0; transform:scale(.7);
+}
+.g10-cutscene.on .g10-cs-bg{ animation:csBgIn .5s ease forwards, csBgPulse 1.8s ease-in-out .5s infinite; }
+@keyframes csBgIn{ to{ transform:scale(1); opacity:.45; } }
+@keyframes csBgPulse{ 0%,100%{ opacity:.38; } 50%{ opacity:.6; } }
+.g10-cs-rays{
+  position:absolute; inset:-60%;
+  background:repeating-conic-gradient(from 0deg, var(--tg,#fff) 0deg 2deg, transparent 2deg 18deg);
+  opacity:0; mix-blend-mode:screen;
+}
+.g10-cutscene.on .g10-cs-rays{ animation:csRaysIn .6s ease forwards, csRaysSpin 7s linear infinite; }
+@keyframes csRaysIn{ to{ opacity:.22; } }
+@keyframes csRaysSpin{ to{ transform:rotate(360deg); } }
+.g10-cs-ring{
+  position:absolute; width:120px; height:120px; border-radius:50%;
+  border:2px solid var(--tc,#fff); opacity:0;
+}
+.g10-cutscene.on .g10-cs-ring.r1{ animation:csRingBurst .9s cubic-bezier(.1,.7,.3,1) forwards .05s; }
+.g10-cutscene.on .g10-cs-ring.r2{ animation:csRingBurst 1.15s cubic-bezier(.1,.7,.3,1) forwards .25s; }
+@keyframes csRingBurst{ 0%{ transform:scale(.3); opacity:.9; border-width:3px; } 100%{ transform:scale(3.4); opacity:0; border-width:.5px; } }
+.g10-cs-icon{
+  position:relative; width:148px; height:148px;
+  filter:drop-shadow(0 0 22px var(--tg,#fff)) drop-shadow(0 0 46px var(--tc,#fff));
+  opacity:0; transform:scale(0) rotate(-30deg);
+}
+.g10-cutscene.on .g10-cs-icon{ animation:csIconIn .7s cubic-bezier(.15,1.6,.4,1) forwards .1s, csIconFloat 2.6s ease-in-out .8s infinite; }
+@keyframes csIconIn{ 0%{ transform:scale(0) rotate(-30deg); opacity:0; } 65%{ transform:scale(1.16) rotate(8deg); opacity:1; } 100%{ transform:scale(1) rotate(0deg); opacity:1; } }
+@keyframes csIconFloat{ 0%,100%{ transform:translateY(0) scale(1); } 50%{ transform:translateY(-7px) scale(1.03); } }
+
+/* ---- COSMOS icon: EVENT HORIZON — a tilted spinning accretion disk around a dark core,
+   with sparks spiraling inward, echoing the character's actual black-hole ultimate. ---- */
+.csv-core{
+  position:absolute; inset:31%; border-radius:50%;
+  background:radial-gradient(circle at 44% 40%, #2a0a40 0%, #0a0212 58%, #000 100%);
+  box-shadow:0 0 24px 4px rgba(192,77,255,.65);
+}
+.csv-disk-wrap{ position:absolute; inset:3%; transform:scaleY(.42) rotate(-10deg); }
+.csv-disk{
+  position:absolute; inset:0; border-radius:50%;
+  background:conic-gradient(from 0deg,
+    transparent 0deg, rgba(255,255,255,.95) 18deg, #c04dff 52deg, transparent 96deg,
+    transparent 256deg, #c04dff 300deg, rgba(255,255,255,.7) 332deg, transparent 360deg);
+  -webkit-mask:radial-gradient(circle, transparent 55%, #000 60%, #000 80%, transparent 84%);
+          mask:radial-gradient(circle, transparent 55%, #000 60%, #000 80%, transparent 84%);
+  animation:csvSpin 3s linear infinite;
+}
+@keyframes csvSpin{ to{ transform:rotate(360deg); } }
+.csv-orbit span{
+  position:absolute; top:50%; left:50%; width:4px; height:4px; margin:-2px 0 0 -2px; border-radius:50%;
+  background:#fff; box-shadow:0 0 7px #fff; opacity:0;
+  animation:csvInfall 1.8s linear infinite;
+}
+.csv-orbit span:nth-child(1){ animation-delay:0s; }
+.csv-orbit span:nth-child(2){ animation-delay:.3s; }
+.csv-orbit span:nth-child(3){ animation-delay:.6s; }
+.csv-orbit span:nth-child(4){ animation-delay:.9s; }
+.csv-orbit span:nth-child(5){ animation-delay:1.2s; }
+.csv-orbit span:nth-child(6){ animation-delay:1.5s; }
+@keyframes csvInfall{
+  0%{ transform:rotate(0deg) translateX(74px); opacity:0; }
+  12%{ opacity:1; }
+  88%{ opacity:.85; }
+  100%{ transform:rotate(150deg) translateX(2px); opacity:0; }
+}
+
+/* ---- LOVE icon: a heartbeat — the same two-thump pulse rhythm as the character's own
+   heart-shaped attack, with little hearts drifting off it. ---- */
+.csv-heart{
+  position:absolute; left:50%; top:50%; width:70px; height:60px; margin:-32px 0 0 -35px;
+  transform-origin:50% 40%;
+  animation:csvHeartbeat 1.15s ease-in-out infinite;
+}
+.csv-heart::before, .csv-heart::after{
+  content:''; position:absolute; left:35px; top:0; width:35px; height:56px;
+  background:linear-gradient(160deg, #ff9fc8, #ff4d94);
+  border-radius:35px 35px 0 0;
+  transform:rotate(-45deg); transform-origin:0 100%;
+  box-shadow:0 0 20px rgba(255,77,148,.6);
+}
+.csv-heart::after{ left:0; transform:rotate(45deg); transform-origin:100% 100%; }
+@keyframes csvHeartbeat{
+  0%,26%,100%{ transform:scale(1); }
+  12%{ transform:scale(1.16); }
+  19%{ transform:scale(1.02); }
+  32%{ transform:scale(1.12); }
+  42%{ transform:scale(1); }
+}
+.csv-heart-p{ position:absolute; inset:0; }
+.csv-heart-p span{
+  position:absolute; color:#ff7fb8; font-size:.85rem; text-shadow:0 0 6px currentColor; opacity:0;
+  animation:themeFloat 2.4s ease-in-out infinite;
+}
+.csv-heart-p span:nth-child(1){ left:14%; top:60%; animation-delay:.1s; }
+.csv-heart-p span:nth-child(2){ left:72%; top:66%; animation-delay:.8s; }
+.csv-heart-p span:nth-child(3){ left:46%; top:74%; animation-delay:1.5s; }
+
+/* ---- LAPIZLAZULI icon: a faceted sea-gem with tide rings kicking out from it and bubbles
+   rising, echoing the character's water/gem-based kit. ---- */
+.csv-gem{
+  position:absolute; left:50%; top:54%; width:58px; height:72px; margin:-42px 0 0 -29px;
+  clip-path:polygon(50% 0%, 86% 30%, 68% 100%, 32% 100%, 14% 30%);
+  background:linear-gradient(160deg, #cdeeff, #2f7bff 55%, #12417f);
+  box-shadow:0 0 22px rgba(47,123,255,.6);
+}
+.csv-gem::after{
+  content:''; position:absolute; inset:0; clip-path:inherit;
+  background:linear-gradient(115deg, rgba(255,255,255,.55) 0%, transparent 38%);
+}
+.csv-ripple{
+  position:absolute; left:50%; top:54%; width:18px; height:18px; margin:-9px 0 0 -9px;
+  border-radius:50%; border:2px solid #7fc4ff; opacity:0;
+}
+.csv-ripple.r1{ animation:csvRippleOut 2.6s ease-out infinite; }
+.csv-ripple.r2{ animation:csvRippleOut 2.6s ease-out infinite 1.3s; }
+@keyframes csvRippleOut{ 0%{ transform:scale(1); opacity:.75; } 100%{ transform:scale(6.5); opacity:0; } }
+.csv-bubbles span{
+  position:absolute; width:6px; height:6px; border-radius:50%;
+  border:1.5px solid #8fd0ff; opacity:0;
+  animation:themeFloat 2.2s ease-in infinite;
+}
+.csv-bubbles span:nth-child(1){ left:30%; top:78%; animation-delay:0s; }
+.csv-bubbles span:nth-child(2){ left:62%; top:82%; animation-delay:.6s; }
+.csv-bubbles span:nth-child(3){ left:44%; top:88%; animation-delay:1.2s; }
+.csv-bubbles span:nth-child(4){ left:70%; top:76%; animation-delay:1.8s; }
+
+/* ---- TECHNO icon: a pulsing hex core with data nodes blinking around the rim in sequence,
+   echoing the character's circuitry kit. ---- */
+.csv-hex{
+  position:absolute; inset:15%;
+  clip-path:polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+  background:linear-gradient(160deg, rgba(51,255,207,.28), rgba(51,255,207,.04));
+  border:2px solid #33ffcf;
+  box-shadow:0 0 22px rgba(51,255,207,.55), inset 0 0 18px rgba(51,255,207,.3);
+  animation:csvHexPulse 1.4s ease-in-out infinite;
+}
+.csv-core.techno{
+  position:absolute; inset:39%; border-radius:50%;
+  background:radial-gradient(circle, #e8fffa, #33ffcf 60%, transparent 100%);
+  animation:csvHexPulse 1.4s ease-in-out infinite .1s;
+}
+@keyframes csvHexPulse{ 0%,100%{ opacity:.78; } 50%{ opacity:1; } }
+.csv-nodes span{
+  position:absolute; width:5px; height:5px; margin:-2.5px 0 0 -2.5px; border-radius:50%;
+  background:#33ffcf; box-shadow:0 0 8px #33ffcf; opacity:.2;
+  animation:csvBlip 1.8s ease-in-out infinite;
+}
+.csv-nodes span:nth-child(1){ top:3%;  left:50%; animation-delay:0s; }
+.csv-nodes span:nth-child(2){ top:27%; left:93%; animation-delay:.2s; }
+.csv-nodes span:nth-child(3){ top:75%; left:93%; animation-delay:.4s; }
+.csv-nodes span:nth-child(4){ top:99%; left:50%; animation-delay:.6s; }
+.csv-nodes span:nth-child(5){ top:75%; left:7%;  animation-delay:.8s; }
+.csv-nodes span:nth-child(6){ top:27%; left:7%;  animation-delay:1s; }
+@keyframes csvBlip{ 0%,100%{ opacity:.2; transform:scale(1); } 50%{ opacity:1; transform:scale(1.7); } }
+
+/* ---- ICE CREAM icon: a soft-serve cone with a wobbling scoop and sprinkles falling off it. ---- */
+.csv-cone{
+  position:absolute; left:50%; bottom:12%; width:0; height:0; margin-left:-22px;
+  border-left:22px solid transparent; border-right:22px solid transparent; border-top:50px solid #e8a860;
+  filter:drop-shadow(0 0 8px rgba(232,168,96,.5));
+}
+.csv-scoop{
+  position:absolute; left:50%; bottom:38%; width:72px; height:58px; margin-left:-36px;
+  background:radial-gradient(circle at 35% 30%, #fff6fa, #ffc2e0 55%, #ff9cc6 100%);
+  border-radius:50% 50% 45% 45% / 62% 62% 38% 38%;
+  box-shadow:0 0 20px rgba(255,143,192,.55);
+  animation:csvScoopWobble 2.4s ease-in-out infinite;
+}
+@keyframes csvScoopWobble{ 0%,100%{ transform:rotate(-2deg) scale(1); } 50%{ transform:rotate(2deg) scale(1.03); } }
+.csv-sprinkles span{
+  position:absolute; width:3px; height:9px; border-radius:2px; opacity:0;
+  animation:themeFall 2.1s ease-in infinite;
+}
+.csv-sprinkles span:nth-child(1){ left:20%; top:10%; background:#ff8fc0; animation-delay:0s; }
+.csv-sprinkles span:nth-child(2){ left:42%; top:6%;  background:#ffe3f0; animation-delay:.4s; }
+.csv-sprinkles span:nth-child(3){ left:58%; top:12%; background:#7fd6ff; animation-delay:.8s; }
+.csv-sprinkles span:nth-child(4){ left:74%; top:8%;  background:#fff6a0; animation-delay:1.2s; }
+.csv-sprinkles span:nth-child(5){ left:34%; top:4%;  background:#ff8fc0; animation-delay:1.6s; }
+
+.g10-cs-name{
+  position:relative; margin-top:14px; font-family:'Courier New',monospace; font-weight:900;
+  font-size:1.25rem; letter-spacing:.24em; color:#fff; white-space:nowrap;
+  text-shadow:0 0 8px var(--tc,#fff), 0 0 24px var(--tg,#fff);
+  opacity:0; transform:translateY(14px) scale(.9);
+}
+.g10-cutscene.on .g10-cs-name{ animation:csNameIn .55s cubic-bezier(.2,.9,.3,1.3) forwards .55s; }
+@keyframes csNameIn{ to{ opacity:1; transform:translateY(0) scale(1); } }
+.g10-cs-tag{
+  position:relative; margin-top:6px; font-size:.55rem; letter-spacing:.42em;
+  color:var(--tg,#fff); opacity:0; text-transform:uppercase;
+}
+.g10-cutscene.on .g10-cs-tag{ animation:csTagIn .5s ease forwards .75s; }
+@keyframes csTagIn{ to{ opacity:.85; } }
+.g10-cutscene.theme-cosmos{      --tc:#c04dff; --tg:#e6d4ff; }
+.g10-cutscene.theme-love{        --tc:#ff4d94; --tg:#ff9fc8; }
+.g10-cutscene.theme-lapizlazuli{ --tc:#2f7bff; --tg:#8fd0ff; }
+.g10-cutscene.theme-techno{      --tc:#33ffcf; --tg:#baffef; }
+.g10-cutscene.theme-icecream{    --tc:#ff8fc0; --tg:#ffe3f0; }
+
 .g10-stage{
   position:absolute; left:50%; top:46%;
   width:min(72vw,260px); aspect-ratio:1;
@@ -1868,6 +2080,7 @@
 }
 .g10-stage.on{ opacity:1; transform:translate(-50%,-50%) scale(1); transition:opacity .45s ease, transform .5s cubic-bezier(.2,.9,.3,1.2); }
 .g10-stage.gone{ opacity:0; transform:translate(-50%,-50%) scale(1.6); transition:opacity .28s ease, transform .32s ease-out; }
+.g10-stage.cs-hide{ opacity:0 !important; transition:opacity .3s ease; }
 .g10-circle{
   position:absolute; border-radius:50%;
   border:1.5px dashed currentColor;
@@ -2321,10 +2534,16 @@
   .g10-circle, .g10-gemwrap, .g10-glint, .g10-back::after, .x10-btn::after,
   .g10-card.t4.flipped .g10-front, .g10-card.t5.flipped .g10-front,
   .g10-card.t4.flipped .g10-shine, .g10-card.t5.flipped .g10-shine,
-  .g10-card .g10-front::after, .g10-theme-p, .g10-stage::before{ animation:none !important; }
+  .g10-card .g10-front::after, .g10-theme-p, .g10-stage::before,
+  .g10-cs-bg, .g10-cs-rays, .g10-cs-ring, .g10-cs-icon,
+  .g10-cs-icon *{ animation:none !important; }
   .g10-card.t5.flipped{ animation:none !important; }
   .g10-theme-p{ opacity:.8 !important; }
   .g10-stage[class*="theme-"]::before{ opacity:.6 !important; }
+  .g10-cutscene.on .g10-cs-bg{ opacity:.4 !important; }
+  .g10-cutscene.on .g10-cs-icon{ opacity:1 !important; transform:none !important; }
+  .g10-cutscene.on .g10-cs-name{ animation-duration:.01s !important; }
+  .g10-cutscene.on .g10-cs-tag{ animation-duration:.01s !important; }
 }
 
 .tech-update-badge{
@@ -18972,6 +19191,16 @@ document.getElementById('rematchBtn').onclick = ()=>{
 <div class="g10-overlay" id="g10Overlay" role="dialog" aria-modal="true" aria-label="ผลการสุ่ม 10 ครั้ง">
   <div class="gacha-glow-bg" id="g10Bg"></div>
 
+  <div class="g10-cutscene" id="g10Cutscene">
+    <div class="g10-cs-bg"></div>
+    <div class="g10-cs-rays"></div>
+    <div class="g10-cs-ring r1"></div>
+    <div class="g10-cs-ring r2"></div>
+    <div class="g10-cs-icon" id="g10CsIcon"></div>
+    <div class="g10-cs-name" id="g10CsName"></div>
+    <div class="g10-cs-tag" id="g10CsTag">LEGENDARY</div>
+  </div>
+
   <div class="g10-stage" id="g10Stage">
     <div class="g10-circle c1"></div>
     <div class="g10-circle c2"></div>
@@ -19034,8 +19263,9 @@ document.getElementById('rematchBtn').onclick = ()=>{
   const board = $('g10Board'), grid = $('g10Grid'), title = $('g10Title'), sub = $('g10Sub');
   const skipBtn = $('g10Skip'), summary = $('g10Summary'), chips = $('g10Chips'), extra = $('g10Extra');
   const againBtn = $('g10Again'), closeBtn = $('g10Close');
+  const cutscene = $('g10Cutscene'), csIcon = $('g10CsIcon'), csName = $('g10CsName'), csTag = $('g10CsTag');
 
-  let active = false, phase = 'idle'; // idle | charge | fly | reveal | done
+  let active = false, phase = 'idle'; // idle | cutscene | charge | fly | reveal | done
   let cfg = null, cards = [], timers = [], moteTimer = null, revealed = 0, topStars = 1, t0 = 0, chgMs = 2000;
 
   const later = (fn, ms) => { const t = setTimeout(fn, ms); timers.push(t); return t; };
@@ -19066,6 +19296,13 @@ document.getElementById('rematchBtn').onclick = ()=>{
       sfxTone({freq:2700, type:'sine', dur:0.45, vol:0.14, delay:0.28});
       sfxTone({freq:3400, type:'triangle', dur:0.5, vol:0.1, delay:0.45});
     }
+  }
+
+  // the low-rising sting + bright shimmer that opens a themed legendary's cutscene
+  function sfxCutscene(){
+    sfxTone({freq:180, endFreq:55, type:'sine', dur:0.55, vol:0.17});
+    sfxTone({freq:1200, endFreq:2600, type:'triangle', dur:0.4, vol:0.12, delay:0.05});
+    sfxNoise({dur:0.4, vol:0.12, freq:3000, endFreq:6500, filterType:'highpass'});
   }
 
   /* ---------- effects ---------- */
@@ -19148,6 +19385,36 @@ document.getElementById('rematchBtn').onclick = ()=>{
     techno:      { icon:'⚙️', glyphs:['▮','▯','◆'] },
     icecream:    { icon:'🍦', glyphs:['●','◆','✦'], dur:2.0 },  // secret code-only reward
   };
+  // the cutscene's centerpiece isn't a flat emoji — it's a small built "skill visual" evoking
+  // what that character actually does (COSMOS's EVENT HORIZON black hole, LOVE's heartbeat,
+  // LAPIZLAZULI's tide/gem, TECHNO's circuitry, ICE CREAM's soft-serve). See the .csv-* CSS
+  // above .g10-cs-icon for how each piece animates.
+  const CS_ICON_MARKUP = {
+    cosmos: `
+      <div class="csv-disk-wrap"><div class="csv-disk"></div></div>
+      <div class="csv-core"></div>
+      <div class="csv-orbit">
+        <span></span><span></span><span></span><span></span><span></span><span></span>
+      </div>`,
+    love: `
+      <div class="csv-heart"></div>
+      <div class="csv-heart-p"><span>♥</span><span>♥</span><span>♥</span></div>`,
+    lapizlazuli: `
+      <div class="csv-ripple r1"></div>
+      <div class="csv-ripple r2"></div>
+      <div class="csv-gem"></div>
+      <div class="csv-bubbles"><span></span><span></span><span></span><span></span></div>`,
+    techno: `
+      <div class="csv-hex"></div>
+      <div class="csv-core techno"></div>
+      <div class="csv-nodes">
+        <span></span><span></span><span></span><span></span><span></span><span></span>
+      </div>`,
+    icecream: `
+      <div class="csv-cone"></div>
+      <div class="csv-scoop"></div>
+      <div class="csv-sprinkles"><span></span><span></span><span></span><span></span><span></span></div>`,
+  };
   function spawnThemeParticles(el, theme){
     const layer = el.querySelector('.g10-theme-fx');
     if(!layer) return;
@@ -19163,6 +19430,27 @@ document.getElementById('rematchBtn').onclick = ()=>{
       layer.appendChild(s);
     }
   }
+  // the legendary cutscene: a short cinematic beat (icon + name burst) that plays once before
+  // the crystal charge-up, only for pulls whose top pick has a LEGEND_THEMES entry. `next` is
+  // called automatically when it's done — see beginCharge() in start().
+  const CUTSCENE_MS = 2100, CUTSCENE_OUT_MS = 450;
+  function playCutscene(id, theme, next){
+    cutscene.className = 'g10-cutscene theme-'+id;
+    csIcon.innerHTML = CS_ICON_MARKUP[id] || '';
+    const def = ELEMENTS.find(e=>e.id===id);
+    csName.textContent = (def && def.name) ? def.name : id.toUpperCase();
+    csTag.textContent = (def && def.rarity==='secret') ? 'SECRET' : 'LEGENDARY';
+    void cutscene.offsetWidth;
+    cutscene.classList.add('on');
+    skipBtn.textContent = 'แตะเพื่อข้าม';
+    skipBtn.classList.add('on');
+    sfxCutscene();
+    later(() => {
+      cutscene.classList.remove('on');
+      cutscene.classList.add('out');
+      later(() => { cutscene.classList.remove('out'); next(); }, CUTSCENE_OUT_MS);
+    }, CUTSCENE_MS);
+  }
   function buildCards(picks){
     grid.innerHTML = '';
     cards = picks.map((p, i) => {
@@ -19175,7 +19463,6 @@ document.getElementById('rematchBtn').onclick = ()=>{
       el.style.setProperty('--i', i);
       const shape = it.shape ? ' shape-'+it.shape : '';
       const single = !!(cfg && cfg.single);
-      const iconChar = it.icon || (theme && theme.icon) || '';
       el.innerHTML =
         '<div class="g10-inner">' +
           '<div class="g10-face g10-back"></div>' +
@@ -19183,7 +19470,7 @@ document.getElementById('rematchBtn').onclick = ()=>{
             (p.badge ? '<span class="g10-badge '+(p.badgeType||'')+'">'+p.badge+'</span>' : '') +
             gemsOriginBadge(it.id) +
             (theme ? '<div class="g10-theme-fx"></div>' : '') +
-            '<div class="g10-dot'+shape+'" style="background:'+it.color+'">' + (iconChar ? '<span class="g10-ico">'+iconChar+'</span>' : '') + '</div>' +
+            '<div class="g10-dot'+shape+'" style="background:'+it.color+'"></div>' +
             '<div class="g10-name">'+it.name+'</div>' +
             (single ? '<div class="g10-tag">'+(it.tag||'')+'</div>' : '') +
             '<div class="g10-stars">'+'★'.repeat(st)+'</div>' +
@@ -19309,6 +19596,7 @@ document.getElementById('rematchBtn').onclick = ()=>{
     board.classList.remove('on','g10-shake','big');
     summary.classList.remove('on'); chips.innerHTML = ''; extra.textContent = '';
     stage.classList.remove('on','gone','charging');
+    cutscene.classList.remove('on','out');
     skipBtn.classList.remove('on');
 
     // the crystal telegraphs the best rarity in the batch, same idea as the single summon —
@@ -19329,17 +19617,33 @@ document.getElementById('rematchBtn').onclick = ()=>{
     else againBtn.style.display = 'none';
 
     ov.classList.add('show');
-    chgMs = (cfg.single ? 1100 : 1500) + Math.min(topStars,5)*250;
-    stage.style.setProperty('--chg', chgMs+'ms');
-    void stage.offsetWidth;
-    stage.classList.add('on','charging');
-    bg.classList.add('charging');
-    skipBtn.textContent = 'แตะเพื่อข้าม';
-    skipBtn.classList.add('on');
-    sfxCharge(chgMs/1000, topStars);
-    t0 = performance.now();
-    moteTimer = setInterval(spawnMote, 60);
-    later(shatter, chgMs);
+
+    const beginCharge = () => {
+      phase = 'charge';
+      chgMs = (cfg.single ? 1100 : 1500) + Math.min(topStars,5)*250;
+      stage.style.setProperty('--chg', chgMs+'ms');
+      void stage.offsetWidth;
+      stage.classList.add('on','charging');
+      bg.classList.add('charging');
+      skipBtn.textContent = 'แตะเพื่อข้าม';
+      skipBtn.classList.add('on');
+      sfxCharge(chgMs/1000, topStars);
+      t0 = performance.now();
+      moteTimer = setInterval(spawnMote, 60);
+      // crystal finishes charging first — THEN, if the top pick is themed, its cutscene plays
+      // as the reveal moment, and only after that does the crystal actually shatter into cards.
+      later(() => {
+        if(topTheme){
+          phase = 'cutscene';
+          stage.classList.add('cs-hide'); // crystal fades out so the cutscene reads cleanly, not layered on top of it
+          playCutscene(topThemeId, topTheme, () => { phase = 'charge'; shatter(); });
+        } else {
+          shatter();
+        }
+      }, chgMs);
+    };
+
+    beginCharge();
     return true;
   }
 
@@ -19354,13 +19658,23 @@ document.getElementById('rematchBtn').onclick = ()=>{
     setTimeout(() => { if(cb) cb(); }, 250);
   }
 
+  // tapping/skipping during the cutscene jumps straight past it AND the charge-up into the
+  // reveal — same "skip the whole intro" contract the charge phase already had.
+  function skipToReveal(){
+    clearAll();
+    cutscene.classList.remove('on','out');
+    phase = 'charge';
+    shatter();
+  }
   ov.addEventListener('click', () => {
-    if(phase === 'charge') shatter();
+    if(phase === 'cutscene') skipToReveal();
+    else if(phase === 'charge') shatter();
     else if(phase === 'done' && cfg && cfg.single) close();
   });
   skipBtn.addEventListener('click', e => {
     e.stopPropagation();
-    if(phase === 'charge') shatter(); else revealAll();
+    if(phase === 'cutscene') skipToReveal();
+    else if(phase === 'charge') shatter(); else revealAll();
   });
   closeBtn.addEventListener('click', close);
   againBtn.addEventListener('click', () => {

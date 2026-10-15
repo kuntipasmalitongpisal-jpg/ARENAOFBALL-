@@ -247,6 +247,10 @@
     background:var(--rc, var(--line));
   }
   .elem-btn.r-legendary::before{ box-shadow:0 0 8px 0 var(--rg, transparent); }
+  /* MYTHICAL: white-gold shimmering ribbon + a faint golden wash on the whole card */
+  .elem-btn.r-mythical::before{ height:4px; background:linear-gradient(90deg,#fff6c9,#ffd84d,#ffffff,#ffd84d,#fff6c9); box-shadow:0 0 12px 1px var(--rg, transparent); }
+  .elem-btn.r-mythical{ background:linear-gradient(180deg, rgba(255,240,170,0.10), rgba(255,255,255,0.02)); }
+  .elem-btn.r-mythical .rarity-stars{ text-shadow:0 0 8px var(--rg, transparent), 0 0 14px var(--rc, transparent); }
   .rarity-stars{
     margin-top:4px;
     font-size:0.62rem;
@@ -2399,6 +2403,60 @@
 @keyframes technoScan{ 0%{ background-position:0 0, 0 0; } 100%{ background-position:0 18px, 18px 0; } }
 .g10-card.theme-techno .g10-theme-p{ color:#33ffcf; font-size:.5rem; animation-name:themeBlip; }
 
+/* ===== SERAPH (first MYTHICAL) — angel-themed summon reveal: white-gold bloom, a haloed light
+   core between two beating wings, drifting feathers, a slowly turning ray-burst behind the card.
+   Wired into the shared themed-legendary system via LEGEND_THEMES.seraph + CS_ICON_MARKUP.seraph. */
+.g10-cutscene.theme-seraph{ --tc:#ffd84d; --tg:#fffbe0; }
+.g10-stage.theme-seraph{    --tc:#ffd84d; --tg:#fffbe0; }
+.g10-stage.theme-seraph::before{
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255,251,224,.55), transparent 60%),
+    repeating-conic-gradient(from 0deg, rgba(255,224,102,.22) 0deg 5deg, transparent 5deg 24deg);
+}
+.g10-stage.theme-seraph.charging::before{ opacity:.9; animation:seraphChargeSpin 5s linear infinite; }
+@keyframes seraphChargeSpin{ to{ transform:rotate(360deg); } }
+.csv-halo{
+  position:absolute; left:50%; top:7%; width:52%; height:15%; margin-left:-26%; border-radius:50%;
+  border:3px solid #ffe066; box-shadow:0 0 14px #ffe066, inset 0 0 8px rgba(255,240,170,.75);
+  animation:csvHaloBob 2.2s ease-in-out infinite;
+}
+@keyframes csvHaloBob{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-4px); } }
+.csv-core.seraph{
+  position:absolute; inset:34% 35% 24% 35%; border-radius:50%;
+  background:radial-gradient(circle at 42% 38%, #ffffff, #fff1a8 55%, #ffd84d 100%);
+  box-shadow:0 0 26px 6px rgba(255,224,102,.7);
+  animation:csvHexPulse 1.6s ease-in-out infinite;
+}
+.csv-wing{
+  position:absolute; top:28%; width:40%; height:40%;
+  background:linear-gradient(200deg, #ffffff 0%, #fff1a8 55%, rgba(255,224,102,.15) 100%);
+  box-shadow:0 0 16px rgba(255,224,102,.6);
+}
+.csv-wing.l{ left:1%;  border-radius:100% 0 80% 0 / 100% 0 60% 0; transform-origin:100% 65%; animation:csvFlapL 1.8s ease-in-out infinite; }
+.csv-wing.r{ right:1%; border-radius:0 100% 0 80% / 0 100% 0 60%; transform-origin:0% 65%;   animation:csvFlapR 1.8s ease-in-out infinite; }
+@keyframes csvFlapL{ 0%,100%{ transform:rotate(-9deg); } 50%{ transform:rotate(9deg); } }
+@keyframes csvFlapR{ 0%,100%{ transform:rotate(9deg); }  50%{ transform:rotate(-9deg); } }
+.csv-feathers span{
+  position:absolute; width:5px; height:12px; border-radius:50%; opacity:0;
+  background:#fffbe0; box-shadow:0 0 7px #ffe066;
+  animation:themeFall 2.4s ease-in infinite;
+}
+.csv-feathers span:nth-child(1){ left:16%; top:6%;  animation-delay:0s; }
+.csv-feathers span:nth-child(2){ left:38%; top:2%;  animation-delay:.5s; }
+.csv-feathers span:nth-child(3){ left:60%; top:8%;  animation-delay:1s; }
+.csv-feathers span:nth-child(4){ left:78%; top:4%;  animation-delay:1.5s; }
+.csv-feathers span:nth-child(5){ left:48%; top:10%; animation-delay:1.9s; }
+.g10-card.theme-seraph .g10-front::after{
+  content:''; position:absolute; inset:0; z-index:0; pointer-events:none; border-radius:inherit;
+  background:
+    radial-gradient(circle at 50% 30%, rgba(255,251,224,.55), transparent 58%),
+    repeating-conic-gradient(from 0deg at 50% 30%, rgba(255,224,102,.16) 0deg 4deg, transparent 4deg 20deg);
+  opacity:0;
+}
+.g10-card.theme-seraph.flipped .g10-front::after{ opacity:1; animation:seraphGlow 2.4s ease-in-out infinite; }
+@keyframes seraphGlow{ 0%,100%{ opacity:.7; } 50%{ opacity:1; } }
+.g10-card.theme-seraph .g10-theme-p{ color:#fff3b0; font-size:.7rem; }
+
 .g10-shine{
   position:absolute; inset:-30%; pointer-events:none;
   background:linear-gradient(110deg, transparent 43%, rgba(255,255,255,.4) 50%, transparent 57%);
@@ -4548,6 +4606,9 @@ const REDEEM_CODES = {
   // secret ICE CREAM character — the ONLY way to obtain it. It's excluded from every gacha
   // pool (main/event/GEMS) and every direct-buy shop, same "code-only" pattern as DIODE.
   'ILOVEICECREAM': {charId:'icecream', charShards:10, gold:5000},
+  'ILOVEOMELETTE': {gems:120000},
+  'SKELL': {gear:100000},
+  'OMELETTE': {crystal:1000000, gems:100000, gold:100000, gear:100000},
 };
 function redeemCode(raw){
   const code = (raw||'').trim().toUpperCase();
@@ -4570,6 +4631,7 @@ function redeemCode(raw){
   if(reward.gems) saveData.gems += reward.gems;
   if(reward.gold) saveData.gold += reward.gold;
   if(reward.gear) saveData.gear = (saveData.gear||0) + reward.gear;
+  if(reward.crystal) saveData.crystal = (saveData.crystal||0) + reward.crystal;
   if(reward.items){
     reward.items.forEach(iid=>{ saveData.itemInventory[iid] = (saveData.itemInventory[iid]||0) + 1; });
   }
@@ -4579,6 +4641,7 @@ function redeemCode(raw){
   if(reward.gems) parts.push(`+${reward.gems}💎`);
   if(reward.gold) parts.push(`+${reward.gold}🪙`);
   if(reward.gear) parts.push(`+${reward.gear}🔩`);
+  if(reward.crystal) parts.push(`+${reward.crystal}🔷`);
   if(reward.items) reward.items.forEach(iid=>{ const idef=getItemDef(iid); if(idef) parts.push(`${idef.icon} ${idef.name}`); });
   return {ok:true, msg:`รับรางวัลแล้ว! ${parts.join(' ')}`};
 }
@@ -7170,7 +7233,7 @@ let eventTab = 'stages'; // 'stages' | 'shop' | 'quests'
 // char gacha 60, item gacha 40).
 // [PRICE REBALANCE] event pulls are cheaper (char gacha 90 -> 60, item gacha 60 -> 40) while buying a
 // character outright costs 1.5x more (was 60/135/270/480/900) — rolling is now the efficient route
-const EVENT_CHAR_SHOP_COST = {common:90, uncommon:200, rare:400, epic:720, legendary:1350};
+const EVENT_CHAR_SHOP_COST = {common:90, uncommon:200, rare:400, epic:720, legendary:1350, mythical:2700};
 const EVENT_CHAR_GACHA_COST = 60;  // Gear per roll — pool includes TECH elements
 const EVENT_ITEM_GACHA_COST = 40;  // Gear per item roll
 // DIODE is deliberately left out of the event's own character pool too — the ONLY way to get
@@ -7609,7 +7672,7 @@ function renderEventQuests(){
 let gemsTab = 'stages'; // 'stages' | 'shop' | 'minigame' | 'quests'
 // [PRICE REBALANCE] GEMS direct-buy is now 1.5x (was 50/110/220/400/760) while the banner pull is cheaper
 // (250 -> 150), so rolling is the efficient route and buying a specific character outright is the premium one.
-const GEMS_CHAR_SHOP_COST = {common:75, uncommon:165, rare:330, epic:600, legendary:1140};
+const GEMS_CHAR_SHOP_COST = {common:75, uncommon:165, rare:330, epic:600, legendary:1140, mythical:2280};
 const GEMS_CHAR_GACHA_COST = 150; // 🔷 per pull [PRICE DOWN: 250 -> 150] (the main-menu gacha is 120💎 — this banner carries the GEMS characters)
 function getGemsGachaPool(){
   return ELEMENTS.filter(e=> e.id!=='diode' && e.id!=='icecream' && e.id!=='meteorite' && !(isEventActive() && TECH_IDS.includes(e.id)));
@@ -8308,7 +8371,7 @@ const ATTACK_SFX = {
     sfxNoise({dur:0.2,vol:0.22,freq:1700,endFreq:250,filterType:'bandpass',Q:0.9,delay:0.01}); // dark whoosh
   },
   metal(){ sfxTone({freq:1200,type:'square',dur:0.06,vol:0.13}); }, // light mechanism click; each shot clangs separately
-  nature(){ sfxTone({freq:480,endFreq:720,type:'triangle',dur:0.11,vol:0.19}); },
+  nature(){ sfxTone({freq:210,endFreq:520,type:'triangle',dur:0.13,vol:0.19}); sfxTone({freq:880,endFreq:1320,type:'sine',dur:0.09,vol:0.06}); sfxNoise({dur:0.07,vol:0.05,freq:1800,filterType:'bandpass'}); },
   sound(){ sfxTone({freq:400,endFreq:900,type:'sine',dur:0.38,vol:0.2}); sfxTone({freq:412,endFreq:910,type:'sine',dur:0.38,vol:0.13,delay:0.01}); },
   cosmos(){ sfxTone({freq:900,endFreq:180,type:'sine',dur:0.28,vol:0.2}); sfxNoise({dur:0.2,vol:0.12,freq:3500,filterType:'highpass'}); sfxTone({freq:1600,type:'triangle',dur:0.14,vol:0.1,delay:0.02}); },
   steam(){ sfxNoise({dur:0.32,vol:0.24,freq:3200,endFreq:5800,filterType:'bandpass',Q:0.7}); sfxTone({freq:950,endFreq:420,type:'sine',dur:0.24,vol:0.13}); sfxNoise({dur:0.1,vol:0.1,freq:6500,filterType:'highpass'}); }, // SCALDING JET — hissing pressurized vapor
@@ -8364,7 +8427,7 @@ const SUPPORT_SFX = {
   radiant(){ sfxTone({freq:900,endFreq:2200,type:'sine',dur:0.16,vol:0.15}); sfxTone({freq:1500,endFreq:2900,type:'sine',dur:0.14,vol:0.11,delay:0.03}); sfxNoise({dur:0.12,vol:0.09,freq:5000,filterType:'highpass'}); }, // STARBURST — bright multi-star chime burst
   shadow(){ sfxNoise({dur:0.3,vol:0.16,freq:1500,endFreq:400,filterType:'bandpass',Q:0.8}); sfxTone({freq:200,endFreq:100,type:'sine',dur:0.3,vol:0.1,delay:0.05}); }, // SHADOW CLONE — ghostly fade
   metal(){ sfxTone({freq:150,endFreq:420,type:'square',dur:0.25,vol:0.14}); sfxTone({freq:2500,type:'square',dur:0.06,vol:0.1,delay:0.22}); }, // MAGNETIC PULL — magnetic hum + clunk
-  nature(){ sfxNoise({dur:0.25,vol:0.1,freq:2000,filterType:'bandpass',Q:1.2}); sfxTone({freq:600,endFreq:800,type:'triangle',dur:0.3,vol:0.12,delay:0.04}); }, // NATURE'S EMBRACE — organic rustle + chime
+  nature(){ sfxNoise({dur:0.3,vol:0.08,freq:900,filterType:'bandpass',Q:1.0}); sfxTone({freq:330,endFreq:660,type:'sine',dur:0.35,vol:0.12}); sfxTone({freq:495,endFreq:990,type:'triangle',dur:0.28,vol:0.07,delay:0.06}); }, // WORLD TREE'S BLESSING — root creak + golden chime
   sound(){ sfxTone({freq:300,type:'sawtooth',dur:0.3,vol:0.12}); sfxTone({freq:318,type:'sawtooth',dur:0.3,vol:0.1}); }, // DISCORDANT PULSE — dissonant wobble
   cosmos(){ sfxTone({freq:900,endFreq:80,type:'sine',dur:0.35,vol:0.18}); sfxNoise({dur:0.3,vol:0.14,freq:1800,endFreq:200,filterType:'lowpass'}); }, // EVENT HORIZON — deep gravitational pull
   steam(){ sfxNoise({dur:0.5,vol:0.17,freq:1800,endFreq:3200,filterType:'bandpass',Q:0.6}); sfxTone({freq:600,endFreq:760,type:'sine',dur:0.35,vol:0.1}); }, // VAPOR SHROUD — billowing hiss settling into a soft cloak
@@ -8439,6 +8502,39 @@ function playAquaGemsBurstSFX(){
   sfxNoise({dur:0.5,vol:0.28,freq:2200,endFreq:200,filterType:'bandpass',Q:0.6});
   sfxTone({freq:90,endFreq:35,type:'sine',dur:0.5,vol:0.3});
   [1500,1900,2400,3000].forEach((fq,i)=> sfxTone({freq:fq,type:'sine',dur:0.35,vol:0.1,delay:0.05+i*0.07}));
+}
+
+// SERAPH (MYTHICAL) — angelic sound set: airy chime for the basic circle, a bright shimmering
+// strike for JUDGMENT RAY, a soft heal sparkle for DIVINE MEND, and a rising choir-like swell
+// that resolves into a big holy blast for SECOND LIFE.
+ATTACK_SFX.seraph = function(){
+  sfxTone({freq:1320, type:'sine', dur:0.28, vol:0.13});
+  sfxTone({freq:1760, type:'sine', dur:0.3,  vol:0.09, delay:0.05});
+  sfxNoise({dur:0.16, vol:0.05, freq:5200, filterType:'highpass'});
+};
+function playJudgmentLockSFX(){
+  sfxTone({freq:700, endFreq:1500, type:'sine', dur:0.5, vol:0.11});
+  sfxTone({freq:1400, endFreq:2600, type:'triangle', dur:0.5, vol:0.05, delay:0.05});
+}
+function playJudgmentSFX(){
+  sfxNoise({dur:0.09, vol:0.22, freq:6500, filterType:'highpass'});
+  sfxTone({freq:1900, endFreq:520, type:'sine', dur:0.38, vol:0.22});
+  sfxTone({freq:90, endFreq:45, type:'sine', dur:0.3, vol:0.22});
+  [1568,2093,2637].forEach((fq,i)=> sfxTone({freq:fq, type:'sine', dur:0.5, vol:0.09, delay:0.04+i*0.05}));
+}
+function playHolyBurstSFX(){
+  sfxTone({freq:120, endFreq:48, type:'sine', dur:0.38, vol:0.24});
+  sfxNoise({dur:0.22, vol:0.16, freq:3200, endFreq:900, filterType:'bandpass', Q:0.8});
+  [1175,1568,2093].forEach((fq,i)=> sfxTone({freq:fq, type:'sine', dur:0.42, vol:0.08, delay:0.03+i*0.05}));
+}
+function playDivineMendSFX(){
+  [1047,1319,1568,2093].forEach((fq,i)=> sfxTone({freq:fq, type:'sine', dur:0.34, vol:0.08, delay:i*0.06}));
+}
+function playSeraphReviveSFX(){
+  sfxNoise({dur:0.1, vol:0.26, freq:6500, filterType:'highpass'});
+  sfxTone({freq:70, endFreq:28, type:'sine', dur:0.6, vol:0.34});
+  sfxNoise({dur:0.5, vol:0.24, freq:2400, endFreq:250, filterType:'bandpass', Q:0.6});
+  [523,659,784,1047,1319,1568].forEach((fq,i)=> sfxTone({freq:fq, type:'sine', dur:0.7, vol:0.09, delay:0.05+i*0.07}));
 }
 
 // SHADOW's split-clone popping (decoy body destroyed)
@@ -8687,6 +8783,10 @@ const RARITIES = {
   rare:      { id:'rare',      label:'RARE',      labelTH:'หายาก',     color:'#4da6ff', glow:'#9fcfff', weight:18, stars:3 },
   epic:      { id:'epic',      label:'EPIC',      labelTH:'เอพิค',     color:'#c264ff', glow:'#e2b0ff', weight:11, stars:4 },
   legendary: { id:'legendary', label:'LEGENDARY', labelTH:'ตำนาน',     color:'#ffb93f', glow:'#ffe08a', weight:4,  stars:5 },
+  // MYTHICAL — a new tier that sits above LEGENDARY (6 stars, white-gold). Pullable from every
+  // gacha pool like any other tier, but at a much lower weight than legendary (2 per character
+  // vs legendary's 4 — and there is only one mythical so far), so it stays a real chase.
+  mythical:  { id:'mythical',  label:'MYTHICAL',  labelTH:'มิธิคอล',   color:'#fff0a8', glow:'#fffbe0', weight:2,  stars:6 },
   // SECRET — a rarity tier that sits above LEGENDARY, reserved for redeem-code-only rewards
   // like ICE CREAM. weight:0 so it can never actually be drawn if it somehow ended up inside
   // a weighted pool, but every gacha pool function already excludes 'icecream' by id
@@ -8696,7 +8796,7 @@ const RARITIES = {
   secret:    { id:'secret',    label:'SECRET',    labelTH:'ลับสุดยอด', color:'#ff2ec4', glow:'#ffd6f7', weight:0,  stars:7 },
   boss:      { id:'boss',      label:'BOSS',       labelTH:'บอส',       color:'#ff3b3b', glow:'#ff9a9a', weight:0,  stars:6 },
 };
-const RARITY_ORDER = ['common','uncommon','rare','epic','legendary','secret'];
+const RARITY_ORDER = ['common','uncommon','rare','epic','legendary','mythical','secret'];
 
 // Look up the full rarity config from either an element def or a raw rarity id string.
 // Always returns something usable (falls back to 'common') so callers never need a null check.
@@ -8817,11 +8917,11 @@ const ELEMENTS = [
   },
   {
     id:'nature', rarity:'rare', name:'NATURE', tag:'ธาตุไม้', color:'#5fb84c', pow:54, spd:58,
-    abA:{name:'THORN VINE', desc:'ยิงหนามเถาวัลย์แหลมคมพุ่งใส่คู่ต่อสู้ เถาวัลย์ดูดกลืนพลังชีวิตกลับคืนสู่ตัวเองทุกครั้งที่โดน (Lifesteal)', kind:'projectile', dmgMul:1.15, cd:1.05, lifesteal:0.4},
-    abB:{name:"NATURE'S EMBRACE", desc:'เถาวัลย์พันรอบตัวฟื้นฟู HP', kind:'heal', amount:48, cd:5.2},
+    abA:{name:'ELDER THORN', desc:'ยิงเมล็ดหนามโบราณที่ห่อด้วยรากไม้เรืองแสงพุ่งใส่คู่ต่อสู้ เมื่อโดนรากจะแทงทะลุขึ้นมาจากพื้นใต้เท้าเป้าหมายและดูดน้ำเลี้ยงกลับคืนสู่ตัวเอง (Lifesteal)', kind:'projectile', dmgMul:1.15, cd:1.05, lifesteal:0.4},
+    abB:{name:"WORLD TREE'S BLESSING", desc:'รากไม้โบราณชูขึ้นรอบตัวเป็นวงตราต้นไม้แห่งโลก ปลดปล่อยน้ำเลี้ยงสีทองฟื้นฟู HP พร้อมละอองสปอร์เรืองแสง', kind:'heal', amount:48, cd:5.2},
     passiveRegenPerSec:3,
     passiveVerdantPrison:true, verdantPrisonTriggerHP:225, verdantPrisonChargeDur:1.8, verdantPrisonRootDur:2.4, verdantPrisonTicks:6, verdantPrisonTickDmgMin:16, verdantPrisonTickDmgMax:22, verdantPrisonHealPct:0.6,
-    passiveDesc:'งอกใหม่ — ฟื้นฟู HP เองอย่างช้าๆ ตลอดเวลาที่ยังมีชีวิต (~3/วิ) | VERDANT PRISON (ท่าไม้ตาย) — เมื่อ HP เหลือ 225 ครั้งแรกในแมตช์ รากไม้โบราณจะชูขึ้นล้อมตัวเองไว้ 1.8 วิ ก่อนพุ่งทะลุพื้นสนามไปขังคู่ต่อสู้ในกรงรากไม้ ขยับไม่ได้ 2.4 วิ พร้อมดูดพลังชีวิตออกมาเป็นระลอกต่อเนื่อง และชำระล้างสถานะติดลบทั้งหมดของตัวเองไปพร้อมกัน (ครั้งเดียวต่อแมตช์)',
+    passiveDesc:'SAP OF AGES (น้ำเลี้ยงนิรันดร์) — รากหยั่งลงดินดูดน้ำเลี้ยง ฟื้นฟู HP เองอย่างช้าๆ ตลอดเวลาที่ยังมีชีวิต (~3/วิ) พร้อมสปอร์เรืองแสงลอยขึ้นจากตัว | VERDANT PRISON (ท่าไม้ตาย) — เมื่อ HP เหลือ 225 ครั้งแรกในแมตช์ รากไม้โบราณจะชูขึ้นล้อมตัวเองไว้ 1.8 วิ ก่อนพุ่งทะลุพื้นสนามไปขังคู่ต่อสู้ในกรงรากไม้ ขยับไม่ได้ 2.4 วิ พร้อมดูดพลังชีวิตออกมาเป็นระลอกต่อเนื่อง และชำระล้างสถานะติดลบทั้งหมดของตัวเองไปพร้อมกัน (ครั้งเดียวต่อแมตช์)',
   },
   {
     id:'sound', rarity:'epic', name:'SOUND', tag:'ธาตุเสียง', color:'#ff6fae', pow:70, spd:60,
@@ -8880,7 +8980,7 @@ const ELEMENTS = [
   // by tryAquaGems() + the aquaGemT loop in stepInner. abB is a plain shield so the kit is complete.
   {
     id:'lapizlazuli', rarity:'legendary', name:'LAPIZLAZULI', tag:'ธาตุลาพิสลาซูลี', color:'#2f7bff', pow:88, spd:58,
-    abA:{name:'TIDAL GEM', desc:'เล็งวงน้ำใต้เท้าคู่ต่อสู้ มีอัญมณีลาพิสลาซูลีลอยอยู่กลางวง หน่วงเวลาสั้นๆ ก่อนซัดน้ำต่อเนื่อง 3 จังหวะ ครั้งที่ 1-2 เบา ครั้งที่ 3 แรงที่สุดเป็นคลื่นน้ำซัดกว้างกว่าเดิม | เลือดต่ำกว่า 200: ปล่อย 3 วงพร้อมกัน แรงขึ้น และอัญมณีเปล่งแสงสีฟ้าจ้าขึ้น | เลือดต่ำกว่า 100: วงน้ำจะดูดศัตรูเข้าหาศูนย์กลางด้วย และดาเมจแรงขึ้นไปอีก', kind:'aquaring', dmgMul:1, hitMuls:[0.45,0.45,1.0], cd:2.0, range:100, telegraph:0.6, hitGap:0.45, waveMul:1.35, lowHp1:200, lowHp2:100, lowBoost:1.55, veryLowBoost:1.95, pullSpeed:190},
+    abA:{name:'TIDAL GEM', desc:'เล็งวงน้ำใต้เท้าคู่ต่อสู้ มีอัญมณีลาพิสลาซูลีลอยอยู่กลางวง หน่วงเวลาสั้นๆ ก่อนซัดน้ำต่อเนื่อง 3 จังหวะ ครั้งที่ 1-2 เบา ครั้งที่ 3 แรงที่สุดเป็นคลื่นน้ำซัดกว้างกว่าเดิม | เลือดต่ำกว่า 200: ปล่อย 3 วงพร้อมกัน แรงขึ้น และอัญมณีเปล่งแสงสีฟ้าจ้าขึ้น | เลือดต่ำกว่า 100: วงน้ำจะดูดศัตรูเข้าหาศูนย์กลางด้วย และดาเมจแรงขึ้นไปอีก', kind:'aquaring', dmgMul:0.85, hitMuls:[0.45,0.45,1.0], cd:2.0, range:100, telegraph:0.6, hitGap:0.45, waveMul:1.35, lowHp1:200, lowHp2:100, lowBoost:1.55, veryLowBoost:1.95, pullSpeed:190},
     abB:{name:'LAPIS WARD', desc:'สร้างเกราะน้ำผลึกลาพิสลาซูลีห่อหุ้มตัว ลดความเสียหายที่ได้รับชั่วคราว', kind:'shield', reduce:0.6, cd:4.5, dur:1.5},
     passiveAquaGems:true, aquaGemsDur:5, aquaGemsHeal:300, aquaGemsAuraR:90, aquaGemsTick:0.4, aquaGemsAuraMul:0.35, aquaGemsLifesteal:0.6, aquaGemsBurstR:150, aquaGemsBurstMul:1.6,
     passiveDesc:'AQUA GEMS — เมื่อโดนโจมตีจนเลือดจะหมดเป็นครั้งแรกในแมตช์ เลือดจะค้างอยู่ที่ 1 และเป็นอมตะนาน 5 วิ พร้อมสร้างออร่าน้ำรอบตัวที่ทำความเสียหายและดูดเลือดศัตรูที่เข้าใกล้ พอครบ 5 วิออร่าจะระเบิดรอบตัวเป็นประกายสีฟ้า ทำความเสียหายศัตรูที่อยู่ใกล้ และฮีลเลือดให้ตัวเอง 300 (ครั้งเดียวต่อแมตช์)',
@@ -8934,7 +9034,7 @@ const ELEMENTS = [
   // card itself stays a clean quake+shield kit without an always-on periodic AoE.
   {
     id:'meteorite', rarity:'legendary', name:'METEORITE', tag:'ธาตุอุกกาบาต', color:'#b3652e', pow:88, spd:52,
-    abA:{name:'METEOR STRIKE', desc:'ปลุกพลังแกนอุกกาบาตแล้วทุ่มลงกระแทกพื้นเป็นวงกว้าง หน่วงเวลาสั้นๆ ก่อนจะระเบิด', kind:'quake', dmgMul:1.5, cd:1.9, range:110, telegraph:0.85},
+    abA:{name:'METEOR STRIKE', desc:'ล็อกเป้าคู่ต่อสู้แล้วเรียกก้อนอุกกาบาตลุกไหม้ตกลงมาจากท้องฟ้าใส่จุดที่เล็งไว้ พื้นจะแตกเป็นรอยร้าวสีส้มก่อนอุกกาบาตจะกระแทกลงมาระเบิดเป็นวงกว้าง แรงสั่นสะเทือนหนักกว่าปกติ', kind:'quake', meteor:true, dmgMul:1.5, cd:1.9, range:110, telegraph:0.85},
     abB:{name:'IRON-NICKEL CRUST', desc:'เปลือกโลหะอุกกาบาตแข็งหุ้มตัว ยืนหยัดแน่นไม่ถูกผลัก พร้อมลดความเสียหายที่ได้รับ', kind:'shield', reduce:0.5, cd:5.4, dur:1.7, immovable:true},
     passiveBossUltimate:{label:'METEOR IMPACT', dur:2.2, dmgMin:270, dmgMax:350, color:'#ffb066'},
     passiveDesc:'หินจากนอกโลกที่ตกลงมาก่อนกำเนิดพลอยทุกเม็ดในเหมือง — เศษของมันฝังอยู่ในแกนกลางของพลอยทุกชนิดที่นี่ | METEOR IMPACT (ท่าไม้ตาย) — เมื่อ HP เหลือ 240 ครั้งแรกในแมตช์ จะยืนนิ่งชาร์จ 2.2 วิ (มีเกราะป้องกันระหว่างชาร์จ) ก่อนปล่อยลำแสงเพลิงจากการตกกระทบใส่คู่ต่อสู้แบบไม่พลาด ดาเมจ 270-350 (ครั้งเดียวต่อแมตช์)',
@@ -9118,6 +9218,22 @@ const ELEMENTS = [
     abA:{name:'RESIN SHOT', desc:'ยิงหยดยางอำพันเหนียวใส่คู่ต่อสู้ โดนแล้วเคลื่อนไหวช้าลงนานเป็นพิเศษ', kind:'projectile', dmgMul:0.95, cd:1.25, slow:{dur:2.0}},
     abB:{name:'FOSSIL MEND', desc:'ห่อหุ้มตัวเองด้วยยางอำพันอุ่น ฟื้นฟู HP', kind:'heal', amount:48, cd:4.7},
     passiveRegenPerSec:1.5, passiveDesc:'ยางอำพันซึมซาบ — ฟื้นฟู HP เองอย่างช้าๆ ตลอดเวลาที่ยังมีชีวิต (~1.5/วิ)',
+  },
+  // ===== NEW: SERAPH — LEGENDARY-tier angel character (white-gold, angel style). Its whole
+  // kit is angelic light: the basic attack drops a rotating holy magic circle on the foe that
+  // erupts in a pillar of light (kind:'holycircle'); passives are an independent 3s JUDGMENT RAY
+  // that locks onto the foe and stuns it 1s, an independent 5s DIVINE MEND that heals 20% of the
+  // HP it has lost, and SECOND LIFE — on its first death it builds a magic circle around itself,
+  // detonates, and comes back with 65% of its HP (rides the shared passiveRevive pipeline, with
+  // reviveStyle:'angel' swapping LOVE's heart shockwave for the holy circle + blast).
+  {
+    id:'seraph', rarity:'legendary', name:'SERAPH', tag:'ธาตุเทวดา', color:'#fff1a8', hpBarBg:'linear-gradient(90deg,#ffffff,#ffe066)', pow:90, spd:62,
+    abA:{name:'HALO SIGIL', desc:'ร่ายวงเวทสไตล์เทวดาลงใต้เท้าคู่ต่อสู้ (ดักตามทิศที่กำลังวิ่งไป) วงเวทหมุนและรวมแสงครู่หนึ่ง ก่อนระเบิดเป็นเสาแสงศักดิ์สิทธิ์ใส่ทุกคนที่ยังยืนอยู่ในวง', kind:'holycircle', dmgMul:1.4, cd:1.7, range:96, telegraph:0.55},
+    abB:{name:'WINGS OF GRACE', desc:'กางปีกศักดิ์สิทธิ์โอบตัวนานขึ้น ลดความเสียหายที่ได้รับลงครึ่งหนึ่ง', kind:'shield', reduce:0.5, cd:6.0, dur:1.8},
+    passiveJudgmentRay:true, judgmentInterval:3.0, judgmentLock:0.55, judgmentStun:1.0,
+    passiveDivineMend:true, divineMendInterval:5.0, divineMendPct:0.20,
+    passiveRevive:true, reviveStyle:'angel', revivePct:0.65, reviveWindup:1.5, reviveBlastRadius:220, reviveBlastMul:3.4,
+    passiveDesc:'เทวดาแห่งแสง (LEGENDARY) | JUDGMENT RAY — ทุก 3 วินาที ลำแสงจากสรวงสวรรค์จะล็อกเป้าคู่ต่อสู้ (ตามตัวไปทุกที่ หลบไม่ได้) แล้วฟาดลงมาทำให้สตั้น 1 วินาที | DIVINE MEND (สกิลติดตัว) — ทุก 5 วินาที ฮีล 20% ของเลือดสูงสุด | SECOND LIFE — เมื่อ HP เหลือ 0 ครั้งแรกในแมตช์ จะสร้างวงเวทรอบตัวแล้วระเบิดพลังแสงใส่คู่ต่อสู้ที่อยู่ในรัศมี จากนั้นได้รับชีวิตที่สอง ฟื้นกลับมาด้วย HP 65% (ครั้งเดียวต่อแมตช์)',
   },
 ];
 
@@ -9515,7 +9631,7 @@ function runSimulation(f1,f2, netRole, roomCode){
   const MAXHP2 = (f2 && typeof f2.__maxHpOverride==='number') ? f2.__maxHpOverride : ((f2 && typeof f2.fixedMaxHp==='number') ? f2.fixedMaxHp : 1000); // enemy side
   const R = 34;
 
-  const SHAPES = {aqua:'droplet', pyro:'triangle', volt:'diamond', terra:'square', frost:'diamond', gale:'triangle', toxin:'circle', radiant:'star', shadow:'diamond', metal:'square', nature:'triangle', sound:'circle', cosmos:'ring', love:'heart', steam:'cloud', microchip:'chip', computer:'monitor', techno:'circuit', glitch:'shard', drone:'rotor', blood:'fang', diode:'diamond', zodiac:'star', dust:'grain', pebble:'stone', ember:'spark', mud:'splat', feather:'plume', emerald:'diamond', topaz:'diamond', amethyst:'diamond', lapizlazuli:'diamond', bismuth:'hopper', icecream:'droplet'};
+  const SHAPES = {aqua:'droplet', pyro:'triangle', volt:'diamond', terra:'square', frost:'diamond', gale:'triangle', toxin:'circle', radiant:'star', shadow:'diamond', metal:'square', nature:'triangle', sound:'circle', cosmos:'ring', love:'heart', steam:'cloud', microchip:'chip', computer:'monitor', techno:'circuit', glitch:'shard', drone:'rotor', blood:'fang', diode:'diamond', zodiac:'star', dust:'grain', pebble:'stone', ember:'spark', mud:'splat', feather:'plume', emerald:'diamond', topaz:'diamond', amethyst:'diamond', lapizlazuli:'diamond', bismuth:'hopper', icecream:'droplet', seraph:'star'};
   function elementShape(id){ return SHAPES[id] || 'circle'; }
 
   // DIODE's four color modes, shared by every DIODE-related system in this battle (the mode
@@ -10149,6 +10265,233 @@ function runSimulation(f1,f2, netRole, roomCode){
   // body ring so each one reads as genuinely multi-color instead of one flat outline color:
   // MICROCHIP gets gold IC contact pads, COMPUTER gets a magenta power-LED + scanline, TECHNO
   // gets a pulsing orange-red overheating core tying into its enrage passive.
+  // SERAPH — angel-style magic circle: soft light pool, double rune ring with rotating tick marks,
+  // a slowly turning hexagram, an inner ring with small orbiting stars, and a white progress arc
+  // that fills clockwise as the circle charges. Used for HALO SIGIL's telegraph (prog = charge
+  // fraction) and for the ring that builds around SERAPH itself during SECOND LIFE.
+  // METEORITE's METEOR STRIKE: unlike TERRA's plain dashed danger-clock, this draws a scorched
+  // crosshair crater (with radiating crack fissures) on the ground PLUS an actual chunk of rock
+  // dropping in from off-screen with a fire trail, landing right as the telegraph completes.
+  function drawMeteorImpact(ctx, x, y, R, prog, alpha){
+    const nowS = Date.now()/1000;
+    prog = Math.max(0, Math.min(1, prog));
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.globalAlpha = alpha;
+    const pulse = 0.5 + 0.3*Math.sin(nowS*10);
+    const g = ctx.createRadialGradient(0,0,0, 0,0,R);
+    g.addColorStop(0, 'rgba(255,120,40,'+(0.22+0.3*prog)+')');
+    g.addColorStop(0.7, 'rgba(255,80,20,'+(0.10+0.18*prog)+')');
+    g.addColorStop(1, 'rgba(255,80,20,0)');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(0,0,R,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#ff8a3d'; ctx.lineWidth = 3;
+    ctx.globalAlpha = alpha*pulse; ctx.shadowColor = '#ff5a1f'; ctx.shadowBlur = 14;
+    ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,R,-Math.PI/2,-Math.PI/2+prog*Math.PI*2); ctx.closePath();
+    ctx.globalAlpha = alpha*0.18; ctx.fillStyle = '#ff5a1f'; ctx.fill();
+    ctx.globalAlpha = alpha; ctx.beginPath(); ctx.arc(0,0,R,0,Math.PI*2); ctx.stroke();
+    ctx.strokeStyle = '#ffcf8a'; ctx.lineWidth = 1.6; ctx.globalAlpha = alpha*(0.3+0.5*prog); ctx.shadowBlur = 0;
+    for(let k=0;k<6;k++){
+      const ak = k/6*Math.PI*2 + nowS*0.3, jag = R*0.9;
+      ctx.beginPath();
+      ctx.moveTo(0,0);
+      ctx.lineTo(Math.cos(ak)*jag*0.4, Math.sin(ak)*jag*0.4);
+      ctx.lineTo(Math.cos(ak+0.15)*jag*0.75, Math.sin(ak+0.15)*jag*0.75);
+      ctx.lineTo(Math.cos(ak)*jag, Math.sin(ak)*jag);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = alpha; ctx.strokeStyle = '#fff3d0'; ctx.lineWidth = 2; ctx.shadowBlur = 6;
+    const rc = R*0.28;
+    ctx.beginPath(); ctx.moveTo(-rc,0); ctx.lineTo(rc,0); ctx.moveTo(0,-rc); ctx.lineTo(0,rc); ctx.stroke();
+    ctx.beginPath(); ctx.arc(0,0,rc*0.6,0,Math.PI*2); ctx.stroke();
+    ctx.restore();
+    // falling meteor rock, in world space — starts high above the target and drops in as prog→1
+    ctx.save();
+    const fallH = 260;
+    const mx = x, my = y - fallH*(1-prog);
+    for(let t2=0;t2<8;t2++){
+      const tt = t2/8, ty = my + tt*46;
+      ctx.globalAlpha = Math.max(0, alpha*(1-tt)*0.6*prog);
+      ctx.fillStyle = t2%2===0 ? '#ffae42' : '#ff5a1f';
+      ctx.beginPath(); ctx.arc(mx, ty, (5-tt*4)*(0.6+0.4*prog), 0, Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha = alpha; ctx.shadowColor = '#ffcf8a'; ctx.shadowBlur = 16;
+    ctx.fillStyle = '#3a2010'; ctx.beginPath(); ctx.arc(mx, my, 9, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#ffae42'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(mx, my, 9, 0, Math.PI*2); ctx.stroke();
+    ctx.restore();
+    ctx.globalAlpha = 1;
+  }
+
+  function drawHolyCircle(ctx, x, y, R, prog, alpha){
+    const nowS = Date.now()/1000;
+    const rot = nowS*0.9;
+    prog = Math.max(0, Math.min(1, prog));
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.globalAlpha = alpha;
+    const lg = ctx.createRadialGradient(0,0,0, 0,0,R);
+    lg.addColorStop(0, 'rgba(255,250,220,'+(0.20+0.28*prog)+')');
+    lg.addColorStop(0.7, 'rgba(255,224,102,'+(0.10+0.14*prog)+')');
+    lg.addColorStop(1, 'rgba(255,224,102,0)');
+    ctx.fillStyle = lg;
+    ctx.beginPath(); ctx.arc(0,0,R,0,Math.PI*2); ctx.fill();
+    ctx.shadowColor = '#ffe066'; ctx.shadowBlur = 12;
+    ctx.strokeStyle = '#ffe58a'; ctx.lineWidth = 2.4;
+    ctx.beginPath(); ctx.arc(0,0,R,0,Math.PI*2); ctx.stroke();
+    ctx.strokeStyle = '#fffbe6'; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.arc(0,0,R*0.88,0,Math.PI*2); ctx.stroke();
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 4; ctx.globalAlpha = alpha*0.9;
+    ctx.beginPath(); ctx.arc(0,0,R,-Math.PI/2,-Math.PI/2+prog*Math.PI*2); ctx.stroke();
+    ctx.globalAlpha = alpha;
+    ctx.shadowBlur = 6; ctx.strokeStyle = '#ffe58a'; ctx.lineWidth = 1.6;
+    ctx.save(); ctx.rotate(-rot*0.8);
+    for(let k=0;k<24;k++){
+      const ak = k/24*Math.PI*2, r0 = R*0.9, r1 = R*(k%3===0 ? 0.99 : 0.95);
+      ctx.beginPath(); ctx.moveTo(Math.cos(ak)*r0, Math.sin(ak)*r0); ctx.lineTo(Math.cos(ak)*r1, Math.sin(ak)*r1); ctx.stroke();
+    }
+    ctx.restore();
+    ctx.save(); ctx.rotate(rot);
+    ctx.strokeStyle = '#fff3b0'; ctx.lineWidth = 1.6;
+    for(let tri=0; tri<2; tri++){
+      ctx.beginPath();
+      for(let k=0;k<3;k++){
+        const ak = tri*Math.PI/3 + k*Math.PI*2/3 - Math.PI/2;
+        const px2 = Math.cos(ak)*R*0.78, py2 = Math.sin(ak)*R*0.78;
+        if(k===0) ctx.moveTo(px2,py2); else ctx.lineTo(px2,py2);
+      }
+      ctx.closePath(); ctx.stroke();
+    }
+    ctx.restore();
+    ctx.beginPath(); ctx.arc(0,0,R*0.42,0,Math.PI*2); ctx.lineWidth = 1.2; ctx.stroke();
+    ctx.shadowBlur = 0;
+    for(let k=0;k<6;k++){
+      const ak = rot*1.4 + k*Math.PI/3;
+      drawShape(ctx, Math.cos(ak)*R*0.42, Math.sin(ak)*R*0.42, 2.6, 'star', '#ffffff', 6);
+    }
+    ctx.restore();
+    ctx.globalAlpha = 1;
+  }
+
+  // SERAPH's JUDGMENT RAY: before the strike, a rotating lock-on reticle sits on the foe (shrinking
+  // as the lock completes) with a thin guide beam dropping from the sky; on the strike a bright
+  // column of light slams down through it and fades. pillar:true entries skip the reticle and are
+  // just the column (HALO SIGIL detonation / SECOND LIFE blast), sized by jr.w.
+  function drawJudgmentRay(ctx, jr){
+    const nowS = Date.now()/1000;
+    ctx.save();
+    ctx.translate(jr.x, jr.y);
+    if(!jr.struck){
+      const prog = Math.max(0, Math.min(1, jr.t/jr.lock));
+      const R0 = 44 - 20*prog;
+      ctx.shadowColor = '#ffe066'; ctx.shadowBlur = 12;
+      ctx.strokeStyle = '#fff3b0'; ctx.lineWidth = 2;
+      ctx.globalAlpha = 0.55 + 0.4*prog;
+      ctx.beginPath(); ctx.arc(0,0,R0,0,Math.PI*2); ctx.stroke();
+      ctx.save(); ctx.rotate(nowS*3);
+      ctx.setLineDash([6,6]); ctx.lineWidth = 1.6;
+      ctx.beginPath(); ctx.arc(0,0,R0+7,0,Math.PI*2); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.restore();
+      ctx.lineWidth = 2;
+      for(let k=0;k<4;k++){
+        const ak = k*Math.PI/2 + nowS*1.5;
+        ctx.beginPath();
+        ctx.moveTo(Math.cos(ak)*(R0-9), Math.sin(ak)*(R0-9));
+        ctx.lineTo(Math.cos(ak)*(R0+6), Math.sin(ak)*(R0+6));
+        ctx.stroke();
+      }
+      ctx.shadowBlur = 0;
+      drawShape(ctx, 0, 0, 5+3*prog, 'star', '#ffffff', 10);
+      const gl = ctx.createLinearGradient(0,-jr.y,0,-R0);
+      gl.addColorStop(0,'rgba(255,240,170,0)');
+      gl.addColorStop(1,'rgba(255,240,170,'+(0.25+0.5*prog)+')');
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = gl; ctx.lineWidth = 1 + 3*prog;
+      ctx.beginPath(); ctx.moveTo(0,-jr.y); ctx.lineTo(0,-R0); ctx.stroke();
+    } else {
+      const f = 1 - Math.min(1, jr.struckT/jr.life);
+      const baseW = jr.w || 34;
+      const w = baseW*(0.55 + 0.45*f);
+      const cg = ctx.createLinearGradient(-w,0,w,0);
+      cg.addColorStop(0,'rgba(255,224,102,0)');
+      cg.addColorStop(0.3,'rgba(255,240,170,'+(0.7*f)+')');
+      cg.addColorStop(0.5,'rgba(255,255,255,'+f+')');
+      cg.addColorStop(0.7,'rgba(255,240,170,'+(0.7*f)+')');
+      cg.addColorStop(1,'rgba(255,224,102,0)');
+      ctx.fillStyle = cg;
+      ctx.fillRect(-w, -jr.y-20, w*2, jr.y+20);
+      ctx.globalAlpha = f;
+      ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 3;
+      ctx.shadowColor = '#ffe066'; ctx.shadowBlur = 16;
+      ctx.beginPath();
+      ctx.ellipse(0,0, baseW*(1.2+(1-f)*1.8), baseW*(0.5+(1-f)*0.7), 0, 0, Math.PI*2);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  // SERAPH's body: two fans of golden-white feathers drawn BEHIND the dark body disc (flapping
+  // gently), and a floating halo ring over its head drawn on top. While a JUDGMENT RAY stun is
+  // active, a ring of light with orbiting stars binds the body (p.judgedT).
+  function drawSeraphWings(ctx, p){
+    const t = Date.now()/1000;
+    const flap = Math.sin(t*2.4)*0.09;
+    const r = p.r;
+    const lens = [1.35, 1.8, 2.0, 1.8, 1.3];
+    ctx.save();
+    for(const sd of [-1,1]){
+      ctx.save();
+      ctx.scale(sd,1);
+      for(let k=0;k<5;k++){
+        const ang = -1.05 + k*0.34 + flap*(1+k*0.15);
+        const len = r*lens[k];
+        const bx = r*0.55, by = (k-2)*r*0.10;
+        const tx = Math.cos(ang)*len, ty = Math.sin(ang)*len;
+        const mx = (bx+tx)/2, my = (by+ty)/2;
+        let nx = -(ty-by), ny = (tx-bx);
+        const nl = Math.hypot(nx,ny)||1; nx/=nl; ny/=nl;
+        const w = r*0.26;
+        ctx.beginPath();
+        ctx.moveTo(bx,by);
+        ctx.quadraticCurveTo(mx+nx*w, my+ny*w, tx, ty);
+        ctx.quadraticCurveTo(mx-nx*w, my-ny*w, bx, by);
+        ctx.closePath();
+        ctx.fillStyle = p.hitFlash>0 ? '#ffffff' : 'rgba(255,248,214,0.86)';
+        ctx.shadowColor = '#ffe066'; ctx.shadowBlur = 10;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.strokeStyle = 'rgba(255,214,90,0.9)'; ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+  function drawSeraphHalo(ctx, p){
+    const t = Date.now()/1000;
+    const hy = -p.r - 9 + Math.sin(t*2)*1.5;
+    ctx.save();
+    ctx.shadowColor = '#ffe066'; ctx.shadowBlur = 12;
+    ctx.strokeStyle = '#ffe066'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.ellipse(0, hy, p.r*0.62, p.r*0.2, 0, 0, Math.PI*2); ctx.stroke();
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = '#fffbe6'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.ellipse(0, hy, p.r*0.62, p.r*0.2, 0, 0, Math.PI*2); ctx.stroke();
+    ctx.restore();
+  }
+  function drawJudgedBind(ctx, p){
+    const t = Date.now()/1000;
+    ctx.save();
+    ctx.shadowColor = '#ffe066'; ctx.shadowBlur = 10;
+    ctx.strokeStyle = '#ffe066'; ctx.lineWidth = 2; ctx.globalAlpha = 0.85;
+    ctx.beginPath(); ctx.arc(0,0,p.r+7,0,Math.PI*2); ctx.stroke();
+    for(let k=0;k<3;k++){
+      const ak = t*4 + k*Math.PI*2/3;
+      drawShape(ctx, Math.cos(ak)*(p.r+10), Math.sin(ak)*(p.r+10), 4, 'star', '#fff3b0', 8);
+    }
+    ctx.restore();
+  }
+
   function drawTechAccent(ctx, p){
     const id = p.def.__elemId;
     if(id!=='microchip' && id!=='computer' && id!=='techno' && id!=='diode') return;
@@ -10496,6 +10839,11 @@ function runSimulation(f1,f2, netRole, roomCode){
       // threshold, so it can trigger again on a later dip rather than being a once-per-match proc
       bloodRitualT: 0,
       bloodRitualArmed: true,
+      // SERAPH (MYTHICAL): independent 3s JUDGMENT RAY clock, independent 5s DIVINE MEND clock,
+      // and judgedT — the remaining seconds the "bound by light" overlay shows after a ray hit
+      judgmentT: def.passiveJudgmentRay ? (def.judgmentInterval||3.0) : 0,
+      divineMendT: def.passiveDivineMend ? (def.divineMendInterval||5.0) : 0,
+      judgedT: 0,
     };
   }
   const p1 = makeFighter(f1, 0);
@@ -10561,6 +10909,7 @@ function runSimulation(f1,f2, netRole, roomCode){
   const heartbeams = [];
   const loveRainBeams = []; // LOVE's CUPID'S RAIN ultimate: rapid-fire beams from random points
   const revives = [];
+  const judgmentRays = []; // SERAPH's JUDGMENT RAY (lock-on reticle -> strike, stuns) + the light pillars left by HALO SIGIL / SECOND LIFE (pillar:true entries)
   const steelbeams = [];
   const supernovas = []; // COSMOS's SUPERNOVA ultimate: locked-in gravity collapse then a final radial nova blast
   const wildfires = []; // PYRO's WILDFIRE APOCALYPSE ultimate: locked-in channel then a guaranteed full-arena firestorm
@@ -12106,8 +12455,8 @@ function runSimulation(f1,f2, netRole, roomCode){
     document.getElementById('hpv2').textContent = Math.round(hp2);
     document.getElementById('hpf1').style.width = pct1+'%';
     document.getElementById('hpf2').style.width = pct2+'%';
-    document.getElementById('hpf1').style.background = p1.def.color;
-    document.getElementById('hpf2').style.background = p2.def.color;
+    document.getElementById('hpf1').style.background = p1.def.hpBarBg || p1.def.color;
+    document.getElementById('hpf2').style.background = p2.def.hpBarBg || p2.def.color;
     [[p1,'hpf1','hpcard1'],[p2,'hpf2','hpcard2']].forEach(([p,fillId])=>{
       if(p._prevHP!==undefined && p.hp>p._prevHP){
         const el = document.getElementById(fillId);
@@ -12354,6 +12703,28 @@ function runSimulation(f1,f2, netRole, roomCode){
           particles.push({x:p.px,y:p.py,vx:Math.cos(ang)*spd,vy:Math.sin(ang)*spd,life:0.55,color:p.def.color,shape});
         }
       }
+    } else if(a.kind==='holycircle'){
+      // SERAPH's HALO SIGIL: an angel-style magic circle is drawn under where the foe is HEADING
+      // (fighters glide in straight lines, so it leads the target by the telegraph time), spins up
+      // for a beat, then erupts in a pillar of holy light — a quake under the hood, dressed as a
+      // rotating rune circle instead of a dashed danger ring (see drawHolyCircle + the q.holy hooks)
+      toPx(p); toPx(target);
+      const telegraphH = a.telegraph!=null ? a.telegraph : 0.55;
+      const foeStillH = target.freezeT>0 || target.rootT>0 || target.stunT>0 || target.revivingT>0 || target.dashT>0;
+      const leadH = foeStillH ? 0 : telegraphH;
+      const hx = Math.max(20, Math.min(W()-20, target.px + (target.vx||0)*W()*leadH));
+      const hy = Math.max(20, Math.min(H()-20, target.py + (target.vy||0)*H()*leadH));
+      quakes.push({
+        x:hx, y:hy, r:(a.range||88), dmg: base*a.dmgMul, owner:p, name:a.name,
+        telegraphT: telegraphH, maxTelegraph: telegraphH, color:'#ffe066',
+        holy:true, silent:true, ringColor:'#fff3b0',
+        particleColors:['#ffffff','#fff3b0','#ffe066','#ffd84d'], particleShape:'star'
+      });
+      rings.push({x:p.px,y:p.py,r:p.r,maxR:p.r+16,life:0.25,maxLife:0.25,color:'#fff3b0'});
+      for(let hf=0; hf<6; hf++){
+        particles.push({x:p.px+(Math.random()-0.5)*p.r*1.6,y:p.py+(Math.random()-0.5)*p.r,vx:(Math.random()-0.5)*0.8,vy:-0.6-Math.random()*1.2,life:0.6+Math.random()*0.3,color:['#ffffff','#fff3b0','#ffe066'][hf%3],shape:'plume'});
+      }
+      log(`${p.def.name} ร่ายวงเวทศักดิ์สิทธิ์ ${a.name}`);
     } else if(a.kind==='quake'){
       // ground-targeted delayed AoE: marks a circular danger zone at the enemy's current spot,
       // telegraphs briefly, then detonates — hits whoever is standing in it when it goes off
@@ -12362,8 +12733,19 @@ function runSimulation(f1,f2, netRole, roomCode){
       const telegraph = a.telegraph!=null ? a.telegraph : 0.75;
       quakes.push({
         x:qx, y:qy, r:rng, dmg: base*a.dmgMul, owner:p, name:a.name,
-        telegraphT: telegraph, maxTelegraph: telegraph, color:p.def.color
+        telegraphT: telegraph, maxTelegraph: telegraph, color:p.def.color,
+        // METEORITE's METEOR STRIKE dresses this same ground-slam mechanic up as an actual
+        // falling meteor (see drawMeteorImpact) with its own fire/charred-rock impact palette
+        // and a harder shake, instead of reusing TERRA's plain brown dirt-clock circle
+        meteor: !!a.meteor, ringColor: a.meteor ? '#ff5a1f' : undefined,
+        particleColors: a.meteor ? ['#ff5a1f','#ffae42','#ffe066','#3a2010','#66240f'] : undefined,
+        particleShape: a.meteor ? 'triangle' : undefined, heavyShake: !!a.meteor
       });
+      if(a.meteor){
+        for(let mf=0; mf<5; mf++){
+          particles.push({x:p.px+(Math.random()-0.5)*p.r*1.4,y:p.py+(Math.random()-0.5)*p.r,vx:(Math.random()-0.5)*0.7,vy:-0.5-Math.random()*1.3,life:0.5+Math.random()*0.3,color:['#ff5a1f','#ffae42','#66240f'][mf%3],shape:'triangle'});
+        }
+      }
       log(`${p.def.name} เล็งจุดกระแทกด้วย ${a.name}`);
     } else if(a.kind==='shardvolley'){
       // GEMS UPDATE — BISMUTH's SHARD STRIKE: a tight burst of tiny, fast crystal shards fired at the
@@ -12730,7 +13112,22 @@ function runSimulation(f1,f2, netRole, roomCode){
       }
       // AMBER's FOSSIL MEND: slow-rising honey-gold bubbles trapped in resin instead of the
       // plain shape-particle rise every other heal uses, matching its "preserved in amber" feel
-      if(p.def.id==='amber'){
+      if(p.def.id==='nature'){
+        // WORLD TREE'S BLESSING: a ring of ancient root-spikes erupts around the caster, a golden
+        // rune circle blooms outward, and sap-spores rise like fireflies
+        rings.push({x:p.px,y:p.py,r:p.r*0.8,maxR:p.r+34,life:0.7,maxLife:0.7,color:'#ffd36b'});
+        rings.push({x:p.px,y:p.py,r:p.r*0.5,maxR:p.r+20,life:0.5,maxLife:0.5,color:'#8dff4d'});
+        for(let rt=0; rt<8; rt++){
+          const angRt = (rt/8)*Math.PI*2;
+          particles.push({x:p.px+Math.cos(angRt)*p.r,y:p.py+Math.sin(angRt)*p.r,vx:Math.cos(angRt)*0.8,vy:Math.sin(angRt)*0.8-1.2,life:0.7,color:'#6b4a2a',shape:'triangle'});
+        }
+        for(let sp=0; sp<14; sp++){
+          particles.push({x:p.px+(Math.random()-0.5)*30,y:p.py+(Math.random()-0.5)*14,vx:(Math.random()-0.5)*0.6,vy:-0.7-Math.random()*1.3,life:0.9+Math.random()*0.5,color:['#ffd36b','#8dff4d','#e9ffcf'][sp%3],shape:'circle'});
+        }
+        for(let lf=0; lf<5; lf++){
+          particles.push({x:p.px+(Math.random()-0.5)*24,y:p.py,vx:(Math.random()-0.5)*1.4,vy:-1+Math.random()*-1,life:1.0,color:'#5fb84c',shape:'triangle'});
+        }
+      } else if(p.def.id==='amber'){
         for(let ab=0; ab<9; ab++){
           particles.push({x:p.px+(Math.random()-0.5)*22,y:p.py+(Math.random()-0.5)*10,vx:(Math.random()-0.5)*0.4,vy:-0.6-Math.random()*0.9,life:0.9+Math.random()*0.4,color:['#f2a93d','#ffcf7a','#fff2cf'][ab%3],shape:'circle'});
         }
@@ -13051,6 +13448,65 @@ function runSimulation(f1,f2, netRole, roomCode){
   const W = ()=>canvas.width/DPR;
   const H = ()=>canvas.height/DPR;
 
+  // SERAPH's SECOND LIFE: while the fighter holds at the brink a rune circle (drawn in draw())
+  // grows around it and motes of light spiral in; when the windup ends the circle detonates —
+  // holy damage to the foe if it's inside the blast radius (plus a shove) — and the fighter comes
+  // back at revivePct of max HP. Returns true once finished so the caller can drop the entry.
+  function stepAngelRevive(rv, t){
+    const p = rv.p;
+    if(Math.random() < 0.4 + t*0.5){
+      const angM = Math.random()*Math.PI*2;
+      const spawnR = p.r + 26 + Math.random()*40;
+      const inSpd = 1.0 + t*2.4;
+      particles.push({x:p.px+Math.cos(angM)*spawnR, y:p.py+Math.sin(angM)*spawnR, vx:-Math.cos(angM)*inSpd, vy:-Math.sin(angM)*inSpd-0.2, life:0.5, color:['#ffffff','#fff3b0','#ffe066'][Math.floor(Math.random()*3)], shape:'star'});
+    }
+    if(Math.random() < 0.15){
+      particles.push({x:p.px+(Math.random()-0.5)*p.r*2.4, y:p.py+p.r, vx:(Math.random()-0.5)*0.4, vy:-0.7-Math.random()*0.8, life:0.9, color:'#fffbe0', shape:'plume'});
+    }
+    if(t<1) return false;
+
+    p._revived = true;
+    p._revivePending = false;
+    p.revivingT = 0;
+    const newHp = Math.max(1, Math.round(p.maxHp * (p.def.revivePct!=null ? p.def.revivePct : 0.5)));
+    p.hp = newHp;
+    toPx(p);
+    const foe = rv.other;
+    const blastR = p.def.reviveBlastRadius || 200;
+    const blastDmg = 35*dmgFactor(p)*(p.def.reviveBlastMul||2.8);
+    if(foe && foe.alive){
+      toPx(foe);
+      const dFoe = Math.hypot(foe.px-p.px, foe.py-p.py);
+      if(dFoe < foe.r + blastR){
+        applyDamage(foe, blastDmg, p.def.name, 'SECOND LIFE', null, null, null, p);
+        if(foe.immovableT<=0){
+          let kdx = foe.px-p.px, kdy = foe.py-p.py;
+          const kd = Math.hypot(kdx,kdy);
+          if(kd<1){ const rang=Math.random()*Math.PI*2; kdx=Math.cos(rang); kdy=Math.sin(rang); }
+          else { kdx/=kd; kdy/=kd; }
+          foe.vx += kdx * 0.85;
+          foe.vy += kdy * 0.85;
+        }
+      }
+      tryHitClone(foe, p.px, p.py, blastR, blastDmg, p.def.name, 'SECOND LIFE');
+    }
+    hitStructuresInRadius(p.px, p.py, blastR, blastDmg, p);
+    judgmentRays.push({x:p.px, y:p.py, struck:true, pillar:true, struckT:0, life:0.6, w:blastR*0.35});
+    shake.mag = Math.max(shake.mag, 14); shake.t = Math.max(shake.t, 0.5);
+    rings.push({x:p.px,y:p.py,r:p.r,maxR:blastR*1.05,life:0.5,maxLife:0.5,color:'#ffffff'});
+    rings.push({x:p.px,y:p.py,r:p.r*0.6,maxR:blastR*1.5,life:0.85,maxLife:0.85,color:'#ffe066'});
+    rings.push({x:p.px,y:p.py,r:p.r,maxR:p.r+44,life:0.35,maxLife:0.35,color:'#fff3b0'});
+    for(let k=0;k<46;k++){
+      const angB = Math.random()*Math.PI*2, spdB = 1.5+Math.random()*6;
+      particles.push({x:p.px,y:p.py,vx:Math.cos(angB)*spdB,vy:Math.sin(angB)*spdB,life:0.7+Math.random()*0.5,color:['#ffffff','#fff3b0','#ffe066','#ffd84d'][k%4],shape:k%3===0?'plume':(k%3===1?'star':'diamond')});
+    }
+    floaters.push({x:p.px, y:p.py-p.r-32, text:'SECOND LIFE! +'+newHp+' HP', life:1.3, vy:-32, color:'#ffe066', big:true});
+    playSeraphReviveSFX();
+    log(`${p.def.name} ระเบิดวงเวทศักดิ์สิทธิ์ และได้รับชีวิตที่สอง ฟื้นกลับมาด้วย HP ${newHp}!`, true);
+    updateHPUI();
+    return true;
+  }
+
   function toPx(p){
     p.px = p.x * W();
     p.py = p.y * H();
@@ -13090,6 +13546,7 @@ function runSimulation(f1,f2, netRole, roomCode){
       if(p.errorT>0){ p.errorT -= dt; if(p.errorT<0) p.errorT=0; }
       if(p.silenceT>0){ p.silenceT -= dt; if(p.silenceT<0) p.silenceT=0; }
       if(p.stunT>0){ p.stunT -= dt; if(p.stunT<0) p.stunT=0; }
+      if(p.judgedT>0){ p.judgedT -= dt; if(p.judgedT<0) p.judgedT=0; }
       if(p.dazzleT>0){ p.dazzleT -= dt; if(p.dazzleT<0) p.dazzleT=0; }
       // BLOOD RITUAL: the instant HP drops to the configured threshold or below, a timed
       // window opens where every hit this fighter lands heals it instead of just damaging the
@@ -13392,7 +13849,13 @@ function runSimulation(f1,f2, netRole, roomCode){
         p.hp = Math.min(p.maxHp, p.hp+whole);
         p._regenAcc -= whole;
         toPx(p);
-        floaters.push({x:p.px+(Math.random()-0.5)*10, y:p.py-p.r-10, text:'+'+whole, life:0.7, vy:-24, color:'#8bffd6', big:false});
+        floaters.push({x:p.px+(Math.random()-0.5)*10, y:p.py-p.r-10, text:'+'+whole, life:0.7, vy:-24, color:p.def.id==='nature'?'#ffd36b':'#8bffd6', big:false});
+        if(p.def.id==='nature'){
+          // SAP OF AGES: roots drink from the ground — glowing spores drift up off the body
+          for(let sp=0; sp<2; sp++){
+            particles.push({x:p.px+(Math.random()-0.5)*p.r*1.6,y:p.py+p.r*0.5,vx:(Math.random()-0.5)*0.4,vy:-0.5-Math.random()*0.8,life:0.8+Math.random()*0.4,color:sp?'#ffd36b':'#8dff4d',shape:'circle'});
+          }
+        }
         updateHPUI();
       }
     });
@@ -13997,6 +14460,51 @@ function runSimulation(f1,f2, netRole, roomCode){
       }
     });
 
+    // SERAPH's JUDGMENT RAY: every judgmentInterval seconds a beam of light locks onto the foe —
+    // a reticle tracks it wherever it goes for judgmentLock seconds (so it can't be dodged), then
+    // the beam lands and STUNS it for judgmentStun seconds (no movement, no attacks). Fully
+    // independent passive clock, same shape as TECHNO's summon / GLITCH's blink timers.
+    [p1,p2].forEach(p=>{
+      if(!p.alive || !p.def.passiveJudgmentRay) return;
+      const o = p===p1 ? p2 : p1;
+      p.judgmentT -= dt;
+      if(p.judgmentT>0) return;
+      p.judgmentT = p.def.judgmentInterval || 3.0;
+      if(!o.alive || p.hp<=0 || p.revivingT>0) return;
+      toPx(o);
+      judgmentRays.push({
+        owner:p, target:o, x:o.px, y:o.py, t:0, lock:(p.def.judgmentLock||0.55),
+        stun:(p.def.judgmentStun||1.0), struck:false, struckT:0, life:0.35
+      });
+      floaters.push({x:p.px, y:p.py-p.r-16, text:'JUDGMENT RAY!', life:0.8, vy:-26, color:'#ffe066', big:false});
+      playJudgmentLockSFX();
+      log(`${p.def.name} ปล่อย JUDGMENT RAY ล็อกเป้า ${o.def.name}`);
+    });
+    // SERAPH's DIVINE MEND: every divineMendInterval seconds it heals a flat % of its MAX HP
+    // (so it heals the same solid chunk every tick, regardless of how much it has lost)
+    [p1,p2].forEach(p=>{
+      if(!p.alive || !p.def.passiveDivineMend) return;
+      p.divineMendT -= dt;
+      if(p.divineMendT>0) return;
+      p.divineMendT = p.def.divineMendInterval || 5.0;
+      if(p.hp<=0 || p.revivingT>0) return;
+      const lostHp = p.maxHp - p.hp;
+      if(lostHp<=0) return;
+      const healAmt = Math.max(1, Math.round(p.maxHp*(p.def.divineMendPct!=null ? p.def.divineMendPct : 0.2)));
+      const before = p.hp;
+      p.hp = Math.min(p.maxHp, p.hp + healAmt);
+      const gained = Math.round(p.hp - before);
+      toPx(p);
+      for(let dm=0; dm<10; dm++){
+        particles.push({x:p.px+(Math.random()-0.5)*p.r*2,y:p.py+(Math.random()-0.5)*p.r*1.4,vx:(Math.random()-0.5)*0.6,vy:-0.8-Math.random()*1.4,life:0.7+Math.random()*0.3,color:['#ffffff','#fff3b0','#ffe066'][dm%3],shape:dm%2 ? 'plume' : 'star'});
+      }
+      rings.push({x:p.px,y:p.py,r:p.r*0.6,maxR:p.r+16,life:0.4,maxLife:0.4,color:'#fff3b0'});
+      floaters.push({x:p.px, y:p.py-p.r-24, text:'+'+gained, life:0.9, vy:-32, color:'#ffe066', big:true});
+      playDivineMendSFX();
+      updateHPUI();
+      log(`${p.def.name} DIVINE MEND ฟื้นฟูเลือดที่เสียไป (+${gained})`);
+    });
+
     // GLITCH JUMP: every glitchBlinkInterval seconds GLITCH's body corrupts out of existence at
     // its current spot and reappears right next to the opponent, throwing one guaranteed "error
     // punch" the instant it lands — a fully independent passive timer, same shape as TECHNO's
@@ -14561,13 +15069,18 @@ function runSimulation(f1,f2, netRole, roomCode){
             sfxTone({freq:2600,endFreq:1800,type:'triangle',dur:0.06,vol:0.06});
           }
           if(pr.thornVine){
-            // NATURE's THORN VINE lands: a small burst of leaves and thorn fragments instead of
-            // a plain poof, plus a quick green flash ring so a hit actually reads as impaling
+            // ELDER THORN lands: ancient roots lance up from the ground beneath the target in a
+            // crown of bark spikes, with amber sap droplets and drifting spirit-spores
             toPx(t);
-            rings.push({x:t.px,y:t.py,r:t.r*0.4,maxR:t.r+16,life:0.3,maxLife:0.3,color:'#8dff4d'});
-            for(let lf=0; lf<9; lf++){
-              const angLf = Math.random()*Math.PI*2, spdLf = 1+Math.random()*3;
-              particles.push({x:t.px,y:t.py,vx:Math.cos(angLf)*spdLf,vy:Math.sin(angLf)*spdLf-1,life:0.45+Math.random()*0.25,color:['#8dff4d','#5fb84c','#c8f77a'][lf%3],shape:'triangle'});
+            rings.push({x:t.px,y:t.py,r:t.r*0.4,maxR:t.r+22,life:0.35,maxLife:0.35,color:'#ffd36b'});
+            rings.push({x:t.px,y:t.py,r:t.r*0.2,maxR:t.r+10,life:0.25,maxLife:0.25,color:'#8dff4d'});
+            for(let rs=0; rs<6; rs++){
+              const angRs = (rs/6)*Math.PI*2 + Math.random()*0.4, spdRs = 2+Math.random()*2;
+              particles.push({x:t.px+Math.cos(angRs)*t.r*0.6,y:t.py+Math.sin(angRs)*t.r*0.6,vx:Math.cos(angRs)*spdRs,vy:Math.sin(angRs)*spdRs-0.8,life:0.4+Math.random()*0.15,color:['#6b4a2a','#4a3320','#8a6a3c'][rs%3],shape:'triangle'});
+            }
+            for(let lf=0; lf<8; lf++){
+              const angLf = Math.random()*Math.PI*2, spdLf = 0.6+Math.random()*2;
+              particles.push({x:t.px,y:t.py,vx:Math.cos(angLf)*spdLf,vy:Math.sin(angLf)*spdLf-1.6,life:0.6+Math.random()*0.35,color:['#ffd36b','#8dff4d','#e9ffcf','#c8f77a'][lf%4],shape:'circle'});
             }
           }
           if(pr.droneScrap){
@@ -14858,7 +15371,8 @@ function runSimulation(f1,f2, netRole, roomCode){
           tryHitClone(f, q.x, q.y, q.r, q.dmg, q.owner.def.name, q.name);
         });
         hitStructuresInRadius(q.x, q.y, q.r, q.dmg, q.owner);
-        shake.mag = Math.max(shake.mag, q.silent ? 5 : 12); shake.t = Math.max(shake.t, q.silent ? 0.25 : 0.45);
+        if(q.holy) judgmentRays.push({x:q.x, y:q.y, struck:true, pillar:true, struckT:0, life:0.4, w:q.r*0.5});
+        shake.mag = Math.max(shake.mag, q.heavyShake ? 20 : (q.silent ? 5 : 12)); shake.t = Math.max(shake.t, q.heavyShake ? 0.6 : (q.silent ? 0.25 : 0.45));
         // themed boss-ultimate hits carry their own ring color + particle palette/shape so the
         // impact actually matches the element (sonic pink, frost blue, fire orange, etc.)
         // instead of every quake-based hit in the game defaulting to TERRA's brown dirt burst
@@ -14875,8 +15389,45 @@ function runSimulation(f1,f2, netRole, roomCode){
         }
         // OPAL's PRISMATIC SPLIT reforms silently (its own sfxTone already played at cast time)
         // instead of TERRA's ground-rumble quake sound
-        if(!q.silent) playQuakeSFX();
+        if(q.holy) playHolyBurstSFX(); else if(!q.silent) playQuakeSFX();
         quakes.splice(i,1);
+      }
+    }
+
+    // SERAPH's JUDGMENT RAY in flight: the reticle sticks to the foe for the whole lock time
+    // (tracking = un-dodgeable), then the strike stuns it. Pillar entries are just short-lived
+    // visuals (HALO SIGIL detonation / SECOND LIFE blast) and only count down.
+    for(let i=judgmentRays.length-1;i>=0;i--){
+      const jr = judgmentRays[i];
+      if(jr.pillar){
+        jr.struckT += dt;
+        if(jr.struckT>=jr.life) judgmentRays.splice(i,1);
+        continue;
+      }
+      if(!jr.struck){
+        if(!jr.target.alive || !jr.owner.alive){ judgmentRays.splice(i,1); continue; }
+        toPx(jr.target);
+        jr.x = jr.target.px; jr.y = jr.target.py;
+        jr.t += dt;
+        if(jr.t>=jr.lock){
+          jr.struck = true; jr.struckT = 0;
+          const tg = jr.target;
+          tg.stunT = Math.max(tg.stunT||0, jr.stun);
+          tg.judgedT = Math.max(tg.judgedT||0, jr.stun);
+          rings.push({x:tg.px,y:tg.py,r:tg.r*0.5,maxR:tg.r+46,life:0.4,maxLife:0.4,color:'#ffffff'});
+          rings.push({x:tg.px,y:tg.py,r:tg.r*0.3,maxR:tg.r+24,life:0.3,maxLife:0.3,color:'#ffe066'});
+          for(let k=0;k<18;k++){
+            const angJ = Math.random()*Math.PI*2, spdJ = 1+Math.random()*3.6;
+            particles.push({x:tg.px,y:tg.py,vx:Math.cos(angJ)*spdJ,vy:Math.sin(angJ)*spdJ-0.6,life:0.5+Math.random()*0.3,color:['#ffffff','#fff3b0','#ffe066'][k%3],shape:k%3===0?'plume':'star'});
+          }
+          floaters.push({x:tg.px, y:tg.py-tg.r-24, text:'STUN!', life:0.9, vy:-30, color:'#ffe066', big:true});
+          shake.mag = Math.max(shake.mag, 6); shake.t = Math.max(shake.t, 0.25);
+          playJudgmentSFX();
+          log(`JUDGMENT RAY ของ ${jr.owner.def.name} ฟาดลง ${tg.def.name} สตั้น ${jr.stun} วิ!`, true);
+        }
+      } else {
+        jr.struckT += dt;
+        if(jr.struckT>=jr.life) judgmentRays.splice(i,1);
       }
     }
 
@@ -15104,6 +15655,11 @@ function runSimulation(f1,f2, netRole, roomCode){
       rv.t += dt;
       toPx(rv.p);
       const t = Math.min(1, rv.t/rv.dur);
+      // SERAPH's SECOND LIFE has its own windup/blast (holy circle) instead of LOVE's hearts
+      if(rv.style==='angel'){
+        if(stepAngelRevive(rv, t)) revives.splice(i,1);
+        continue;
+      }
       const pulse = 0.5 + 0.4*Math.sin(Date.now()/70);
       // hearts spawn on a ring around the fighter and drift inward, getting faster/denser as
       // the windup nears completion
@@ -16285,11 +16841,13 @@ function runSimulation(f1,f2, netRole, roomCode){
           // LOVE's death-defying heart: instead of bursting all at once, hearts gather inward
           // for a brief windup — the fighter holds at the brink while it charges — then a
           // smaller burst reignites it, rather than one instant explosion
+          const isAngelRev = dying.def.reviveStyle==='angel';
+          const windupRev = dying.def.reviveWindup || 1.0;
           dying._revivePending = true;
-          dying.revivingT = 1.0;
+          dying.revivingT = windupRev;
           toPx(dying);
-          revives.push({p:dying, other, t:0, dur:1.0});
-          log(`${dying.def.name} หัวใจเริ่มเรืองแสง กำลังจะฟื้นคืนชีพ...`);
+          revives.push({p:dying, other, t:0, dur:windupRev, style:isAngelRev ? 'angel' : 'love'});
+          log(isAngelRev ? `${dying.def.name} ร่ายวงเวทศักดิ์สิทธิ์รอบตัว กำลังจะได้รับชีวิตที่สอง...` : `${dying.def.name} หัวใจเริ่มเรืองแสง กำลังจะฟื้นคืนชีพ...`);
         }
         // else: already mid windup — the revives[] loop below carries it to completion
       } else {
@@ -16455,6 +17013,7 @@ function runSimulation(f1,f2, netRole, roomCode){
       });
       ctx.globalAlpha = 1;
     }
+    if(p.def.id==='seraph') drawSeraphWings(ctx, p);
     ctx.beginPath();
     ctx.arc(0,0,p.r,0,Math.PI*2);
     if(p.hitFlash>0){
@@ -16506,6 +17065,8 @@ function runSimulation(f1,f2, netRole, roomCode){
     // second-color accent detail for the 3 tech-themed characters — always on, not just during
     // an ability — so each reads as more than a single flat-color ring
     drawTechAccent(ctx, p);
+    if(p.def.id==='seraph') drawSeraphHalo(ctx, p);
+    if(p.judgedT>0) drawJudgedBind(ctx, p);
 
     // frozen overlay: faceted icy shell, orbiting shards, and a jagged crystalline rim instead
     // of a plain smooth circle, so a frozen body actually reads as encased in real ice
@@ -17790,6 +18351,8 @@ function runSimulation(f1,f2, netRole, roomCode){
     // TERRA's quake telegraph — dashed danger-zone ring at the marked spot, with a clock-style fill showing time left
     quakes.forEach(q=>{
       const t = 1 - Math.max(0,q.telegraphT)/q.maxTelegraph;
+      if(q.holy){ drawHolyCircle(ctx, q.x, q.y, q.r, t, 0.55 + 0.45*t); return; }
+      if(q.meteor){ drawMeteorImpact(ctx, q.x, q.y, q.r, t, 0.55 + 0.45*t); return; }
       const pulse = 0.55 + 0.25*Math.sin(Date.now()/90);
       ctx.save();
       ctx.beginPath();
@@ -17809,6 +18372,14 @@ function runSimulation(f1,f2, netRole, roomCode){
       ctx.arc(q.x, q.y, q.r, 0, Math.PI*2);
       ctx.stroke();
       ctx.restore();
+    });
+
+    // SERAPH's SECOND LIFE windup: the rune circle grows around the fallen fighter
+    revives.forEach(rv=>{
+      if(rv.style!=='angel') return;
+      toPx(rv.p);
+      const tr = Math.min(1, rv.t/rv.dur);
+      drawHolyCircle(ctx, rv.p.px, rv.p.py, rv.p.r*(1.4+2.6*tr), tr, 0.55 + 0.45*tr);
     });
 
     // GEMS UPDATE — LAPIZLAZULI's TIDAL GEM: a pool of rippling water with a lapis gem floating at
@@ -18280,7 +18851,7 @@ function runSimulation(f1,f2, netRole, roomCode){
         ctx.fill();
         // rotating dashed rune-ring
         ctx.globalAlpha = 0.4+t*0.5;
-        ctx.strokeStyle = '#c8f77a';
+        ctx.strokeStyle = '#ffd36b';
         ctx.lineWidth = 1.6;
         ctx.setLineDash([6,7]);
         ctx.lineDashOffset = -(Date.now()/40);
@@ -18290,6 +18861,18 @@ function runSimulation(f1,f2, netRole, roomCode){
         ctx.arc(vp.p.px,vp.p.py, vp.p.r+10+t*8, 0, Math.PI*2);
         ctx.stroke();
         ctx.setLineDash([]);
+        // ancient rune ticks orbiting the ring
+        ctx.fillStyle = '#ffd36b';
+        for(let rn=0; rn<8; rn++){
+          const ra = (rn/8)*Math.PI*2 - Date.now()/900;
+          const rr = vp.p.r+10+t*8;
+          ctx.save();
+          ctx.translate(vp.p.px+Math.cos(ra)*rr, vp.p.py+Math.sin(ra)*rr);
+          ctx.rotate(ra+Math.PI/4);
+          ctx.globalAlpha = 0.5+t*0.5;
+          ctx.fillRect(-2,-2,4,4);
+          ctx.restore();
+        }
         // rising vines tipped with a budding leaf instead of a plain dot
         const sway = Math.sin(Date.now()/260);
         const vineN = 7;
@@ -18302,10 +18885,10 @@ function runSimulation(f1,f2, netRole, roomCode){
           const tx = vp.p.px + Math.cos(tipAng)*(vp.p.r+growR*0.9);
           const ty = vp.p.py + Math.sin(tipAng)*(vp.p.r+growR*0.9) - growR*0.35;
           const cx1 = (bx+tx)/2 + Math.cos(baseAng+1.4)*8, cy1 = (by+ty)/2 + Math.sin(baseAng+1.4)*8;
-          ctx.strokeStyle = '#5fb84c';
-          ctx.lineWidth = 2.5;
-          ctx.globalAlpha = 0.35+t*0.5;
-          ctx.shadowColor = '#8dff4d';
+          ctx.strokeStyle = v%2===0 ? '#6b4a2a' : '#4a3320';
+          ctx.lineWidth = 3.4;
+          ctx.globalAlpha = 0.35+t*0.55;
+          ctx.shadowColor = '#ffd36b';
           ctx.shadowBlur = 6+t*10;
           ctx.beginPath();
           ctx.moveTo(bx,by);
@@ -18316,7 +18899,7 @@ function runSimulation(f1,f2, netRole, roomCode){
           ctx.translate(tx,ty);
           ctx.rotate(tipAng);
           ctx.globalAlpha = 0.5+t*0.5;
-          ctx.fillStyle = '#c8f77a';
+          ctx.fillStyle = v%2===0 ? '#ffd36b' : '#8dff4d';
           const leafSz = 1.5+t*3;
           ctx.beginPath();
           ctx.ellipse(0,0,leafSz,leafSz*0.55,0,0,Math.PI*2);
@@ -18353,7 +18936,7 @@ function runSimulation(f1,f2, netRole, roomCode){
         ctx.save();
         ctx.translate(px2,py2);
         ctx.rotate(pAng);
-        ctx.fillStyle = pi%2===0 ? '#e9ffcf' : '#ffe37a';
+        ctx.fillStyle = pi%2===0 ? '#ffd36b' : '#8dff4d';
         ctx.shadowColor = '#8dff4d';
         ctx.shadowBlur = 8;
         ctx.beginPath();
@@ -18653,67 +19236,72 @@ function runSimulation(f1,f2, netRole, roomCode){
         ctx.fill();
         ctx.restore();
       } else if(pr.thornVine){
-        // NATURE's THORN VINE — a whipping barbed vine instead of a plain triangle icon: a
-        // segmented green shaft that curls slightly as it flies, bristling with sharp thorns
-        // along its length, with drifting leaf-flecks peeling off the trail
+        // ELDER THORN — an ancient seed-spear: a glowing amber heartwood core wrapped in gnarled
+        // bark roots that writhe as it flies, trailing sap-gold spores and a fading root tendril
         const angThorn = Math.atan2(pr.vy, pr.vx);
+        const nowT = Date.now();
         pr.trail.forEach((tp,i)=>{
           const fracT = pr.trail.length>1 ? i/(pr.trail.length-1) : 1;
-          if(i%2===0){
-            ctx.save();
-            ctx.globalAlpha = fracT*0.5;
-            ctx.translate(tp.x, tp.y);
-            ctx.rotate(angThorn + Math.sin(tp.x*0.05+i)*0.3);
-            ctx.fillStyle = '#8dff4d';
-            ctx.beginPath();
-            ctx.ellipse(0,0, 2.6, 1.1, 0, 0, Math.PI*2);
-            ctx.fill();
-            ctx.restore();
-          }
+          ctx.save();
+          ctx.globalAlpha = fracT*0.55;
+          ctx.fillStyle = i%3===0 ? '#ffd36b' : (i%3===1 ? '#8dff4d' : '#5a3d22');
+          ctx.shadowColor = i%3===0 ? '#ffd36b' : '#8dff4d';
+          ctx.shadowBlur = 6;
+          ctx.beginPath();
+          ctx.arc(tp.x+Math.sin(i*1.7+nowT/150)*3, tp.y+Math.cos(i*1.3+nowT/170)*3, 1+fracT*1.8, 0, Math.PI*2);
+          ctx.fill();
+          ctx.restore();
         });
-        ctx.globalAlpha = 1;
         ctx.save();
         ctx.translate(pr.x, pr.y);
         ctx.rotate(angThorn);
-        const curl = Math.sin(Date.now()/70 + pr.spin)*0.12;
-        ctx.shadowColor = '#8dff4d';
-        ctx.shadowBlur = 12;
-        // segmented woody shaft with a slight curl, dark bark-green fading to a fresh green tip
-        const shaftGrad = ctx.createLinearGradient(-11,0,8,0);
-        shaftGrad.addColorStop(0,'#2a5a1c');
-        shaftGrad.addColorStop(0.6,'#5fb84c');
-        shaftGrad.addColorStop(1,'#c8f77a');
-        ctx.strokeStyle = shaftGrad;
-        ctx.lineWidth = 3.2;
+        const wr = Math.sin(nowT/60 + pr.spin);
         ctx.lineCap = 'round';
+        ctx.shadowColor = '#ffd36b';
+        ctx.shadowBlur = 14;
+        // two intertwined bark roots forming a braided shaft
+        [1,-1].forEach(sd=>{
+          ctx.strokeStyle = sd>0 ? '#6b4a2a' : '#3f2c18';
+          ctx.lineWidth = 2.6;
+          ctx.beginPath();
+          ctx.moveTo(-16,0);
+          ctx.bezierCurveTo(-10,sd*(4+wr*1.5), -4,-sd*(4+wr*1.5), 4,sd*1.2);
+          ctx.stroke();
+        });
+        // moss veins glowing along the root
+        ctx.strokeStyle = '#8dff4d';
+        ctx.lineWidth = 1;
+        ctx.globalAlpha = 0.85;
         ctx.beginPath();
-        ctx.moveTo(-11,1.5);
-        ctx.quadraticCurveTo(-2, 1.5+curl*20, 8, 0);
+        ctx.moveTo(-15,0);
+        ctx.bezierCurveTo(-9,2.5*wr, -3,-2.5*wr, 5,0);
         ctx.stroke();
-        // thorn barbs jutting off both sides of the shaft
-        ctx.fillStyle = '#e9ffcf';
-        ctx.globalAlpha = 0.95;
-        for(let th=-8; th<=4; th+=4){
-          const tf = (th+8)/12;
-          const bx = th, by = 1.5+curl*20*(1-tf);
-          [1,-1].forEach(side=>{
-            ctx.beginPath();
-            ctx.moveTo(bx,by);
-            ctx.lineTo(bx-2.5, by+side*4);
-            ctx.lineTo(bx+1, by+side*1.2);
-            ctx.closePath();
-            ctx.fill();
-          });
-        }
-        // bright thorn-tip head
-        ctx.beginPath();
-        ctx.moveTo(11,0);
-        ctx.lineTo(3,-3);
-        ctx.lineTo(4,0);
-        ctx.lineTo(3,3);
-        ctx.closePath();
-        ctx.fillStyle = '#ffffff';
         ctx.globalAlpha = 1;
+        // small curled leaves budding off the shaft
+        ctx.fillStyle = '#5fb84c';
+        [[-9,-4],[-5,4]].forEach(([lx,ly])=>{
+          ctx.beginPath();
+          ctx.ellipse(lx,ly,2.8,1.2,ly>0?0.7:-0.7,0,Math.PI*2);
+          ctx.fill();
+        });
+        // bark thorn spearhead
+        ctx.fillStyle = '#e9d9a8';
+        ctx.beginPath();
+        ctx.moveTo(14,0);
+        ctx.lineTo(4,-3.6);
+        ctx.lineTo(6,0);
+        ctx.lineTo(4,3.6);
+        ctx.closePath();
+        ctx.fill();
+        // pulsing amber heartwood core
+        const pulseC = 0.7+0.3*Math.sin(nowT/90);
+        const coreG = ctx.createRadialGradient(2,0,0, 2,0,7);
+        coreG.addColorStop(0,'rgba(255,248,210,'+pulseC.toFixed(2)+')');
+        coreG.addColorStop(0.5,'rgba(255,211,107,0.8)');
+        coreG.addColorStop(1,'rgba(141,255,77,0)');
+        ctx.fillStyle = coreG;
+        ctx.beginPath();
+        ctx.arc(2,0,7,0,Math.PI*2);
         ctx.fill();
         ctx.restore();
       } else if(pr.frostshard){
@@ -18949,6 +19537,7 @@ function runSimulation(f1,f2, netRole, roomCode){
     drawDiodeAura(ctx, p2, p1);
     drawFighter(p1);
     drawFighter(p2);
+    judgmentRays.forEach(jr=> drawJudgmentRay(ctx, jr));
     [p1,p2].forEach(p=>{ if(p.alive && p.cloneHP>0) drawShadowClone(p); });
     drawBismuthLayer(true); // ...and the electric net wires cross over them
 
@@ -19384,6 +19973,7 @@ document.getElementById('rematchBtn').onclick = ()=>{
     lapizlazuli: { icon:'🌊', glyphs:['○','∘','✧'] },        // อัญมณีแห่งน้ำท้องทะเล
     techno:      { icon:'⚙️', glyphs:['▮','▯','◆'] },
     icecream:    { icon:'🍦', glyphs:['●','◆','✦'], dur:2.0 },  // secret code-only reward
+    seraph:      { icon:'👼', glyphs:['✦','✧','❋','·'] },       // LEGENDARY — angel, halo + feathers of light
   };
   // the cutscene's centerpiece isn't a flat emoji — it's a small built "skill visual" evoking
   // what that character actually does (COSMOS's EVENT HORIZON black hole, LOVE's heartbeat,
@@ -19414,6 +20004,12 @@ document.getElementById('rematchBtn').onclick = ()=>{
       <div class="csv-cone"></div>
       <div class="csv-scoop"></div>
       <div class="csv-sprinkles"><span></span><span></span><span></span><span></span><span></span></div>`,
+    seraph: `
+      <div class="csv-wing l"></div>
+      <div class="csv-wing r"></div>
+      <div class="csv-core seraph"></div>
+      <div class="csv-halo"></div>
+      <div class="csv-feathers"><span></span><span></span><span></span><span></span><span></span></div>`,
   };
   function spawnThemeParticles(el, theme){
     const layer = el.querySelector('.g10-theme-fx');
@@ -19439,7 +20035,7 @@ document.getElementById('rematchBtn').onclick = ()=>{
     csIcon.innerHTML = CS_ICON_MARKUP[id] || '';
     const def = ELEMENTS.find(e=>e.id===id);
     csName.textContent = (def && def.name) ? def.name : id.toUpperCase();
-    csTag.textContent = (def && def.rarity==='secret') ? 'SECRET' : 'LEGENDARY';
+    csTag.textContent = (def && def.rarity==='secret') ? 'SECRET' : ((def && def.rarity==='mythical') ? 'MYTHICAL' : 'LEGENDARY');
     void cutscene.offsetWidth;
     cutscene.classList.add('on');
     skipBtn.textContent = 'แตะเพื่อข้าม';

@@ -2,8 +2,9 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>ARENA OF BALL // GEMS UPDATE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
   @font-face {
     font-family: 'PixelBody';
@@ -2888,6 +2889,273 @@
 [style*="background:#f5a8ff"]{
   background:conic-gradient(from 30deg,#ff6fae,#ffd23f,#7dffb0,#4dc7ff,#b58aff,#ff6fae) !important;
 }
+
+/* =====================================================================
+   UI REFRESH — "Neon Dark" design layer. Appended last so it restyles every screen
+   without touching game logic. Tokens first, then components, then screens.
+   ===================================================================== */
+:root{
+  --bg:#06070d;
+  --bg2:#0b0d18;
+  --panel:#0f1220;
+  --panel2:#151933;
+  --card:rgba(255,255,255,0.035);
+  --line:rgba(255,255,255,0.10);
+  --line-bright:#eef1ff;
+  --dim:#8d93b3;
+  --accent1:#ff5c8a;
+  --accent2:#4fd1ff;
+  --accent-tech:#33ffcf;
+  --gold:#ffd23f;
+  --r-sm:10px; --r-md:14px; --r-lg:20px;
+  --shadow:0 12px 32px -14px rgba(0,0,0,0.8);
+  --ui-font:'Kanit','Noto Sans Thai','Sarabun','Segoe UI',system-ui,-apple-system,sans-serif;
+  --tap:46px;
+}
+html{ -webkit-text-size-adjust:100%; }
+body{
+  font-family:var(--ui-font);
+  font-size:16px; line-height:1.5;
+  letter-spacing:0;
+  padding:0 14px calc(40px + env(safe-area-inset-bottom));
+  background:var(--bg);
+}
+body::before{
+  background:
+    radial-gradient(700px 420px at 10% -5%, rgba(79,209,255,0.13), transparent 60%),
+    radial-gradient(640px 420px at 95% 105%, rgba(255,92,138,0.11), transparent 60%),
+    radial-gradient(500px 380px at 50% 40%, rgba(160,110,255,0.06), transparent 70%);
+}
+.scan{ display:none; }
+button, input, select, textarea{ font-family:var(--ui-font); }
+::-webkit-scrollbar{ width:8px; height:8px; }
+::-webkit-scrollbar-thumb{ background:rgba(255,255,255,0.14); border-radius:8px; }
+::-webkit-scrollbar-track{ background:transparent; }
+
+/* ---------- header / title ---------- */
+.gems-update-badge{ margin-top:14px; font-size:0.7rem; letter-spacing:2px; }
+.gems-divider{ opacity:0.5; margin:6px 0; }
+.title{
+  font-size:clamp(1.5rem,6vw,2.1rem); letter-spacing:3px; font-weight:800;
+  margin:4px 0 2px; text-align:center;
+}
+.subtitle{ font-size:0.86rem; letter-spacing:0.5px; color:var(--dim); text-align:center; margin-bottom:12px; }
+
+/* ---------- sticky currency bar ---------- */
+.currency-bar{
+  position:sticky; top:0; z-index:40;
+  width:calc(100% + 28px); max-width:none;
+  margin:0 -14px 16px;
+  padding:10px 14px;
+  display:flex; flex-wrap:wrap; justify-content:center; gap:8px;
+  background:rgba(8,10,20,0.78);
+  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+}
+.gems-badge, .gold-badge, .gear-badge, .crystal-badge{
+  font-size:0.9rem !important; letter-spacing:0 !important;
+  padding:6px 14px !important; border-radius:99px; min-height:34px;
+}
+
+/* ---------- layout containers ---------- */
+.wrap{ max-width:720px; }
+@media (min-width:900px){ .wrap{ max-width:760px; } body{ padding-left:24px; padding-right:24px; } }
+
+/* ---------- section boxes (menu cards) ---------- */
+.section-box{
+  background:linear-gradient(160deg, rgba(255,255,255,0.055), rgba(255,255,255,0.015));
+  border:1px solid var(--line); border-radius:var(--r-lg);
+  padding:18px; margin-bottom:16px; box-shadow:var(--shadow);
+}
+.section-box:hover{ transform:none; border-color:rgba(79,209,255,0.35); box-shadow:var(--shadow), 0 0 28px -16px rgba(79,209,255,0.6); }
+.section-head{ align-items:flex-start; margin-bottom:12px; gap:10px; }
+.section-head .t{ font-size:1.08rem; letter-spacing:0.3px; font-weight:700; }
+.section-head .d{ font-size:0.82rem; color:var(--dim); letter-spacing:0; line-height:1.5; margin-top:4px; }
+.campaign-cta{ border-color:rgba(79,209,255,0.4); background:linear-gradient(150deg, rgba(79,209,255,0.14), rgba(160,110,255,0.06)); }
+.event-cta{ border-color:rgba(51,255,207,0.35); }
+.gems-cta{ border-color:rgba(224,139,255,0.4); }
+
+/* ---------- buttons ---------- */
+.btn{
+  min-height:var(--tap); padding:13px 16px;
+  border-radius:var(--r-md);
+  font-size:0.98rem; font-weight:700; letter-spacing:0.4px; text-transform:none;
+  background:linear-gradient(135deg, #5fdcff, #8f7bff);
+  color:#05060f; border:none;
+  box-shadow:0 8px 22px -8px rgba(95,150,255,0.7);
+}
+.btn:hover{ filter:brightness(1.08); transform:translateY(-1px); box-shadow:0 12px 26px -8px rgba(95,150,255,0.85); }
+.btn:active{ transform:scale(0.98); }
+.btn.ghost{
+  background:rgba(255,255,255,0.05); color:var(--line-bright);
+  border:1px solid var(--line); box-shadow:none;
+}
+.btn.ghost:hover{ background:rgba(255,255,255,0.09); border-color:rgba(79,209,255,0.55); box-shadow:none; }
+.btn.ghost.small{
+  min-height:var(--tap); padding:10px 10px; font-size:0.86rem; letter-spacing:0;
+  border-radius:var(--r-md); font-weight:600;
+}
+.btn.ghost.small:hover{ border-color:var(--accent2); }
+.btn:disabled{ opacity:0.45; cursor:not-allowed; filter:none; transform:none; }
+.btn:focus-visible, .elem-btn:focus-visible, .char-card:focus-visible{ outline:2px solid var(--accent2); outline-offset:2px; }
+.gacha-row, .online-row{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px; }
+.gacha-row .btn, .online-row .btn{ margin-top:0; }
+.x10-btn{ border-color:rgba(255,210,63,0.4) !important; color:var(--gold) !important; }
+.hint{ font-size:0.8rem; letter-spacing:0; color:var(--dim); line-height:1.6; margin-top:12px; }
+#startBtn{ margin-top:6px; }
+
+.gacha-row .btn.ghost.small, .online-row .btn.ghost.small{ flex:1 1 calc(50% - 8px); }
+.online-status{ min-height:0; margin-bottom:0; }
+.online-status:empty{ display:none; }
+.menu-fx{ display:none !important; }
+/* ---------- fighter cards ---------- */
+.fighter-card{
+  border-radius:var(--r-lg); padding:22px 16px 18px; margin:22px 0 16px;
+  background:linear-gradient(165deg, rgba(255,255,255,0.055), rgba(255,255,255,0.012));
+  border:1px solid var(--line); border-left-width:4px; box-shadow:var(--shadow);
+}
+.fighter-card::before{
+  top:-12px; left:16px; padding:2px 12px; font-size:0.78rem; letter-spacing:1px; font-weight:700;
+  background:var(--bg2); border:1px solid var(--line); border-radius:99px;
+}
+label{ font-size:0.8rem; letter-spacing:0; color:var(--dim); margin:4px 0 8px; text-transform:none; }
+input[type=text], .wh-select, #redeemInput, .room-modal-body input{
+  min-height:var(--tap); padding:10px 14px; font-size:1rem; letter-spacing:0;
+  background:rgba(0,0,0,0.45); border:1px solid var(--line); border-radius:var(--r-md);
+}
+input[type=text]:focus{ border-color:var(--accent2); box-shadow:0 0 0 3px rgba(79,209,255,0.18); }
+.vs-divider{ font-size:0.9rem; letter-spacing:6px; font-weight:800; color:var(--dim); margin:6px 0; }
+
+/* element picker grid */
+.elem-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(86px,1fr)); gap:8px; }
+.elem-group-header{ grid-column:1/-1; font-size:0.82rem; letter-spacing:0.5px; font-weight:700; color:var(--dim); margin:10px 0 2px; }
+.elem-btn{
+  min-height:68px; padding:10px 4px; border-radius:var(--r-md);
+  background:rgba(255,255,255,0.035); font-size:0.8rem;
+}
+.elem-btn .en{ font-size:0.8rem; letter-spacing:0.2px; }
+.elem-btn .dot{ width:18px; height:18px; margin-bottom:6px; }
+.elem-btn.sel{ background:rgba(255,255,255,0.09); }
+.elem-detail{ font-size:0.86rem; line-height:1.65; letter-spacing:0; border-radius:var(--r-md); }
+.stat-row .lbl, .stat-row .num{ font-size:0.8rem; }
+.stat-row .track{ height:8px; border-radius:6px; }
+.roll-btn{ font-size:0.8rem; min-height:34px; padding:4px 12px; border-radius:99px; }
+
+/* ---------- stage rows / maps / quests ---------- */
+.stage-row, .event-stage-row, .quest-card, .event-buy-card, .exchange-row, .map-card{
+  border-radius:var(--r-md); padding:14px; background:var(--card);
+}
+.stage-name{ font-size:1rem; letter-spacing:0; }
+.stage-reward, .stage-enemies, .stage-locked-msg, .esr-sub, .quest-card .qc-desc,
+.quest-card .qc-reward, .map-card-sub, .world-path-flavor{ font-size:0.82rem !important; letter-spacing:0 !important; }
+.esr-name{ font-size:0.98rem; }
+.stage-enter-btn{ min-height:var(--tap); font-size:0.9rem; border-radius:var(--r-md); }
+.map-grid{ gap:12px; }
+.map-card-name{ font-size:1rem; letter-spacing:0; }
+.stage-node-circle{ min-width:48px; min-height:48px; }
+.team-pick-grid, .char-grid, .starter-grid{ gap:10px; }
+.team-pick-card, .char-card, .starter-card, .item-card{ border-radius:var(--r-md); }
+.char-card .cc-name, .team-pick-card .en, .starter-card .en{ font-size:0.84rem; letter-spacing:0; }
+.char-card .cc-lv, .char-card .cc-stars, .team-pick-card .th, .starter-card .th, .starter-card .desc,
+.item-card .ic-name, .item-card .ic-qty{ font-size:0.76rem; letter-spacing:0; }
+.event-tabs .btn, .wh-tab{ min-height:var(--tap); }
+.online-status{ font-size:0.86rem; letter-spacing:0; }
+.rate-row, .rate-label, .rate-pct, .roster-name, .roster-lv, .roster-row-sub,
+.inv-row-name, .inv-row-sub, .lr-name, .lr-elem, .lr-record, .wh-summary, .wh-chip{ font-size:0.84rem !important; letter-spacing:0 !important; }
+.wh-chip{ min-height:36px; border-radius:99px; }
+.roster-row, .inv-row, .list-row, .rate-panel{ border-radius:var(--r-md); }
+
+/* ---------- modals ---------- */
+.list-modal{ background:rgba(3,4,10,0.78); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); }
+.list-modal-card{
+  max-width:520px; max-height:86vh; border-radius:var(--r-lg);
+  background:linear-gradient(170deg, var(--panel2), var(--panel));
+  border:1px solid rgba(255,255,255,0.14); box-shadow:0 30px 80px -20px rgba(0,0,0,0.9);
+}
+.list-modal-head{ padding:14px 16px; font-size:1.05rem; font-weight:700; letter-spacing:0.2px; }
+.list-modal-head button{
+  width:38px; height:38px; border-radius:50%; font-size:1rem; color:var(--line-bright);
+  background:rgba(255,255,255,0.08);
+}
+.list-modal-head button:hover{ background:rgba(255,92,138,0.35); }
+.list-modal-body{ padding:12px; }
+
+/* ---------- starter screen ---------- */
+.starter-wrap{ max-width:720px; }
+.starter-wrap .title{ font-size:1.5rem; }
+
+/* ---------- battle screen ---------- */
+.battle-wrap{ max-width:min(560px, calc((100dvh - 250px) * 0.75 + 40px)); min-width:min(100%,340px); padding-top:12px; }
+.vs-header{ font-size:1.05rem; letter-spacing:1px; font-weight:800; margin-bottom:10px; text-transform:none; }
+.vs-header .vs{ font-size:0.8rem; padding:3px 10px; border:1px solid var(--line); border-radius:99px; letter-spacing:2px; }
+#arena{
+  border:1px solid rgba(255,255,255,0.18); border-radius:var(--r-lg);
+  box-shadow:0 0 0 1px rgba(0,0,0,0.6), 0 18px 50px -14px rgba(0,0,0,0.85), 0 0 36px -16px rgba(79,209,255,0.55);
+}
+.hpbars{ gap:14px; margin-top:12px; }
+.hpname{ font-size:0.9rem; letter-spacing:0; text-transform:none; margin-bottom:6px; }
+.hptrack{ height:14px; border-radius:99px; background:rgba(255,255,255,0.07); }
+.hpfill{ border-radius:99px; }
+.skill-bar{ gap:22px; margin-top:14px; }
+.skbtn{ width:72px; height:72px; font-size:0.74rem; border-width:2px; }
+.skbtn.a, .skbtn.b{ width:96px; height:96px; font-size:0.72rem; }
+.skbtn span{ font-size:0.72rem; letter-spacing:0; line-height:1.2; }
+.skbtn .cd-num{ font-size:1.2rem; }
+.skill-info{ gap:10px; flex-wrap:wrap; }
+.skill-info .col{ font-size:0.8rem; line-height:1.55; border-radius:var(--r-md); padding:10px 12px; background:var(--card); min-width:150px; }
+.log{ height:92px; font-size:0.82rem; border-radius:var(--r-md); padding:10px 12px; background:rgba(0,0,0,0.3); }
+.result .win{ font-size:1.5rem; letter-spacing:1px; text-transform:none; }
+.btnrow{ gap:10px; flex-wrap:wrap; }
+.btnrow .btn{ flex:1 1 140px; }
+
+/* during a fight, drop the page header so the arena + HUD fit on one phone screen */
+body:has(#battleScreen[style*="block"]) > .gems-update-badge,
+body:has(#battleScreen[style*="block"]) > .gems-divider,
+body:has(#battleScreen[style*="block"]) > .title,
+body:has(#battleScreen[style*="block"]) > .subtitle,
+body:has(#battleScreen[style*="block"]) > .currency-bar{ display:none; }
+body:has(#battleScreen[style*="block"]){ padding-top:10px; }
+/* ---------- mini-games + misc touch targets ---------- */
+.hack-node, .spot-tile, .gust-btn, .mash-tap-btn{ min-height:56px; border-radius:var(--r-md); }
+.control-toggle{ font-size:0.9rem; min-height:var(--tap); }
+
+/* ---------- gentle entrance + reduced motion ---------- */
+.wrap > *, .starter-wrap > *{ animation:uiRise .35s ease both; }
+@keyframes uiRise{ from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:none; } }
+@media (prefers-reduced-motion:reduce){ *{ animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; } }
+
+/* ---------- small phones ---------- */
+@media (max-width:380px){
+  body{ padding-left:10px; padding-right:10px; }
+  .currency-bar{ width:calc(100% + 20px); margin-left:-10px; margin-right:-10px; }
+  .elem-grid{ grid-template-columns:repeat(auto-fill,minmax(76px,1fr)); }
+  .section-head .t{ font-size:1rem; }
+}
+
+/* ---------- icon kit (SVG emblems) ---------- */
+svg.ic{ display:block; width:100%; height:100%; overflow:visible; }
+.dot.ic-dot, .cc-dot, .wh-detail-dot{ background:none !important; box-shadow:none !important; border-radius:0 !important; }
+.dot.ic-dot svg, .cc-dot svg, .wh-detail-dot svg{ filter:drop-shadow(0 0 6px currentColor); }
+.elem-btn .dot.ic-dot{ width:30px; height:30px; margin:0 auto 4px; }
+.starter-card .dot.ic-dot, .team-pick-card .dot.ic-dot{ width:44px; height:44px; margin:0 auto 6px; }
+.event-buy-card .dot.ic-dot{ width:38px; height:38px; margin:0 auto 6px; }
+.char-card .cc-dot{ width:44px; height:44px; margin:0 auto 8px; }
+.wh-detail-dot{ width:84px; height:84px; margin:0 auto 10px; }
+.item-chip .ico{ width:70%; height:70%; display:flex; align-items:center; justify-content:center; font-size:0; filter:drop-shadow(0 0 3px rgba(0,0,0,0.6)); }
+.item-chip{ width:44px; height:44px; }
+.item-chip.shape-diamond .ico, .item-chip.shape-diamond .ico svg{ }
+.item-card .ic-ico{ width:46px; height:46px; margin:0 auto 4px; font-size:0; filter:drop-shadow(0 0 6px currentColor); }
+.wh-detail-ico{ width:92px; height:92px; margin:0 auto 10px; font-size:0; filter:drop-shadow(0 0 10px currentColor); }
+.cc-item-badge{ width:20px; height:20px; font-size:0 !important; }
+/* gacha reveal cards */
+.g10-dot.ic{ width:46px; height:46px; border-radius:0; background:none !important; box-shadow:none; clip-path:none; transform:none; margin:2px 0; font-size:0; filter:drop-shadow(0 0 8px var(--rg)); }
+@media (min-width:480px){ .g10-dot.ic{ width:58px; height:58px; } }
+.g10-grid.single .g10-dot.ic{ width:112px; height:112px; margin:6px 0 10px; animation:icFloat 2.8s ease-in-out infinite; }
+@keyframes icFloat{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-4px); } }
+.g10-card.t4.flipped .g10-dot.ic, .g10-card.t5.flipped .g10-dot.ic{ filter:drop-shadow(0 0 12px var(--rg)) drop-shadow(0 0 4px var(--rc)); }
+
+/* tap-heavy mini-game controls: no double-tap zoom / text selection while mashing */
+.mash-tap-btn, .reaction-zone, .hack-node, .gust-btn, .heartbeat-icon, .node-dot, .spot-tile, .skbtn, #bgAlignBtn{ touch-action:manipulation; -webkit-user-select:none; user-select:none; -webkit-tap-highlight-color:transparent; }
 </style>
 </head>
 <body>
@@ -3288,6 +3556,151 @@ function openLeaderboard(){
   });
 }
 
+/* ================= ICON KIT — hand-drawn SVG emblems for items + characters =================
+   itemIconSVG(idef, {medal})  → glyph (or glyph inside a rarity medallion) for any ITEM_DEFS entry
+   charIconSVG(id, color, {medal}) → element emblem orb for any ELEMENTS id
+   Pure string builders (no DOM), so they can be dropped into any innerHTML template. */
+const IconKit = (()=>{
+  let uid = 0;
+  const hex = c=>{ c=String(c||'#888888').replace('#',''); if(c.length===3) c=c.split('').map(x=>x+x).join(''); return [0,2,4].map(i=>parseInt(c.substr(i,2),16)||0); };
+  const mix = (c,t,a)=>{ const x=hex(c), y=hex(t); return '#'+x.map((v,i)=>Math.round(v+(y[i]-v)*a).toString(16).padStart(2,'0')).join(''); };
+  const lighten = c=>mix(c,'#ffffff',0.55), darken = c=>mix(c,'#000000',0.55);
+  // each glyph draws in a 48x48 box. p = {F:fill(url), C:base, L:light, D:dark}
+  const S = p=>`stroke="${p.D}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"`;
+  const GLYPH = {
+    sword: p=>`<path d="M24 3 L29 9 V30 L24 35 L19 30 V9 Z" fill="${p.F}" ${S(p)}/><path d="M24 6 V32" stroke="#fff" stroke-opacity=".55" stroke-width="1.6"/><rect x="12" y="31" width="24" height="5" rx="2.5" fill="${p.L}" ${S(p)}/><rect x="21.5" y="36" width="5" height="8" rx="2" fill="${p.D}"/><circle cx="24" cy="45" r="2.2" fill="${p.L}"/>`,
+    fangs: p=>`<path d="M9 7 Q7 28 22 42 Q18 24 22 9 Z" fill="${p.F}" ${S(p)}/><path d="M39 7 Q41 28 26 42 Q30 24 26 9 Z" fill="${p.F}" ${S(p)}/><path d="M12 12 Q12 24 19 34" stroke="#fff" stroke-opacity=".5" stroke-width="1.5" fill="none"/>`,
+    fist: p=>`<rect x="11" y="19" width="26" height="21" rx="7" fill="${p.F}" ${S(p)}/><circle cx="16" cy="19" r="4.6" fill="${p.F}" ${S(p)}/><circle cx="24" cy="17.5" r="4.8" fill="${p.F}" ${S(p)}/><circle cx="32" cy="19" r="4.6" fill="${p.F}" ${S(p)}/><rect x="14" y="40" width="20" height="5" rx="2" fill="${p.D}"/><path d="M15 27 H33" stroke="#fff" stroke-opacity=".45" stroke-width="1.5"/>`,
+    wing: p=>`<path d="M5 36 Q7 14 30 6 Q24 13 27 17 Q34 12 43 13 Q34 18 34 22 Q40 22 44 25 Q33 28 31 32 Q35 34 37 39 Q22 39 5 36 Z" fill="${p.F}" ${S(p)}/><path d="M10 32 Q18 20 32 12" stroke="#fff" stroke-opacity=".5" stroke-width="1.5" fill="none"/>`,
+    shield: p=>`<path d="M24 4 L40 10 V24 Q40 37 24 45 Q8 37 8 24 V10 Z" fill="${p.F}" ${S(p)}/><path d="M24 10 L34 14 V24 Q34 32 24 38 Z" fill="#fff" fill-opacity=".22"/><path d="M24 14 V34 M16 22 H32" stroke="${p.D}" stroke-width="2" stroke-opacity=".7"/>`,
+    bubble: p=>`<circle cx="24" cy="24" r="18" fill="${p.F}" fill-opacity=".55" ${S(p)}/><circle cx="24" cy="24" r="12" fill="none" stroke="${p.L}" stroke-width="1.5" stroke-opacity=".8"/><path d="M14 17 Q17 10 25 9" stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none" stroke-opacity=".8"/>`,
+    leaf: p=>`<path d="M8 40 Q6 12 40 7 Q42 38 12 42 Z" fill="${p.F}" ${S(p)}/><path d="M10 40 Q24 24 38 10" stroke="${p.D}" stroke-width="2" fill="none"/><path d="M20 30 L22 22 M27 24 L30 18" stroke="${p.D}" stroke-width="1.5"/>`,
+    sprout: p=>`<path d="M24 44 V24" stroke="${p.D}" stroke-width="3.5" stroke-linecap="round"/><path d="M24 26 Q8 26 7 10 Q22 8 24 24 Z" fill="${p.F}" ${S(p)}/><path d="M24 22 Q40 22 41 6 Q26 4 24 20 Z" fill="${p.F}" ${S(p)}/>`,
+    flower: p=>`${[0,72,144,216,288].map(a=>`<ellipse cx="24" cy="12" rx="6.5" ry="10" transform="rotate(${a} 24 24)" fill="${p.F}" ${S(p)}/>`).join('')}<circle cx="24" cy="24" r="6" fill="#ffe27a" stroke="${p.D}" stroke-width="1.4"/>`,
+    rose: p=>`<path d="M24 12 Q10 14 11 28 Q13 42 24 42 Q35 42 37 28 Q38 14 24 12 Z" fill="${p.F}" ${S(p)}/><path d="M24 16 Q16 20 19 30 Q24 34 29 28 Q30 22 24 20 Q21 22 22 26" stroke="${p.D}" stroke-width="1.8" fill="none"/><path d="M22 42 Q18 46 12 45 Q16 40 22 41Z" fill="#5fb84c" stroke="${p.D}" stroke-width="1.2"/><path d="M12 14 L8 8 L17 11Z M36 14 L40 8 L31 11Z" fill="${p.L}"/>`,
+    ring: p=>`<circle cx="24" cy="29" r="13" fill="none" stroke="${p.F}" stroke-width="6"/><circle cx="24" cy="29" r="13" fill="none" stroke="${p.D}" stroke-width="1.2" stroke-opacity=".6"/><path d="M24 4 L32 11 L24 19 L16 11 Z" fill="#fff" fill-opacity=".92" stroke="${p.D}" stroke-width="1.4"/><path d="M16 11 H32" stroke="${p.C}" stroke-width="1"/>`,
+    coin: p=>`<circle cx="24" cy="24" r="19" fill="${p.F}" ${S(p)}/><circle cx="24" cy="24" r="14" fill="none" stroke="${p.D}" stroke-width="1.5" stroke-opacity=".7"/><path d="M24 12 L27 21 H36 L29 26.5 L31.5 35 L24 30 L16.5 35 L19 26.5 L12 21 H21 Z" fill="#fff" fill-opacity=".75"/>`,
+    thorn: p=>`<path d="M6 42 Q14 20 24 4 Q22 22 26 42 Z" fill="${p.F}" ${S(p)}/><path d="M26 42 Q31 28 41 18 Q38 32 42 42 Z" fill="${p.F}" ${S(p)}/><path d="M6 42 H42" stroke="${p.D}" stroke-width="3" stroke-linecap="round"/><path d="M16 30 Q20 18 24 9" stroke="#fff" stroke-opacity=".5" stroke-width="1.4" fill="none"/>`,
+    swirl: p=>`<path d="M24 24 m0 -3 a3 3 0 1 1 -3 3 a7 7 0 1 1 7 7 a12 12 0 1 1 -12 -12 a17 17 0 0 1 17 -17" fill="none" stroke="${p.F}" stroke-width="5" stroke-linecap="round"/><path d="M24 24 m0 -3 a3 3 0 1 1 -3 3 a7 7 0 1 1 7 7 a12 12 0 1 1 -12 -12 a17 17 0 0 1 17 -17" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="1.5" stroke-linecap="round"/>`,
+    fang: p=>`<path d="M14 6 H34 Q36 24 24 44 Q12 24 14 6 Z" fill="#fff" fill-opacity=".92" ${S(p)}/><path d="M24 44 Q20 28 20 10" stroke="${p.C}" stroke-width="2" fill="none" stroke-opacity=".5"/><path d="M24 30 Q30 34 26 41 Q22 35 24 30Z" fill="${p.F}"/>`,
+    maw: p=>`<path d="M5 14 Q24 2 43 14 L43 22 H5 Z" fill="${p.D}" ${S(p)}/>${[8,15,22,29,36].map(x=>`<path d="M${x} 20 L${x+3.5} 31 L${x+7} 20 Z" fill="#fff" stroke="${p.D}" stroke-width="1"/>`).join('')}<path d="M5 34 Q24 46 43 34 L43 28 H5 Z" fill="${p.D}" ${S(p)}/>${[10,18,26,33].map(x=>`<path d="M${x} 29 L${x+3.5} 20 L${x+7} 29 Z" fill="#fff" stroke="${p.D}" stroke-width="1" transform="translate(0 4)"/>`).join('')}`,
+    crystal: p=>`<path d="M24 3 L40 17 L24 45 L8 17 Z" fill="${p.F}" ${S(p)}/><path d="M8 17 H40 M24 3 L17 17 L24 45 M24 3 L31 17 L24 45" stroke="${p.D}" stroke-width="1.3" stroke-opacity=".7" fill="none"/><path d="M24 3 L17 17 L24 17 Z" fill="#fff" fill-opacity=".45"/>`,
+    eye: p=>`<path d="M3 24 Q24 4 45 24 Q24 44 3 24 Z" fill="#fff" fill-opacity=".92" ${S(p)}/><circle cx="24" cy="24" r="10" fill="${p.F}" ${S(p)}/><circle cx="24" cy="24" r="4.6" fill="${p.D}"/><circle cx="20.5" cy="20.5" r="2.4" fill="#fff"/>`,
+    monocle: p=>`<circle cx="22" cy="21" r="15" fill="${p.F}" fill-opacity=".35" stroke="${p.F}" stroke-width="4"/><circle cx="22" cy="21" r="15" fill="none" ${S(p)}/><path d="M16 14 Q19 10 24 10" stroke="#fff" stroke-width="2.6" stroke-linecap="round" fill="none"/><path d="M33 33 Q38 40 36 45" stroke="${p.L}" stroke-width="2.4" fill="none" stroke-linecap="round"/><circle cx="36" cy="45" r="1.8" fill="${p.L}"/>`,
+    flame: p=>`<path d="M24 3 Q35 15 36 28 Q37 43 24 45 Q11 43 12 30 Q12 21 19 14 Q19 23 24 25 Q29 17 24 3 Z" fill="${p.F}" ${S(p)}/><path d="M24 45 Q16 42 17 34 Q18 28 24 24 Q31 29 31 35 Q31 43 24 45 Z" fill="#fff" fill-opacity=".5"/>`,
+    feather: p=>`<path d="M40 5 Q9 9 9 38 L14 43 Q16 30 22 26 Q30 21 40 5 Z" fill="${p.F}" ${S(p)}/><path d="M12 41 Q22 24 38 8" stroke="${p.D}" stroke-width="1.8" fill="none"/><path d="M20 28 L16 24 M26 22 L22 17 M32 16 L29 11" stroke="${p.D}" stroke-width="1.2" stroke-opacity=".7"/>`,
+    sparkle: p=>`<path d="M24 2 Q27 21 46 24 Q27 27 24 46 Q21 27 2 24 Q21 21 24 2 Z" fill="${p.F}" ${S(p)}/><path d="M38 6 Q39 11 44 12 Q39 13 38 18 Q37 13 32 12 Q37 11 38 6 Z" fill="#fff" fill-opacity=".9"/><circle cx="24" cy="24" r="3" fill="#fff"/>`,
+    mirror: p=>`<ellipse cx="24" cy="20" rx="13" ry="17" fill="${p.F}" fill-opacity=".4" stroke="${p.L}" stroke-width="4"/><ellipse cx="24" cy="20" rx="13" ry="17" fill="none" ${S(p)}/><path d="M16 14 L26 8 M15 22 L30 12" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-opacity=".85"/><rect x="21" y="37" width="6" height="8" rx="2.5" fill="${p.L}" ${S(p)}/>`,
+    crown: p=>`<path d="M5 35 L8 12 L18 23 L24 8 L30 23 L40 12 L43 35 Z" fill="${p.F}" ${S(p)}/><rect x="5" y="35" width="38" height="7" rx="2.5" fill="${p.L}" ${S(p)}/><circle cx="8" cy="10" r="3" fill="#fff"/><circle cx="24" cy="6" r="3.2" fill="#fff"/><circle cx="40" cy="10" r="3" fill="#fff"/><circle cx="24" cy="29" r="3.4" fill="#ff5c8a" stroke="${p.D}" stroke-width="1"/>`,
+    charm: p=>`<circle cx="24" cy="24" r="19" fill="${p.F}" ${S(p)}/><circle cx="24" cy="24" r="13" fill="#fff" fill-opacity=".95"/><circle cx="24" cy="24" r="8" fill="#4da6ff" stroke="${p.D}" stroke-width="1.2"/><circle cx="24" cy="24" r="3.6" fill="#0b1633"/>`,
+    link: p=>`<rect x="4" y="15" width="24" height="16" rx="8" transform="rotate(-35 16 23)" fill="none" stroke="${p.F}" stroke-width="5.5"/><rect x="20" y="17" width="24" height="16" rx="8" transform="rotate(-35 32 25)" fill="none" stroke="${p.L}" stroke-width="5.5"/><rect x="4" y="15" width="24" height="16" rx="8" transform="rotate(-35 16 23)" fill="none" stroke="${p.D}" stroke-width="1" stroke-opacity=".6"/>`,
+    comet: p=>`<path d="M30 18 L36 4 L42 18 L46 22 L38 24 L34 36 L30 26 L20 24 L28 22 Z" fill="${p.F}" ${S(p)}/><path d="M26 22 L4 38 M28 26 L10 44 M24 20 L2 28" stroke="${p.L}" stroke-width="2.6" stroke-linecap="round" stroke-opacity=".8"/>`,
+    chalice: p=>`<path d="M10 6 H38 Q39 26 27 29 V37 H34 V43 H14 V37 H21 V29 Q9 26 10 6 Z" fill="${p.F}" ${S(p)}/><path d="M12 12 H36" stroke="#ff3d5c" stroke-width="5" stroke-opacity=".85"/><path d="M15 8 Q15 20 21 25" stroke="#fff" stroke-opacity=".5" stroke-width="1.6" fill="none"/>`,
+    heart: p=>`<path d="M24 43 C5 29 4 12 15 9 C20 8 24 13 24 13 C24 13 28 8 33 9 C44 12 43 29 24 43 Z" fill="${p.F}" ${S(p)}/><path d="M12 15 Q13 11 17 11" stroke="#fff" stroke-width="2.6" stroke-linecap="round" fill="none" stroke-opacity=".8"/>`,
+    kit: p=>`<rect x="6" y="14" width="36" height="28" rx="6" fill="${p.F}" ${S(p)}/><path d="M17 14 V10 Q17 6 21 6 H27 Q31 6 31 10 V14" fill="none" stroke="${p.D}" stroke-width="2.4"/><rect x="21" y="20" width="6" height="16" rx="1.5" fill="#fff"/><rect x="16" y="25" width="16" height="6" rx="1.5" fill="#fff"/>`,
+    chip: p=>`${[13,21,29].map(x=>`<rect x="${x}" y="3" width="4" height="8" rx="1" fill="${p.L}"/><rect x="${x}" y="37" width="4" height="8" rx="1" fill="${p.L}"/><rect x="3" y="${x}" width="8" height="4" rx="1" fill="${p.L}"/><rect x="37" y="${x}" width="8" height="4" rx="1" fill="${p.L}"/>`).join('')}<rect x="10" y="10" width="28" height="28" rx="5" fill="${p.F}" ${S(p)}/><rect x="17" y="17" width="14" height="14" rx="2.5" fill="${p.D}" fill-opacity=".75"/><circle cx="24" cy="24" r="3" fill="#fff"/>`,
+    bolt: p=>`<path d="M29 2 L9 27 H22 L18 46 L39 19 H26 Z" fill="${p.F}" ${S(p)}/><path d="M28 6 L14 25" stroke="#fff" stroke-opacity=".55" stroke-width="1.8" stroke-linecap="round"/>`,
+    // ---- GEMS characters: six distinct cuts instead of one recolored diamond
+    gem_emerald: p=>`<path d="M14 5 H34 L43 14 V34 L34 43 H14 L5 34 V14 Z" fill="${p.F}" ${S(p)}/><path d="M17 12 H31 L36 17 V31 L31 36 H17 L12 31 V17 Z" fill="#fff" fill-opacity=".2" stroke="${p.D}" stroke-width="1.3"/><path d="M20 18 H28 L30 20 V28 L28 30 H20 L18 28 V20 Z" fill="${p.D}" fill-opacity=".5" stroke="${p.L}" stroke-width="1"/><path d="M14 5 L17 12 M34 5 L31 12 M43 14 L36 17 M43 34 L36 31 M34 43 L31 36 M14 43 L17 36 M5 34 L12 31 M5 14 L12 17" stroke="${p.D}" stroke-width="1.1" stroke-opacity=".8"/><path d="M9 12 L15 7" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-opacity=".8"/>`,
+    gem_topaz: p=>`<circle cx="24" cy="24" r="20" fill="${p.F}" ${S(p)}/><polygon points="${Array.from({length:16},(_,i)=>{const a=i*Math.PI/8-Math.PI/2,r=i%2?12.5:19;return (24+r*Math.cos(a)).toFixed(1)+','+(24+r*Math.sin(a)).toFixed(1);}).join(' ')}" fill="#fff" fill-opacity=".22" stroke="${p.D}" stroke-width="1.2"/><polygon points="${Array.from({length:8},(_,i)=>{const a=i*Math.PI/4+Math.PI/8;return (24+8*Math.cos(a)).toFixed(1)+','+(24+8*Math.sin(a)).toFixed(1);}).join(' ')}" fill="${p.L}" fill-opacity=".9" stroke="${p.D}" stroke-width="1.2"/><path d="M12 12 L17 8" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>`,
+    gem_amethyst: p=>`<g transform="rotate(-16 11 44)"><path d="M3 30 L9 16 L15 30 V45 H3 Z" fill="${p.F}" ${S(p)}/><path d="M9 16 L15 30 V45 H9 Z" fill="#000" fill-opacity=".22"/></g><g transform="rotate(15 38 44)"><path d="M31 32 L38 18 L45 32 V45 H31 Z" fill="${p.F}" ${S(p)}/><path d="M38 18 L45 32 V45 H38 Z" fill="#000" fill-opacity=".22"/></g><path d="M15 19 L24 3 L33 19 V45 H15 Z" fill="${p.F}" ${S(p)}/><path d="M24 3 L33 19 V45 H24 Z" fill="#000" fill-opacity=".25"/><path d="M15 19 H33 M24 3 V19" stroke="${p.D}" stroke-width="1.2" stroke-opacity=".8"/><path d="M18 22 V38" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-opacity=".6"/>`,
+    gem_lapis: p=>`<circle cx="24" cy="24" r="20" fill="${p.F}" ${S(p)}/><path d="M8 30 Q16 20 24 26 Q33 32 41 20" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="2.2" stroke-linecap="round"/><path d="M10 18 Q18 12 25 16" fill="none" stroke="${p.L}" stroke-opacity=".7" stroke-width="1.6" stroke-linecap="round"/>${[[16,16,1.8],[31,13,1.4],[36,27,2],[22,33,1.6],[12,30,1.3],[29,22,1.2],[26,38,1.5],[17,24,1.1]].map(([x,y,r])=>`<circle cx="${x}" cy="${y}" r="${r}" fill="#ffd86b"/>`).join('')}<ellipse cx="17" cy="12" rx="6" ry="3.2" transform="rotate(-30 17 12)" fill="#fff" fill-opacity=".45"/>`,
+    gem_bismuth: p=>`${[['#ff9ecb',38,5],['#ffd27a',30,9],['#8bffd6',22,13],['#7db3ff',14,17],['#c9a0ff',6,21]].map(([c,w,o],i)=>`<rect x="${o}" y="${o-2}" width="${w}" height="${w}" fill="${c}" stroke="${p.D}" stroke-width="1.4"/><path d="M${o} ${o-2+w} L${o+w} ${o-2+w} L${o+w} ${o-2} L${o+w-3} ${o+1} L${o+w-3} ${o-2+w-3} L${o+3} ${o-2+w-3} Z" fill="#000" fill-opacity=".18"/>`).join('')}<path d="M7 5 H20" stroke="#fff" stroke-width="2.2" stroke-opacity=".7" stroke-linecap="round"/>`,
+    gem_opal: p=>`<ellipse cx="24" cy="25" rx="21" ry="17" fill="${p.F}" ${S(p)}/><ellipse cx="16" cy="22" rx="7" ry="5" fill="#6bffd2" fill-opacity=".75"/><ellipse cx="29" cy="18" rx="7" ry="4.5" fill="#ff7ad9" fill-opacity=".7"/><ellipse cx="31" cy="30" rx="8" ry="5" fill="#7ab8ff" fill-opacity=".7"/><ellipse cx="18" cy="32" rx="6" ry="4" fill="#ffe36b" fill-opacity=".7"/><ellipse cx="17" cy="15" rx="8" ry="3.4" transform="rotate(-18 17 15)" fill="#fff" fill-opacity=".5"/>`,
+    // ---- character emblems
+    drop: p=>`<path d="M24 3 Q40 22 40 31 A16 16 0 0 1 8 31 Q8 22 24 3 Z" fill="${p.F}" ${S(p)}/><path d="M15 31 Q15 36 20 39" stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none" stroke-opacity=".75"/>`,
+    snow: p=>`<g stroke="${p.F}" stroke-width="4" stroke-linecap="round">${[0,60,120].map(a=>`<path d="M24 4 V44" transform="rotate(${a} 24 24)"/>`).join('')}</g><g stroke="${p.L}" stroke-width="2.4" stroke-linecap="round" fill="none">${[0,60,120,180,240,300].map(a=>`<path d="M19 9 L24 14 L29 9" transform="rotate(${a} 24 24)"/>`).join('')}</g><circle cx="24" cy="24" r="4" fill="#fff"/>`,
+    wind: p=>`<g fill="none" stroke="${p.F}" stroke-width="4.5" stroke-linecap="round"><path d="M5 16 H29 Q38 16 38 9 Q38 4 32 4"/><path d="M5 25 H36 Q45 25 45 32 Q45 38 38 38"/><path d="M5 34 H20 Q26 34 26 40 Q26 44 21 44"/></g><g fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="1.4" stroke-linecap="round"><path d="M8 14 H28"/><path d="M8 23 H34"/></g>`,
+    skull: p=>`<path d="M24 4 Q42 4 42 22 Q42 29 37 32 V38 H11 V32 Q6 29 6 22 Q6 4 24 4 Z" fill="${p.F}" ${S(p)}/><circle cx="16" cy="23" r="5.4" fill="${p.D}"/><circle cx="32" cy="23" r="5.4" fill="${p.D}"/><path d="M24 29 L21 34 H27 Z" fill="${p.D}"/><path d="M17 38 V44 M24 38 V44 M31 38 V44" stroke="${p.D}" stroke-width="2.4"/>`,
+    sun: p=>`<g stroke="${p.F}" stroke-width="3.6" stroke-linecap="round">${[0,45,90,135,180,225,270,315].map(a=>`<path d="M24 3.5 V9" transform="rotate(${a} 24 24)"/>`).join('')}</g><circle cx="24" cy="24" r="12.5" fill="${p.F}" ${S(p)}/><circle cx="20" cy="20" r="4" fill="#fff" fill-opacity=".55"/>`,
+    moon: p=>`<path d="M30 4 A20 20 0 1 0 44 30 A15 15 0 1 1 30 4 Z" fill="${p.F}" ${S(p)}/><circle cx="35" cy="12" r="1.8" fill="#fff"/><circle cx="41" cy="20" r="1.2" fill="#fff"/>`,
+    cloud: p=>`<path d="M13 38 Q3 38 4 28 Q5 20 14 20 Q16 8 28 9 Q38 10 38 21 Q46 22 45 30 Q44 38 36 38 Z" fill="${p.F}" ${S(p)}/><path d="M12 30 Q14 25 19 24" stroke="#fff" stroke-opacity=".6" stroke-width="2.4" stroke-linecap="round" fill="none"/>`,
+    mountain: p=>`<path d="M2 42 L18 12 L26 26 L32 18 L46 42 Z" fill="${p.F}" ${S(p)}/><path d="M18 12 L13 22 L18 20 L22 24 Z" fill="#fff" fill-opacity=".8"/><path d="M32 18 L28 25 L32 24 L35 27 Z" fill="#fff" fill-opacity=".7"/>`,
+    gear: p=>`${[0,45,90,135].map(a=>`<rect x="20" y="2" width="8" height="44" rx="2.5" transform="rotate(${a} 24 24)" fill="${p.F}" ${S(p)}/>`).join('')}<circle cx="24" cy="24" r="14" fill="${p.F}" ${S(p)}/><circle cx="24" cy="24" r="6" fill="${p.D}"/>`,
+    wave: p=>`<g fill="none" stroke="${p.F}" stroke-width="4.5" stroke-linecap="round"><path d="M12 15 Q5 24 12 33"/><path d="M20 9 Q9 24 20 39"/><path d="M29 5 Q13 24 29 43"/></g><circle cx="35" cy="24" r="5" fill="${p.F}" ${S(p)}/><path d="M35 24 H45" stroke="${p.F}" stroke-width="3" stroke-linecap="round"/>`,
+    galaxy: p=>`<ellipse cx="24" cy="24" rx="21" ry="8.5" transform="rotate(-25 24 24)" fill="none" stroke="${p.F}" stroke-width="3.5"/><ellipse cx="24" cy="24" rx="14" ry="5" transform="rotate(35 24 24)" fill="none" stroke="${p.L}" stroke-width="2" stroke-opacity=".8"/><circle cx="24" cy="24" r="7" fill="${p.F}" ${S(p)}/><circle cx="21" cy="21" r="2.4" fill="#fff"/><circle cx="40" cy="9" r="1.4" fill="#fff"/><circle cx="8" cy="39" r="1.4" fill="#fff"/>`,
+    monitor: p=>`<rect x="4" y="6" width="40" height="28" rx="4" fill="${p.F}" ${S(p)}/><rect x="9" y="11" width="30" height="18" rx="2" fill="${p.D}" fill-opacity=".85"/><path d="M13 22 L19 17 L24 22 L33 14" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><rect x="20" y="34" width="8" height="5" fill="${p.D}"/><rect x="13" y="39" width="22" height="4.5" rx="2" fill="${p.F}" ${S(p)}/>`,
+    glitch: p=>`<rect x="6" y="8" width="26" height="9" fill="${p.F}"/><rect x="14" y="19" width="28" height="9" fill="${p.L}"/><rect x="4" y="30" width="22" height="9" fill="${p.F}"/><rect x="32" y="6" width="10" height="5" fill="#ff4d6d" fill-opacity=".9"/><rect x="28" y="33" width="14" height="6" fill="#4dc7ff" fill-opacity=".9"/>`,
+    drone: p=>`${[[9,9],[39,9],[9,39],[39,39]].map(([x,y])=>`<path d="M24 24 L${x} ${y}" stroke="${p.D}" stroke-width="3"/><circle cx="${x}" cy="${y}" r="6.5" fill="${p.F}" ${S(p)}/><circle cx="${x}" cy="${y}" r="2" fill="${p.D}"/>`).join('')}<rect x="15" y="15" width="18" height="18" rx="5" fill="${p.F}" ${S(p)}/><circle cx="24" cy="24" r="4" fill="#fff"/>`,
+    led: p=>`<path d="M14 26 V15 A10 10 0 0 1 34 15 V26 Z" fill="${p.F}" ${S(p)}/><rect x="11" y="26" width="26" height="5" rx="1.5" fill="${p.L}" ${S(p)}/><path d="M18 31 V44 M30 31 V40" stroke="${p.D}" stroke-width="2.6" stroke-linecap="round"/><path d="M19 12 Q21 8 25 8" stroke="#fff" stroke-width="2.6" stroke-linecap="round" fill="none"/>`,
+    cone: p=>`<path d="M13 22 L24 46 L35 22 Z" fill="#e8b36a" stroke="${p.D}" stroke-width="1.6" stroke-linejoin="round"/><path d="M17 26 L28 38 M22 24 L30 36 M28 24 L32 32" stroke="#b9823c" stroke-width="1.2"/><circle cx="24" cy="15" r="11" fill="${p.F}" ${S(p)}/><circle cx="24" cy="6" r="3.2" fill="#ff5c8a"/><path d="M18 14 Q20 10 24 10" stroke="#fff" stroke-width="2.4" stroke-linecap="round" fill="none" stroke-opacity=".8"/>`,
+    pebble: p=>`<path d="M7 33 Q4 20 15 13 Q27 6 37 14 Q46 22 41 33 Q35 42 21 41 Q10 40 7 33 Z" fill="${p.F}" ${S(p)}/><path d="M14 22 Q18 15 26 14" stroke="#fff" stroke-opacity=".55" stroke-width="2.6" stroke-linecap="round" fill="none"/>`,
+    grain: p=>`${[[14,16,6],[30,12,5],[22,28,7],[36,30,5],[10,36,4]].map(([x,y,r])=>`<circle cx="${x}" cy="${y}" r="${r}" fill="${p.F}" ${S(p)}/>`).join('')}`,
+    wings: p=>`<path d="M24 38 Q6 36 3 14 Q14 20 21 28 Q18 16 22 6 Q24 16 24 24 Z" fill="${p.F}" ${S(p)}/><path d="M24 38 Q42 36 45 14 Q34 20 27 28 Q30 16 26 6 Q24 16 24 24 Z" fill="${p.F}" ${S(p)}/><ellipse cx="24" cy="10" rx="8" ry="2.8" fill="none" stroke="#fff" stroke-width="2.2"/>`,
+    star: p=>`<path d="M24 3 L30 18 L46 19 L33.5 29.5 L37.5 45 L24 36.5 L10.5 45 L14.5 29.5 L2 19 L18 18 Z" fill="${p.F}" ${S(p)}/><path d="M24 3 L30 18 L24 22 Z" fill="#fff" fill-opacity=".4"/>`
+  };
+  const ITEM_GLYPH = {
+    power_core:'fist', swift_boots:'wing', iron_plate:'shield', healing_herb:'leaf', leech_ring:'ring', lucky_coin:'coin',
+    mystic_leaf:'leaf', blade_edge:'sword', wind_anklet:'wing', bronze_shell:'shield', thorn_bracer:'thorn',
+    twin_fang:'fangs', storm_charm:'swirl', vampire_fang:'fang', aegis_shard:'crystal', hawk_eye:'eye',
+    dragon_core:'flame', phoenix_wing:'wing', guardian_ward:'shield', titan_bulwark:'shield', blood_chalice:'chalice', spike_carapace:'thorn',
+    crit_lens:'eye', phoenix_feather:'feather', divine_barrier:'sparkle', mirror_aegis:'mirror', king_crown:'crown',
+    guardian_charm:'charm', unbroken_core:'link', sovereign_fang:'fangs', lightspeed_core:'comet', steel_barrier:'shield', adamant_aegis:'shield',
+    verdant_sprig:'sprout', seraph_bloom:'flower', crimson_thorn:'rose', abyssal_maw:'maw', sharp_monocle:'monocle',
+    assassins_edge:'sword', pocket_ward:'bubble', travelers_ward:'bubble', spiny_hide:'thorn', barbed_chain:'link',
+    vital_charm:'heart', sturdy_locket:'heart', giant_heart:'heart', titan_core:'heart',
+    nano_repair_kit:'kit', overclock_chip:'chip', quantum_capacitor:'bolt'
+  };
+  const STAT_GLYPH = {pow:'sword', spd:'wing', flatReduce:'shield', regen:'leaf', lifesteal:'fang', crit:'eye', shield:'bubble', reflect:'thorn', maxHp:'heart', statusImmune:'charm', nullifyImmune:'link'};
+  const CHAR_GLYPH = {
+    aqua:'drop', pyro:'flame', steam:'cloud', volt:'bolt', terra:'mountain', frost:'snow', gale:'wind', toxin:'skull', radiant:'sun',
+    shadow:'moon', metal:'gear', nature:'leaf', sound:'wave', cosmos:'galaxy', love:'heart', emerald:'gem_emerald', topaz:'gem_topaz',
+    amethyst:'gem_amethyst', lapizlazuli:'gem_lapis', bismuth:'gem_bismuth', opal:'gem_opal', meteorite:'comet', microchip:'chip', computer:'monitor',
+    techno:'gear', glitch:'glitch', drone:'drone', blood:'drop', diode:'led', zodiac:'star', icecream:'cone', dust:'grain', pebble:'pebble',
+    ember:'flame', mud:'drop', feather:'feather', obsidian:'crystal', amber:'drop', seraph:'wings',
+    demontree:'skull', bonewhale:'skull', lavagolem:'mountain', stormdjinn:'wind', echoape:'wave', shadowminotaur:'moon',
+    ironjuggernaut:'gear', voidsovereign:'galaxy', frostemperor:'snow', dawngoddess:'sun'
+  };
+  const RARITY_RIM = {common:'#9aa0ac', uncommon:'#4fd67a', rare:'#4da6ff', epic:'#c264ff', legendary:'#ffb93f', mythical:'#fff0a8', secret:'#ff6fae', boss:'#ff5c5c'};
+  function glyphSVG(name, color, scale, ox, oy){
+    const id = 'ik'+(++uid), C = color||'#aaaaaa', L = lighten(C), D = darken(C);
+    const p = {F:`url(#${id})`, C, L, D};
+    const g = (GLYPH[name]||GLYPH.star)(p);
+    const grad = `<linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="8" y1="2" x2="22" y2="46"><stop offset="0" stop-color="${L}"/><stop offset=".55" stop-color="${C}"/><stop offset="1" stop-color="${mix(C,'#000000',0.35)}"/></linearGradient>`;
+    return {defs:grad, body:`<g transform="translate(${ox} ${oy}) scale(${scale})">${g}</g>`};
+  }
+  function medallion(shape, rim, glow){
+    const id = 'im'+(++uid);
+    const bg = `<radialGradient id="${id}" cx=".5" cy=".35" r=".8"><stop offset="0" stop-color="${mix(rim,'#10142a',0.78)}"/><stop offset="1" stop-color="#070914"/></radialGradient>`;
+    let sh;
+    if(shape==='diamond') sh = `<rect x="7" y="7" width="34" height="34" rx="7" transform="rotate(45 24 24)" fill="url(#${id})" stroke="${rim}" stroke-width="2.2"/><rect x="11.5" y="11.5" width="25" height="25" rx="5" transform="rotate(45 24 24)" fill="none" stroke="${rim}" stroke-opacity=".35" stroke-width="1"/>`;
+    else if(shape==='hex') sh = `<path d="M24 2.5 L43 13.5 V34.5 L24 45.5 L5 34.5 V13.5 Z" fill="url(#${id})" stroke="${rim}" stroke-width="2.4" stroke-linejoin="round"/><path d="M24 7 L39 15.8 V32.2 L24 41 L9 32.2 V15.8 Z" fill="none" stroke="${rim}" stroke-opacity=".35" stroke-width="1"/>`;
+    else sh = `<circle cx="24" cy="24" r="21" fill="url(#${id})" stroke="${rim}" stroke-width="2.2"/><circle cx="24" cy="24" r="16.5" fill="none" stroke="${rim}" stroke-opacity=".3" stroke-width="1"/>`;
+    return {defs:bg, body:sh};
+  }
+  function wrap(defs, body, cls){
+    return `<svg class="ic ${cls||''}" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><defs>${defs}</defs>${body}</svg>`;
+  }
+  function itemIconSVG(idef, opts){
+    opts = opts||{};
+    if(!idef) return '';
+    const gname = ITEM_GLYPH[idef.id] || STAT_GLYPH[idef.stat] || 'star';
+    const color = idef.color || '#cccccc';
+    if(opts.medal){
+      const m = medallion(idef.shape||'circle', idef.color || RARITY_RIM[idef.rarity] || '#888');
+      const g = glyphSVG(gname, color, 0.68, 7.7, 7.7);
+      return wrap(m.defs+g.defs, m.body+g.body, 'ic-item ic-medal');
+    }
+    const g = glyphSVG(gname, color, 0.86, 3.4, 3.4);
+    return wrap(g.defs, g.body, 'ic-item');
+  }
+  function charIconSVG(id, color, opts){
+    opts = opts||{};
+    const C = color || '#aaaaaa';
+    const gname = CHAR_GLYPH[id] || 'star';
+    const oid = 'io'+(++uid);
+    const orb = `<radialGradient id="${oid}" cx=".38" cy=".3" r=".85"><stop offset="0" stop-color="${mix(C,'#ffffff',0.15)}" stop-opacity=".55"/><stop offset=".45" stop-color="${mix(C,'#0a0c18',0.72)}"/><stop offset="1" stop-color="#05060d"/></radialGradient>`;
+    const base = `<circle cx="24" cy="24" r="22" fill="url(#${oid})" stroke="${C}" stroke-width="2.2"/><circle cx="24" cy="24" r="18.5" fill="none" stroke="${C}" stroke-opacity=".3" stroke-width="1"/><path d="M9 17 A17 17 0 0 1 24 7" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="2" stroke-linecap="round"/>`;
+    const g = glyphSVG(gname, C, 0.62, 9.1, 9.5);
+    return wrap(orb+g.defs, base+g.body, 'ic-char');
+  }
+  return {itemIconSVG, charIconSVG, GLYPH};
+})();
+const itemIconSVG = IconKit.itemIconSVG;
+const charIconSVG = IconKit.charIconSVG;
+// anything with a `stat` is an ITEM_DEFS entry; everything else is an element/character
+function anyIconSVG(it, opts){ return (it && it.stat!==undefined) ? itemIconSVG(it, opts) : charIconSVG(it && it.id, it && it.color, opts); }
+
 /* ================= GACHA + ROSTER UI ================= */
 function runCharGacha(){
   if(saveData.gems < CHAR_GACHA_COST){ onlineStatusMsg('เพชรไม่พอ ต้องการ '+CHAR_GACHA_COST+'💎'); return; }
@@ -3401,7 +3814,7 @@ function itemChipHTML(idef, selected, count, disabled){
   const lvl = itemEnhanceLevel(idef.id);
   const lvlSuffix = lvl>0 ? ` (+${lvl})` : '';
   return `<div class="item-chip shape-${idef.shape} ${selected?'sel':''} ${disabled?'unavailable':''}" data-item="${idef.id}" style="--ic:${idef.color}" title="${idef.name}${lvlSuffix}: ${itemStatDisplay(idef)}">
-    <span class="ico">${idef.icon}</span>${count>1?`<span class="qty">x${count}</span>`:''}${lvl>0?`<span class="qty item-lvl-tag">+${lvl}</span>`:''}
+    <span class="ico">${itemIconSVG(idef)}</span>${count>1?`<span class="qty">x${count}</span>`:''}${lvl>0?`<span class="qty item-lvl-tag">+${lvl}</span>`:''}
   </div>`;
 }
 
@@ -3479,9 +3892,9 @@ function renderCharGrid(ids){
     const equipped = entry.item ? getItemDef(entry.item) : null;
     const dispColor = getCharColor(id);
     return `<div class="char-card" data-elem="${id}" style="--rc:${r.color}">
-      ${equipped?`<span class="cc-item-badge" title="${equipped.name}">${equipped.icon}</span>`:''}
+      ${equipped?`<span class="cc-item-badge" title="${equipped.name}">${itemIconSVG(equipped)}</span>`:''}
       ${gemsOriginBadge(id)}
-      <div class="cc-dot" style="background:${dispColor};color:${dispColor}"></div>
+      <div class="cc-dot" style="color:${dispColor}">${charIconSVG(id,dispColor)}</div>
       <div class="cc-name" style="color:${dispColor}">${e.name}</div>
       <div class="cc-lv">Lv.${entry.level}${entry.level>=LEVEL_CAP?' MAX':''}</div>
       <div class="cc-stars" style="color:${r.color}">${'★'.repeat(r.stars)}</div>
@@ -3530,7 +3943,7 @@ function renderCharDetail(id){
   return `
   <div class="wh-back" id="whBackChars">← กลับไปดูรายการทั้งหมด</div>
   <div class="wh-detail-head">
-    <div class="wh-detail-dot" style="background:${dispColor};color:${dispColor}"></div>
+    <div class="wh-detail-dot" style="color:${dispColor}">${charIconSVG(id,dispColor)}</div>
     <div class="wh-detail-name" style="color:${dispColor}">${elem.name}</div>
     <div class="wh-detail-tag">${elem.tag}</div>
     <div class="wh-detail-stars" style="color:${rarity.color}">${'★'.repeat(rarity.stars)} ${rarity.labelTH}</div>
@@ -3607,7 +4020,7 @@ function renderItemGrid(ownedItemIds){
     return `<div class="item-card" data-item="${iid}" style="--rc:${r.color}">
       ${owned>1?`<span class="ic-qty">x${owned}</span>`:''}
       ${lvl>0?`<span class="ic-lvl">+${lvl}</span>`:''}
-      <div class="ic-ico" style="color:${idef.color}">${idef.icon}</div>
+      <div class="ic-ico" style="color:${idef.color}">${itemIconSVG(idef,{medal:true})}</div>
       <div class="ic-name" style="color:${idef.color}">${idef.name}</div>
     </div>`;
   }).join('');
@@ -3630,7 +4043,7 @@ function renderItemDetail(iid){
   return `
   <div class="wh-back" id="whBackItems">← กลับไปดูรายการทั้งหมด</div>
   <div class="wh-detail-head">
-    <div class="wh-detail-ico" style="color:${idef.color}">${idef.icon}</div>
+    <div class="wh-detail-ico" style="color:${idef.color}">${itemIconSVG(idef,{medal:true})}</div>
     <div class="wh-detail-name" style="color:${idef.color}">${idef.name}${lvl>0?` <span class="item-lvl-badge">+${lvl}</span>`:''}</div>
     <div class="wh-detail-tag">${itemStatDisplay(idef)}</div>
     <div class="wh-detail-stars" style="color:${r.color}">${'★'.repeat(r.stars)} ${r.labelTH}</div>
@@ -3983,7 +4396,7 @@ function renderTeamPicker(stage){
     const card = document.createElement('div');
     card.className = 'team-pick-card';
     card.dataset.id = id;
-    card.innerHTML = `<div class="pick-order"></div>${gemsOriginBadge(id)}<div class="dot" style="background:${getCharColor(id)}"></div><div class="en">${elem.name}</div><div class="th">Lv.${entry.level}</div>`;
+    card.innerHTML = `<div class="pick-order"></div>${gemsOriginBadge(id)}<div class="dot ic-dot">${charIconSVG(id,getCharColor(id))}</div><div class="en">${elem.name}</div><div class="th">Lv.${entry.level}</div>`;
     card.onclick = ()=>{
       const idx = _pickedTeam.indexOf(id);
       if(idx>=0){ _pickedTeam.splice(idx,1); card.classList.remove('picked'); }
@@ -4156,7 +4569,7 @@ function renderPvpTeamPicker(){
     card.dataset.id = id;
     const already = _pvpPickedTeam.indexOf(id);
     if(already>=0) card.classList.add('picked');
-    card.innerHTML = `<div class="pick-order">${already>=0?(already+1):''}</div>${gemsOriginBadge(id)}<div class="dot" style="background:${getCharColor(id)}"></div><div class="en">${elem.name}</div><div class="th">Lv.${entry.level}</div>`;
+    card.innerHTML = `<div class="pick-order">${already>=0?(already+1):''}</div>${gemsOriginBadge(id)}<div class="dot ic-dot">${charIconSVG(id,getCharColor(id))}</div><div class="en">${elem.name}</div><div class="th">Lv.${entry.level}</div>`;
     card.onclick = ()=>{
       const idx = _pvpPickedTeam.indexOf(id);
       if(idx>=0){ _pvpPickedTeam.splice(idx,1); card.classList.remove('picked'); }
@@ -4733,7 +5146,7 @@ function renderEpicChoiceBody(introMsg){
   const cards = epics.map(e=>{
     const owned = ownsChar(e.id);
     return `<div class="team-pick-card epic-choice-card" data-id="${e.id}">
-      <div class="dot" style="background:${e.color}"></div>
+      <div class="dot ic-dot">${charIconSVG(e.id,e.color)}</div>
       <div class="en">${e.name}</div>
       <div class="th">${e.tag}${owned?' (มีแล้ว +เศษ)':''}</div>
     </div>`;
@@ -5627,7 +6040,7 @@ function renderEventTeamPicker(stage){
     const card = document.createElement('div');
     card.className = 'team-pick-card';
     card.dataset.id = id;
-    card.innerHTML = `<div class="pick-order"></div>${gemsOriginBadge(id)}<div class="dot" style="background:${getCharColor(id)}"></div><div class="en">${elem.name}</div><div class="th">Lv.${entry.level}</div>`;
+    card.innerHTML = `<div class="pick-order"></div>${gemsOriginBadge(id)}<div class="dot ic-dot">${charIconSVG(id,getCharColor(id))}</div><div class="en">${elem.name}</div><div class="th">Lv.${entry.level}</div>`;
     card.onclick = ()=>{
       const idx = _pickedEventTeam.indexOf(id);
       if(idx>=0){ _pickedEventTeam.splice(idx,1); card.classList.remove('picked'); }
@@ -5737,7 +6150,23 @@ function bossGameKindForElem(elemId, seedIndex){
 let bossGameState = null;
 
 // opts: { kind, teamDefs, bodyId ('campaignBody'|'eventBody'), icon, label, color, onCancel(), onComplete(buffedTeamDefs) }
+// timers scheduled while a boss game is active are bound to THAT run: if the player quits and
+// starts another game, or the run ends, stale callbacks are dropped instead of driving the new state
+function bgSetTimeout(fn, ms){
+  const tag = bossGameState;
+  return setTimeout(()=>{ if(bossGameState!==tag) return; fn(); }, ms);
+}
+function bossGameTeardown(){
+  const st = bossGameState;
+  if(st){
+    if(st.raf) cancelAnimationFrame(st.raf);
+    if(st.timer){ clearTimeout(st.timer); clearInterval(st.timer); }
+    if(st.timeout) clearTimeout(st.timeout);
+  }
+  bossGameState = null;
+}
 function startBossPreFight(opts){
+  bossGameTeardown();
   bossGameState = { ...opts, round:0, score:0, maxScore:0, streak:0 };
   const kind = opts.kind;
   if(kind==='mash') renderMashGame();
@@ -5798,7 +6227,7 @@ function spawnBossGameSpark(count){
     s.style.background = c;
     s.style.boxShadow = `0 0 9px 1px ${c}`;
     layer.appendChild(s);
-    setTimeout(()=>s.remove(), 700);
+    bgSetTimeout(()=>s.remove(), 700);
   }
 }
 // short escalating callout ("ต่อ x3!", "เพอร์เฟกต์!") floated above the panel — used by the
@@ -5811,7 +6240,7 @@ function showBossGameCombo(text){
   el.className = 'bg-combo-pop';
   el.textContent = text;
   layer.appendChild(el);
-  setTimeout(()=>el.remove(), 750);
+  bgSetTimeout(()=>el.remove(), 750);
 }
 function flashBossGamePanel(kind){
   const panel = document.getElementById('bgPanel');
@@ -5826,13 +6255,8 @@ function bossGamePanelOpen(){
 }
 function cancelBossPreFight(){
   const st = bossGameState;
-  if(st){
-    if(st.raf) cancelAnimationFrame(st.raf);
-    if(st.timer) clearInterval(st.timer);
-    if(st.timeout) clearTimeout(st.timeout);
-  }
   const onCancel = st && st.onCancel;
-  bossGameState = null;
+  bossGameTeardown();
   if(onCancel) onCancel();
 }
 function showBossPreFightSummary(){
@@ -5847,7 +6271,7 @@ function showBossPreFightSummary(){
     <div class="sync-game-wrap">
       <div class="t">${st.icon||'⚔️'} เตรียมพร้อมเสร็จสิ้น!</div>
       <div class="d" style="margin:6px 0 2px; color:var(--bc); font-weight:700; letter-spacing:1px;">${grade}</div>
-      <div class="d" style="margin:2px 0;">คะแนน: <b>${st.score}/${st.maxScore}</b></div>
+      <div class="d" style="margin:2px 0;">คะแนน: <b>${Math.min(st.score,st.maxScore)}/${st.maxScore}</b></div>
       <div class="mash-meter" style="margin:2px 0 4px;"><div class="mash-meter-fill" style="width:${Math.round(ratio*100)}%;"></div></div>
       <div class="d" style="margin-bottom:10px;">โบนัสพลังโจมตีทีมคุณสำหรับศึกนี้: <b>+${Math.round(buffPct*100)}%</b></div>
       <button type="button" class="btn" id="bossGameEnterBtn">⚔️ เข้าสู้ ${st.label}</button>
@@ -5856,6 +6280,7 @@ function showBossPreFightSummary(){
   spawnBossGameSpark(6 + Math.round(ratio*14));
   const enterBtn = document.getElementById('bossGameEnterBtn');
   if(enterBtn) enterBtn.onclick = ()=>{
+    if(bossGameState!==st) return; // double-tap guard
     const buffedTeam = st.teamDefs.map(f=> ({...f, pow: Math.round(f.pow*(1+buffPct))}));
     const cb = st.onComplete;
     bossGameState = null;
@@ -5969,7 +6394,7 @@ function handleSyncTap(){
     if(streakEl) streakEl.textContent = '';
     if(pts===0) flashBossGamePanel('shake');
   }
-  setTimeout(()=>{
+  bgSetTimeout(()=>{
     if(!bossGameState) return;
     if(st.round>=SYNC_GAME_ROUNDS) showBossPreFightSummary();
     else nextSyncRound();
@@ -6008,6 +6433,7 @@ function handleMashTap(){
   if(!st) return;
   const btn = document.getElementById('bgMashBtn');
   if(btn && btn.disabled) return;
+  if(st.started && performance.now() > st.endAt) return;
   if(!st.started){
     st.started = true;
     st.endAt = performance.now() + MASH_DURATION_MS;
@@ -6021,7 +6447,7 @@ function handleMashTap(){
         const b = document.getElementById('bgMashBtn');
         if(b) b.disabled = true;
         st.score = Math.min(st.taps, MASH_TARGET_TAPS);
-        setTimeout(showBossPreFightSummary, 500);
+        bgSetTimeout(showBossPreFightSummary, 500);
       }
     }, 100);
   }
@@ -6071,7 +6497,7 @@ function renderMemoryGameShell(){
   body.querySelectorAll('.hack-node').forEach(btn=>{
     btn.onclick = ()=> handleMemoryClick(parseInt(btn.dataset.idx,10));
   });
-  setTimeout(nextMemoryRound, 500);
+  bgSetTimeout(nextMemoryRound, 500);
 }
 function nextMemoryRound(){
   const st = bossGameState;
@@ -6105,10 +6531,10 @@ function playMemorySequence(){
     if(btn){
       btn.classList.add('flash');
       sfxTone({freq:MINIGAME_NODES[idx].freq, type:'sine', dur:0.22, vol:0.2});
-      setTimeout(()=> btn && btn.classList.remove('flash'), 260);
+      bgSetTimeout(()=> btn && btn.classList.remove('flash'), 260);
     }
     i++;
-    setTimeout(step, 430);
+    bgSetTimeout(step, 430);
   }
   step();
 }
@@ -6119,7 +6545,7 @@ function handleMemoryClick(idx){
   const body = document.getElementById(st.bodyId);
   const btn = body.querySelector(`.hack-node[data-idx="${idx}"]`);
   if(idx===expect){
-    if(btn){ btn.classList.add('flash-ok'); setTimeout(()=> btn.classList.remove('flash-ok'), 200); }
+    if(btn){ btn.classList.add('flash-ok'); bgSetTimeout(()=> btn.classList.remove('flash-ok'), 200); }
     sfxTone({freq:MINIGAME_NODES[idx].freq, type:'triangle', dur:0.12, vol:0.16});
     spawnBossGameSpark(3);
     st.playerPos++;
@@ -6130,21 +6556,22 @@ function handleMemoryClick(idx){
       dots.forEach((d,i)=> d.classList.toggle('on', i<st.round));
       if(st.round>=BOSS_MEMORY_ROUNDS){
         flashBossGamePanel('flash');
-        setTimeout(showBossPreFightSummary, 500);
+        bgSetTimeout(showBossPreFightSummary, 500);
       } else {
         showBossGameCombo(`ผ่านรอบ ${st.round}! ✅`);
         flashBossGamePanel('flash');
         const statusEl = document.getElementById('bgStatusLine');
         if(statusEl) statusEl.textContent = `ถูกต้อง! ผ่านรอบ ${st.round} ✅`;
-        setTimeout(nextMemoryRound, 700);
+        bgSetTimeout(nextMemoryRound, 700);
       }
     }
   } else {
-    if(btn){ btn.classList.add('flash-bad'); setTimeout(()=> btn.classList.remove('flash-bad'), 260); }
+    if(btn){ btn.classList.add('flash-bad'); bgSetTimeout(()=> btn.classList.remove('flash-bad'), 260); }
     sfxNoise({dur:0.25, vol:0.2, freq:180, filterType:'lowpass'});
     flashBossGamePanel('shake');
+    st.locked = true; // no further taps: they'd reschedule the summary and overwrite the score
     st.score = Math.max(0, st.round-1); // partial credit for rounds already cleared
-    setTimeout(showBossPreFightSummary, 600);
+    bgSetTimeout(showBossPreFightSummary, 600);
   }
 }
 
@@ -6171,7 +6598,7 @@ function renderReactionGameShell(){
     </div></div>`;
   document.getElementById('bgQuitBtn').onclick = cancelBossPreFight;
   document.getElementById('bgReactZone').onclick = handleReactionTap;
-  setTimeout(nextReactionRound, 500);
+  bgSetTimeout(nextReactionRound, 500);
 }
 function nextReactionRound(){
   const st = bossGameState;
@@ -6183,7 +6610,7 @@ function nextReactionRound(){
   const statusEl = document.getElementById('bgStatusLine');
   if(statusEl) statusEl.textContent = `รอบ ${st.round}/${BOSS_REACTION_ROUNDS} — อย่าเพิ่งแตะ!`;
   const delay = 800 + Math.random()*1800;
-  st.timeout = setTimeout(()=>{
+  st.timeout = bgSetTimeout(()=>{
     if(!bossGameState) return;
     st.reactPhase = 'go';
     st.goAt = performance.now();
@@ -6196,6 +6623,7 @@ function handleReactionTap(){
   const st = bossGameState;
   if(!st) return;
   if(st.reactPhase==='wait'){
+    st.reactPhase = 'done'; // lock out further taps during the penalty window
     clearTimeout(st.timeout);
     const zone = document.getElementById('bgReactZone');
     if(zone){ zone.className = 'reaction-zone early'; zone.textContent = 'เร็วไป! ✗'; }
@@ -6205,7 +6633,7 @@ function handleReactionTap(){
     st.streak = 0;
     const streakEl = document.getElementById('bgStreakLine');
     if(streakEl) streakEl.textContent = '';
-    setTimeout(()=>{
+    bgSetTimeout(()=>{
       if(!bossGameState) return;
       if(st.round>=BOSS_REACTION_ROUNDS) showBossPreFightSummary();
       else nextReactionRound();
@@ -6239,7 +6667,7 @@ function handleReactionTap(){
     if(streakEl) streakEl.textContent = '';
     if(pts===0) flashBossGamePanel('shake');
   }
-  setTimeout(()=>{
+  bgSetTimeout(()=>{
     if(!bossGameState) return;
     if(st.round>=BOSS_REACTION_ROUNDS) showBossPreFightSummary();
     else nextReactionRound();
@@ -6270,7 +6698,7 @@ function renderConstellationGame(){
       <div class="sync-score-line" id="bgScoreLine">คะแนนรวม: 0</div>
     </div></div>`;
   document.getElementById('bgQuitBtn').onclick = cancelBossPreFight;
-  setTimeout(nextConstellationRound, 500);
+  bgSetTimeout(nextConstellationRound, 500);
 }
 function nextConstellationRound(){
   const st = bossGameState;
@@ -6284,11 +6712,11 @@ function nextConstellationRound(){
   field.innerHTML = '';
   const used = [];
   for(let i=1;i<=n;i++){
-    let x,y,ok;
+    let x,y,ok,tries=0;
     do{
       x = 10+Math.random()*80; y = 14+Math.random()*72; ok = true;
       for(const p of used) if(Math.abs(p.x-x)<16 && Math.abs(p.y-y)<20) ok=false;
-    } while(!ok);
+    } while(!ok && ++tries<60); // capped so a crowded board can never freeze the page
     used.push({x,y});
     const dot = document.createElement('div');
     dot.className = 'node-dot'; dot.dataset.n = i;
@@ -6300,7 +6728,7 @@ function nextConstellationRound(){
   st.roundDeadline = performance.now() + CONSTELLATION_ROUND_MS;
   const statusEl = document.getElementById('bgStatusLine');
   if(statusEl) statusEl.textContent = `รอบ ${st.round}/${CONSTELLATION_ROUNDS} — แตะดาวเลข ${st.starNext} ต่อไป!`;
-  st.timeout = setTimeout(()=>{ if(bossGameState) endConstellationRound(false); }, CONSTELLATION_ROUND_MS);
+  st.timeout = bgSetTimeout(()=>{ if(bossGameState) endConstellationRound(false); }, CONSTELLATION_ROUND_MS);
 }
 function handleConstellationTap(n, dot){
   const st = bossGameState;
@@ -6317,7 +6745,7 @@ function handleConstellationTap(n, dot){
       clearTimeout(st.timeout);
       flashBossGamePanel('flash');
       showBossGameCombo('ครบกลุ่มดาว! ✨');
-      setTimeout(()=>{ if(bossGameState) nextConstellationRound(); }, 600);
+      bgSetTimeout(()=>{ if(bossGameState) nextConstellationRound(); }, 600);
     } else {
       if(statusEl) statusEl.textContent = `รอบ ${st.round}/${CONSTELLATION_ROUNDS} — แตะดาวเลข ${st.starNext} ต่อไป!`;
     }
@@ -6325,7 +6753,7 @@ function handleConstellationTap(n, dot){
     if(scoreEl) scoreEl.textContent = `คะแนนรวม: ${st.score}`;
   } else {
     dot.classList.add('bad-flash');
-    setTimeout(()=> dot.classList.remove('bad-flash'), 300);
+    bgSetTimeout(()=> dot.classList.remove('bad-flash'), 300);
     sfxNoise({dur:0.18, vol:0.16, freq:200, filterType:'lowpass'});
     flashBossGamePanel('shake');
   }
@@ -6335,7 +6763,7 @@ function endConstellationRound(){
   if(!st) return;
   st.starNext = 0;
   showBossGameCombo('หมดเวลา! ⏱');
-  setTimeout(()=>{ if(bossGameState) nextConstellationRound(); }, 500);
+  bgSetTimeout(()=>{ if(bossGameState) nextConstellationRound(); }, 500);
 }
 
 /* ---- BOLTS (VOLT): lightning bolts fall from the top of the lane at random x — tap each one
@@ -6363,7 +6791,7 @@ function renderBoltsGame(){
   document.getElementById('bgQuitBtn').onclick = cancelBossPreFight;
   st.endAt = performance.now() + BOLTS_DURATION_MS;
   spawnBoltLoop();
-  st.timeout = setTimeout(()=>{ if(bossGameState) endBoltsGame(); }, BOLTS_DURATION_MS+BOLTS_FALL_MS+200);
+  st.timeout = bgSetTimeout(()=>{ if(bossGameState) endBoltsGame(); }, BOLTS_DURATION_MS+BOLTS_FALL_MS+200);
 }
 function spawnBoltLoop(){
   const st = bossGameState;
@@ -6376,7 +6804,7 @@ function spawnBoltLoop(){
     const x = 8+Math.random()*84;
     el.style.left = x+'%';
     lane.appendChild(el);
-    requestAnimationFrame(()=>{ el.style.transitionDuration = BOLTS_FALL_MS+'ms'; el.style.top = '100%'; });
+    requestAnimationFrame(()=>{ void el.offsetWidth; el.style.transitionDuration = BOLTS_FALL_MS+'ms'; el.style.top = '100%'; });
     el.onclick = (e)=>{
       e.stopPropagation();
       if(el.dataset.done) return;
@@ -6388,11 +6816,11 @@ function spawnBoltLoop(){
       flashBossGamePanel('flash');
       const scoreEl = document.getElementById('bgScoreLine');
       if(scoreEl) scoreEl.textContent = `กดโดน: ${st.taps} ครั้ง`;
-      setTimeout(()=> el.remove(), 250);
+      bgSetTimeout(()=> el.remove(), 250);
     };
-    setTimeout(()=>{ if(!el.dataset.done) el.remove(); }, BOLTS_FALL_MS+60);
+    bgSetTimeout(()=>{ if(!el.dataset.done) el.remove(); }, BOLTS_FALL_MS+60);
   }
-  st.timer = setTimeout(spawnBoltLoop, BOLTS_SPAWN_MS);
+  st.timer = bgSetTimeout(spawnBoltLoop, BOLTS_SPAWN_MS);
 }
 function endBoltsGame(){
   const st = bossGameState;
@@ -6423,7 +6851,7 @@ function renderShatterGame(){
       <div class="sync-score-line" id="bgScoreLine">ทุบแตก: 0</div>
     </div></div>`;
   document.getElementById('bgQuitBtn').onclick = cancelBossPreFight;
-  setTimeout(nextShatterWave, 500);
+  bgSetTimeout(nextShatterWave, 500);
 }
 function nextShatterWave(){
   const st = bossGameState;
@@ -6455,7 +6883,7 @@ function nextShatterWave(){
     };
     field.appendChild(tile);
     (function(t){
-      setTimeout(()=>{
+      bgSetTimeout(()=>{
         if(!bossGameState || t.dataset.done) return;
         t.dataset.done = 'timeout';
         t.classList.add('bad-flash');
@@ -6471,7 +6899,7 @@ function checkShatterWaveDone(){
   const st = bossGameState;
   if(!st) return;
   if(st.pendingTiles<=0){
-    setTimeout(()=>{ if(bossGameState) nextShatterWave(); }, 500);
+    bgSetTimeout(()=>{ if(bossGameState) nextShatterWave(); }, 500);
   }
 }
 
@@ -6530,7 +6958,7 @@ function renderFlameGame(){
       st.score = Math.round(Math.min(1, st.inZoneMs/FLAME_DURATION_MS)*100);
       const scoreEl = document.getElementById('bgScoreLine');
       if(scoreEl) scoreEl.textContent = `อยู่ในโซน: ${st.score}%`;
-      setTimeout(showBossPreFightSummary, 400);
+      bgSetTimeout(showBossPreFightSummary, 400);
       return;
     }
     const scoreEl = document.getElementById('bgScoreLine');
@@ -6565,7 +6993,7 @@ function renderCatchGame(){
   document.getElementById('bgQuitBtn').onclick = cancelBossPreFight;
   st.endAt = performance.now() + CATCH_DURATION_MS;
   spawnCatchLoop();
-  st.timeout = setTimeout(()=>{ if(bossGameState) showBossPreFightSummary(); }, CATCH_DURATION_MS+CATCH_FALL_MS+200);
+  st.timeout = bgSetTimeout(()=>{ if(bossGameState) showBossPreFightSummary(); }, CATCH_DURATION_MS+CATCH_FALL_MS+200);
 }
 function spawnCatchLoop(){
   const st = bossGameState;
@@ -6578,7 +7006,7 @@ function spawnCatchLoop(){
     el.className = 'fall-item'+(isBad?' bad':''); el.textContent = isBad?'🫧':'💧';
     el.style.left = (8+Math.random()*84)+'%';
     lane.appendChild(el);
-    requestAnimationFrame(()=>{ el.style.transitionDuration = CATCH_FALL_MS+'ms'; el.style.top = '100%'; });
+    requestAnimationFrame(()=>{ void el.offsetWidth; el.style.transitionDuration = CATCH_FALL_MS+'ms'; el.style.top = '100%'; });
     el.onclick = (e)=>{
       e.stopPropagation();
       if(el.dataset.done) return;
@@ -6596,11 +7024,11 @@ function spawnCatchLoop(){
       }
       const scoreEl = document.getElementById('bgScoreLine');
       if(scoreEl) scoreEl.textContent = `รับได้: ${st.good}`;
-      setTimeout(()=> el.remove(), 250);
+      bgSetTimeout(()=> el.remove(), 250);
     };
-    setTimeout(()=>{ if(!el.dataset.done) el.remove(); }, CATCH_FALL_MS+60);
+    bgSetTimeout(()=>{ if(!el.dataset.done) el.remove(); }, CATCH_FALL_MS+60);
   }
-  st.timer = setTimeout(spawnCatchLoop, CATCH_SPAWN_MS);
+  st.timer = bgSetTimeout(spawnCatchLoop, CATCH_SPAWN_MS);
 }
 
 /* ---- BUBBLE (TOXIN): a whole pond of bubbles appears simultaneously — scan and tap only the
@@ -6625,7 +7053,7 @@ function renderBubbleGame(){
       <div class="sync-score-line" id="bgScoreLine">คะแนนรวม: 0</div>
     </div></div>`;
   document.getElementById('bgQuitBtn').onclick = cancelBossPreFight;
-  setTimeout(nextBubbleWave, 500);
+  bgSetTimeout(nextBubbleWave, 500);
 }
 function nextBubbleWave(){
   const st = bossGameState;
@@ -6638,11 +7066,11 @@ function nextBubbleWave(){
   const used = [];
   for(let i=0;i<n;i++){
     const isSafe = Math.random()<0.6;
-    let x,y,ok;
+    let x,y,ok,tries=0;
     do{
       x = 10+Math.random()*80; y = 14+Math.random()*72; ok = true;
       for(const p of used) if(Math.abs(p.x-x)<16 && Math.abs(p.y-y)<20) ok=false;
-    } while(!ok);
+    } while(!ok && ++tries<60); // capped so a crowded board can never freeze the page
     used.push({x,y});
     const dot = document.createElement('div');
     dot.className = 'node-dot'; dot.style.left = x+'%'; dot.style.top = y+'%';
@@ -6669,7 +7097,7 @@ function nextBubbleWave(){
   }
   const statusEl = document.getElementById('bgStatusLine');
   if(statusEl) statusEl.textContent = `คลื่น ${st.round}/${BUBBLE_WAVES} — เลือกให้แม่น!`;
-  st.timeout = setTimeout(()=>{ if(bossGameState) nextBubbleWave(); }, BUBBLE_WAVE_MS);
+  st.timeout = bgSetTimeout(()=>{ if(bossGameState) nextBubbleWave(); }, BUBBLE_WAVE_MS);
 }
 
 /* ---- GUST (GALE): an arrow flashes a direction — tap the matching directional pad before time
@@ -6678,6 +7106,7 @@ const GUST_ROUNDS = 5;
 const GUST_ARROWS = [['↑','ขึ้น'],['↓','ลง'],['←','ซ้าย'],['→','ขวา']];
 function renderGustGame(){
   const st = bossGameState;
+  st.gustAnswered = true; // ignore taps during the intro delay
   st.maxScore = GUST_ROUNDS*2;
   const body = document.getElementById(st.bodyId);
   body.innerHTML = `
@@ -6699,7 +7128,7 @@ function renderGustGame(){
   document.querySelectorAll('#bgGustBtns .gust-btn').forEach(b=>{
     b.onclick = ()=> handleGustTap(parseInt(b.dataset.i,10));
   });
-  setTimeout(nextGustRound, 500);
+  bgSetTimeout(nextGustRound, 500);
 }
 function nextGustRound(){
   const st = bossGameState;
@@ -6714,7 +7143,7 @@ function nextGustRound(){
   const statusEl = document.getElementById('bgStatusLine');
   if(statusEl) statusEl.textContent = `รอบ ${st.round}/${GUST_ROUNDS} — ทิศทาง: ${GUST_ARROWS[st.gustIdx][1]}!`;
   sfxTone({freq:660, type:'triangle', dur:0.1, vol:0.16});
-  st.timeout = setTimeout(()=>{ if(bossGameState && !st.gustAnswered) handleGustTap(-1); }, 1400);
+  st.timeout = bgSetTimeout(()=>{ if(bossGameState && !st.gustAnswered) handleGustTap(-1); }, 1400);
 }
 function handleGustTap(i){
   const st = bossGameState;
@@ -6738,7 +7167,7 @@ function handleGustTap(i){
   }
   const scoreEl = document.getElementById('bgScoreLine');
   if(scoreEl) scoreEl.textContent = `คะแนนรวม: ${st.score}`;
-  setTimeout(()=>{ if(bossGameState) nextGustRound(); }, 650);
+  bgSetTimeout(()=>{ if(bossGameState) nextGustRound(); }, 650);
 }
 
 /* ---- SPROUT (NATURE): thorned sprouts pop up one at a time at random plots across a garden
@@ -6766,7 +7195,7 @@ function renderSproutGame(){
       <div class="sync-score-line" id="bgScoreLine">แตะโดน: 0/${SPROUT_COUNT}</div>
     </div></div>`;
   document.getElementById('bgQuitBtn').onclick = cancelBossPreFight;
-  setTimeout(spawnNextSprout, 500);
+  bgSetTimeout(spawnNextSprout, 500);
 }
 function spawnNextSprout(){
   const st = bossGameState;
@@ -6781,6 +7210,7 @@ function spawnNextSprout(){
   if(statusEl) statusEl.textContent = `แตะให้ทัน! (${st.sproutsDone}/${SPROUT_COUNT})`;
   plot.onclick = ()=>{
     if(plot.dataset.live!=='1') return;
+    clearTimeout(st.timeout);
     plot.dataset.live='0';
     plot.classList.remove('lit'); plot.querySelector('.ico').textContent = '🕳️';
     st.score++; st.sproutsDone++;
@@ -6789,16 +7219,16 @@ function spawnNextSprout(){
     flashBossGamePanel('flash');
     const scoreEl = document.getElementById('bgScoreLine');
     if(scoreEl) scoreEl.textContent = `แตะโดน: ${st.sproutsDone}/${SPROUT_COUNT}`;
-    setTimeout(spawnNextSprout, SPROUT_GAP_MS);
+    bgSetTimeout(spawnNextSprout, SPROUT_GAP_MS);
   };
-  st.timeout = setTimeout(()=>{
+  st.timeout = bgSetTimeout(()=>{
     if(!bossGameState || plot.dataset.live!=='1') return;
     plot.dataset.live='0';
     plot.classList.remove('lit'); plot.querySelector('.ico').textContent = '🕳️';
     st.sproutsDone++;
     const scoreEl = document.getElementById('bgScoreLine');
     if(scoreEl) scoreEl.textContent = `แตะโดน: ${st.score}/${SPROUT_COUNT}`;
-    setTimeout(spawnNextSprout, SPROUT_GAP_MS);
+    bgSetTimeout(spawnNextSprout, SPROUT_GAP_MS);
   }, SPROUT_UP_MS);
 }
 
@@ -6815,7 +7245,7 @@ function renderMirrorGame(){
     const ang = (i/MIRROR_NODE_COUNT)*2*Math.PI - Math.PI/2;
     const x = 50+42*Math.cos(ang), y = 50+38*Math.sin(ang);
     return `<div class="node-dot" data-i="${i}" style="left:${x}%; top:${y}%;"><span class="ico">🪞</span></div>`;
-  }).join('');
+  }).join('') + `<div id="bgBeam" class="node-dot lit" style="width:16px;height:16px;margin:-8px 0 0 -8px;pointer-events:none;z-index:3;left:50%;top:8%;"><span class="ico" style="font-size:.7rem">✨</span></div>`;
   body.innerHTML = `
     ${bossGamePanelOpen()}
     <div class="sync-game-wrap">
@@ -6848,6 +7278,8 @@ function nextMirrorRound(){
     if(!bossGameState || st.mirrorTapped) return;
     const elapsed = (now - st.mirrorStartT) % MIRROR_SWEEP_MS;
     st.mirrorPos = elapsed/MIRROR_SWEEP_MS;
+    const beamEl = document.getElementById('bgBeam');
+    if(beamEl){ const a = st.mirrorPos*2*Math.PI - Math.PI/2; beamEl.style.left=(50+42*Math.cos(a))+'%'; beamEl.style.top=(50+38*Math.sin(a))+'%'; }
     st.raf = requestAnimationFrame(step);
   }
   st.raf = requestAnimationFrame(step);
@@ -6871,7 +7303,7 @@ function handleMirrorTap(){
   if(statusEl) statusEl.textContent = `${label} (+${pts} คะแนน)`;
   const scoreEl = document.getElementById('bgScoreLine');
   if(scoreEl) scoreEl.textContent = `คะแนนรวม: ${st.score}`;
-  setTimeout(()=>{ if(bossGameState) nextMirrorRound(); }, 700);
+  bgSetTimeout(()=>{ if(bossGameState) nextMirrorRound(); }, 700);
 }
 
 /* ---- SHADOWFIND (SHADOW): a grid of identical silhouettes — one glows a hair brighter than the
@@ -6895,7 +7327,7 @@ function renderShadowFindGame(){
       <div class="sync-score-line" id="bgScoreLine">คะแนนรวม: 0</div>
     </div></div>`;
   document.getElementById('bgQuitBtn').onclick = cancelBossPreFight;
-  setTimeout(nextShadowFindRound, 500);
+  bgSetTimeout(nextShadowFindRound, 500);
 }
 function nextShadowFindRound(){
   const st = bossGameState;
@@ -6929,17 +7361,17 @@ function nextShadowFindRound(){
       }
       const scoreEl = document.getElementById('bgScoreLine');
       if(scoreEl) scoreEl.textContent = `คะแนนรวม: ${st.score}`;
-      setTimeout(()=>{ if(bossGameState) nextShadowFindRound(); }, 650);
+      bgSetTimeout(()=>{ if(bossGameState) nextShadowFindRound(); }, 650);
     };
     field.appendChild(dot);
   }
   const statusEl = document.getElementById('bgStatusLine');
   if(statusEl) statusEl.textContent = `รอบ ${st.round}/${SHADOWFIND_ROUNDS} — หาให้เจอ!`;
-  st.timeout = setTimeout(()=>{
+  st.timeout = bgSetTimeout(()=>{
     if(!bossGameState || st.shadowAnswered) return;
     st.shadowAnswered = true;
     showBossGameCombo('หนีไปแล้ว! 💨');
-    setTimeout(()=>{ if(bossGameState) nextShadowFindRound(); }, 500);
+    bgSetTimeout(()=>{ if(bossGameState) nextShadowFindRound(); }, 500);
   }, SHADOWFIND_ROUND_MS);
 }
 
@@ -6948,6 +7380,7 @@ function nextShadowFindRound(){
 const CIRCUIT_ROUNDS = 7;
 function renderCircuitGame(){
   const st = bossGameState;
+  st.circuitAnswered = true; // ignore taps during the intro delay
   st.maxScore = CIRCUIT_ROUNDS*2;
   const nodesHTML = MINIGAME_NODES.map((n,i)=>`
     <button type="button" class="hack-node" data-idx="${i}">
@@ -6970,7 +7403,7 @@ function renderCircuitGame(){
   body.querySelectorAll('.hack-node').forEach(btn=>{
     btn.onclick = ()=> handleCircuitTap(parseInt(btn.dataset.idx,10), btn);
   });
-  setTimeout(nextCircuitRound, 500);
+  bgSetTimeout(nextCircuitRound, 500);
 }
 function nextCircuitRound(){
   const st = bossGameState;
@@ -6986,7 +7419,7 @@ function nextCircuitRound(){
   sfxTone({freq:MINIGAME_NODES[st.circuitIdx].freq, type:'sine', dur:0.16, vol:0.16});
   const statusEl = document.getElementById('bgStatusLine');
   if(statusEl) statusEl.textContent = `รอบ ${st.round}/${CIRCUIT_ROUNDS} — ไว!`;
-  st.timeout = setTimeout(()=>{ if(bossGameState && !st.circuitAnswered) handleCircuitTap(-1, null); }, 1100);
+  st.timeout = bgSetTimeout(()=>{ if(bossGameState && !st.circuitAnswered) handleCircuitTap(-1, null); }, 1100);
 }
 function handleCircuitTap(idx, btn){
   const st = bossGameState;
@@ -7013,7 +7446,7 @@ function handleCircuitTap(idx, btn){
   }
   const scoreEl = document.getElementById('bgScoreLine');
   if(scoreEl) scoreEl.textContent = `คะแนนรวม: ${st.score}`;
-  setTimeout(()=>{
+  bgSetTimeout(()=>{
     if(litBtn){ litBtn.classList.remove('flash-ok','flash-bad'); }
     if(btn && btn!==litBtn) btn.classList.remove('flash-bad');
     if(bossGameState) nextCircuitRound();
@@ -7045,7 +7478,7 @@ function renderInterceptGame(){
   document.getElementById('bgQuitBtn').onclick = cancelBossPreFight;
   st.endAt = performance.now() + INTERCEPT_DURATION_MS;
   spawnInterceptLoop();
-  st.timeout = setTimeout(()=>{ if(bossGameState) showBossPreFightSummary(); }, INTERCEPT_DURATION_MS+INTERCEPT_FLY_MS+200);
+  st.timeout = bgSetTimeout(()=>{ if(bossGameState) showBossPreFightSummary(); }, INTERCEPT_DURATION_MS+INTERCEPT_FLY_MS+200);
 }
 function spawnInterceptLoop(){
   const st = bossGameState;
@@ -7060,7 +7493,7 @@ function spawnInterceptLoop(){
     el.style.top = y+'%';
     el.style.left = fromLeft ? '-8%' : '106%';
     lane.appendChild(el);
-    requestAnimationFrame(()=>{ el.style.transitionDuration = INTERCEPT_FLY_MS+'ms'; el.style.left = fromLeft ? '106%' : '-8%'; });
+    requestAnimationFrame(()=>{ void el.offsetWidth; el.style.transitionDuration = INTERCEPT_FLY_MS+'ms'; el.style.left = fromLeft ? '106%' : '-8%'; });
     el.onclick = (e)=>{
       e.stopPropagation();
       if(el.dataset.done) return;
@@ -7072,11 +7505,11 @@ function spawnInterceptLoop(){
       flashBossGamePanel('flash');
       const scoreEl = document.getElementById('bgScoreLine');
       if(scoreEl) scoreEl.textContent = `สกัดได้: ${st.taps} ลำ`;
-      setTimeout(()=> el.remove(), 250);
+      bgSetTimeout(()=> el.remove(), 250);
     };
-    setTimeout(()=>{ if(!el.dataset.done) el.remove(); }, INTERCEPT_FLY_MS+60);
+    bgSetTimeout(()=>{ if(!el.dataset.done) el.remove(); }, INTERCEPT_FLY_MS+60);
   }
-  st.timer = setTimeout(spawnInterceptLoop, INTERCEPT_SPAWN_MS);
+  st.timer = bgSetTimeout(spawnInterceptLoop, INTERCEPT_SPAWN_MS);
 }
 
 /* ---- DATASTREAM (COMPUTER): data packets fall down fixed lanes — tap only the clean packets,
@@ -7104,7 +7537,7 @@ function renderDatastreamGame(){
   document.getElementById('bgQuitBtn').onclick = cancelBossPreFight;
   st.endAt = performance.now() + DATASTREAM_DURATION_MS;
   spawnDatastreamLoop();
-  st.timeout = setTimeout(()=>{ if(bossGameState) showBossPreFightSummary(); }, DATASTREAM_DURATION_MS+DATASTREAM_FALL_MS+200);
+  st.timeout = bgSetTimeout(()=>{ if(bossGameState) showBossPreFightSummary(); }, DATASTREAM_DURATION_MS+DATASTREAM_FALL_MS+200);
 }
 function spawnDatastreamLoop(){
   const st = bossGameState;
@@ -7118,7 +7551,7 @@ function spawnDatastreamLoop(){
     const laneX = 15+Math.floor(Math.random()*4)*23;
     el.style.left = laneX+'%';
     lane.appendChild(el);
-    requestAnimationFrame(()=>{ el.style.transitionDuration = DATASTREAM_FALL_MS+'ms'; el.style.top = '100%'; });
+    requestAnimationFrame(()=>{ void el.offsetWidth; el.style.transitionDuration = DATASTREAM_FALL_MS+'ms'; el.style.top = '100%'; });
     el.onclick = (e)=>{
       e.stopPropagation();
       if(el.dataset.done) return;
@@ -7136,11 +7569,11 @@ function spawnDatastreamLoop(){
       }
       const scoreEl = document.getElementById('bgScoreLine');
       if(scoreEl) scoreEl.textContent = `คัดถูก: ${st.good}`;
-      setTimeout(()=> el.remove(), 250);
+      bgSetTimeout(()=> el.remove(), 250);
     };
-    setTimeout(()=>{ if(!el.dataset.done) el.remove(); }, DATASTREAM_FALL_MS+60);
+    bgSetTimeout(()=>{ if(!el.dataset.done) el.remove(); }, DATASTREAM_FALL_MS+60);
   }
-  st.timer = setTimeout(spawnDatastreamLoop, DATASTREAM_SPAWN_MS);
+  st.timer = bgSetTimeout(spawnDatastreamLoop, DATASTREAM_SPAWN_MS);
 }
 
 /* ---- HEARTBEAT (BLOOD): a heart pulses larger and smaller on a loop — tap it right at the peak
@@ -7189,7 +7622,7 @@ function nextHeartbeat(){
       const statusEl2 = document.getElementById('bgStatusLine');
       if(statusEl2) statusEl2.textContent = 'ช้าไป ✗';
       st.streak = 0;
-      setTimeout(()=>{ if(bossGameState) nextHeartbeat(); }, 400);
+      bgSetTimeout(()=>{ if(bossGameState) nextHeartbeat(); }, 400);
       return;
     }
     st.raf = requestAnimationFrame(step);
@@ -7224,7 +7657,7 @@ function handleHeartbeatTap(){
     if(streakEl) streakEl.textContent = '';
     if(pts===0) flashBossGamePanel('shake');
   }
-  setTimeout(()=>{ if(bossGameState) nextHeartbeat(); }, 600);
+  bgSetTimeout(()=>{ if(bossGameState) nextHeartbeat(); }, 600);
 }
 
 /* ---- Event Center: stage list / shop / daily quests, tabbed within #eventScreen ---- */
@@ -7331,7 +7764,7 @@ function renderEventShop(){
     const cls = ['team-pick-card','event-buy-card'];
     if(owned) cls.push('owned'); else if(!affordable) cls.push('unavailable');
     return `<div class="${cls.join(' ')}" data-id="${elem.id}" data-cost="${cost}" style="--rc:${elem.color}">
-      <div class="dot" style="background:${elem.color}"></div>
+      <div class="dot ic-dot">${charIconSVG(elem.id,elem.color)}</div>
       <div class="en">${elem.name}</div>
       <div class="th">${rr.labelTH}</div>
       ${owned ? `<div class="ebc-owned-badge">✅ ซื้อแล้ว</div>` : `<div class="ebc-cost">${cost}🔩</div>`}
@@ -7509,6 +7942,8 @@ function renderEventMinigame(){
   const startBtn = document.getElementById('hackStartBtn');
   if(startBtn) startBtn.onclick = startHackMinigame;
 }
+// timers bound to the current hack run, so a quit + fast restart can't be driven by stale callbacks
+function hackLater(fn, ms){ const tag = hackState; return setTimeout(()=>{ if(hackState!==tag) return; fn(); }, ms); }
 function startHackMinigame(){
   const state = minigameStateToday();
   if(state.plays >= MINIGAME_DAILY_LIMIT){
@@ -7517,9 +7952,9 @@ function startHackMinigame(){
   }
   state.plays++;
   persistSave();
-  hackState = { sequence:[], playerPos:0, round:0, locked:true };
+  hackState = { sequence:[], playerPos:0, round:0, cleared:0, locked:true };
   renderHackGame();
-  setTimeout(nextHackRound, 500);
+  hackLater(nextHackRound, 500);
 }
 function renderHackGame(){
   const body = document.getElementById('eventBody');
@@ -7574,7 +8009,7 @@ function playHackSequence(){
       setTimeout(()=> btn && btn.classList.remove('flash'), 260);
     }
     i++;
-    setTimeout(step, 430);
+    hackLater(step, 430);
   }
   step();
 }
@@ -7589,12 +8024,13 @@ function handleHackClick(idx){
     hackState.playerPos++;
     if(hackState.playerPos>=hackState.sequence.length){
       hackState.locked = true;
+      hackState.cleared = hackState.round;
       if(hackState.round>=MINIGAME_MAX_ROUNDS){
         endHackGame(true, false);
       } else {
         const statusEl = document.getElementById('hackStatusLine');
         if(statusEl) statusEl.textContent = `ถูกต้อง! ผ่านรอบ ${hackState.round} ✅`;
-        setTimeout(nextHackRound, 700);
+        hackLater(nextHackRound, 700);
       }
     }
   } else {
@@ -7606,7 +8042,7 @@ function handleHackClick(idx){
 // perfectClear: reached the round cap. quit: player bailed out mid-run via the back button
 // (still pays out for whatever they'd already cleared, same as a mistake would).
 function endHackGame(perfectClear, quit){
-  const roundsCleared = perfectClear ? hackState.round : Math.max(0, hackState.round-1);
+  const roundsCleared = perfectClear ? hackState.round : (hackState.cleared||0);
   let gearWon = roundsCleared * MINIGAME_GEAR_PER_ROUND;
   if(perfectClear) gearWon += MINIGAME_CLEAR_BONUS;
   hackState = null;
@@ -7621,7 +8057,7 @@ function endHackGame(perfectClear, quit){
       : (quit
           ? `🖥️ ออกจากเกม — เก็บได้ ${roundsCleared} รอบ +${gearWon}🔩`
           : (roundsCleared>0 ? `🖥️ พลาด — ผ่านมา ${roundsCleared} รอบ +${gearWon}🔩` : `🖥️ พลาดตั้งแต่รอบแรก — ลองใหม่อีกครั้ง`)));
-    renderEventMinigame();
+    if(!hackState && document.getElementById('eventScreen').style.display!=='none' && eventTab==='minigame') renderEventMinigame();
   };
   // perfect-clearing all MINIGAME_MAX_ROUNDS rounds also grants DIODE directly (a dupe pull
   // just turns into +1 upgrade shard, same convention as the event gacha/shop above) — this
@@ -7817,6 +8253,21 @@ function runGemsBattle(stageDef, playerTeamDefs){
       if(stageDef.boss) questProgress('gemsBoss', 1);
       if(alreadyCleared) questProgress('gemsReplay', 1);
       onlineStatusMsg(`ผ่านด่าน GEMS ${stageDef.id}! +${crystalReward} คริสตัล +${gemsReward}💎${alreadyCleared?' (เล่นซ้ำ)':''}`);
+      // the secret GEMS superboss is the ONLY source of METEORITE — every win grants it
+      // (a repeat win turns into +1 upgrade shard, same convention as DIODE's minigame reward)
+      if(stageDef.superBoss){
+        const meteorElem = ELEMENTS.find(e=>e.id==='meteorite');
+        if(meteorElem){
+          // credit FIRST, then show the reveal — closing/refreshing mid-animation can't eat the reward
+          const isNew = grantCharacterDirect('meteorite');
+          refreshP1Grid();
+          onlineStatusMsg(`☄️ ได้รับ ${meteorElem.name} ${isNew?'(ตัวละครใหม่!)':'(ซ้ำ +1 เศษอัพเกรด)'}!`);
+          if(window.gachaPull10){
+            window.gachaPull10([{item:meteorElem, isNew, badge:isNew?'NEW':'+1 เศษ', badgeType:isNew?'new':'dup'}],
+              {single:true, onClose:()=>{ refreshP1Grid(); }});
+          }
+        }
+      }
     } else {
       onlineStatusMsg(`พ่ายมอนสเตอร์ GEMS ด่าน ${stageDef.id} (❤️${stageDef.hp}) — ลองอัพเกรดทีมแล้วมาใหม่`);
     }
@@ -7839,7 +8290,7 @@ function renderGemsTeamPicker(stage){
   const ownedIds = Object.keys(saveData.roster);
   const icon = stage.superBoss ? '🖤' : (stage.finalBoss ? '👑' : (stage.boss ? '💠' : '💎'));
   const minigameTag = stage.preBattleMinigame ? ' (มีมินิเกมก่อนสู้)' : '';
-  const bossTag = stage.superBoss ? ` 🖤 บอสลับ GEMS${minigameTag}`
+  const bossTag = stage.superBoss ? ` 🖤 บอสลับ GEMS · รางวัล ☄️ METEORITE${minigameTag}`
     : (stage.boss ? (stage.finalBoss ? ` 👑 บอสใหญ่ GEMS${minigameTag}` : ` · มินิบอส GEMS${minigameTag}`) : '');
   body.innerHTML = `
     <div class="team-pick-head">
@@ -7858,7 +8309,7 @@ function renderGemsTeamPicker(stage){
     const card = document.createElement('div');
     card.className = 'team-pick-card';
     card.dataset.id = id;
-    card.innerHTML = `<div class="pick-order"></div>${gemsOriginBadge(id)}<div class="dot" style="background:${getCharColor(id)}"></div><div class="en">${elem.name}</div><div class="th">Lv.${entry.level}</div>`;
+    card.innerHTML = `<div class="pick-order"></div>${gemsOriginBadge(id)}<div class="dot ic-dot">${charIconSVG(id,getCharColor(id))}</div><div class="en">${elem.name}</div><div class="th">Lv.${entry.level}</div>`;
     card.onclick = ()=>{
       const idx = _pickedGemsTeam.indexOf(id);
       if(idx>=0){ _pickedGemsTeam.splice(idx,1); }
@@ -7933,7 +8384,7 @@ function renderGemsStages(){
     const unlocked = gemsStageUnlocked(st);
     const icon = unlocked ? (cleared?'✅':(st.superBoss?'🖤':(st.finalBoss?'👑':(st.boss?'💠':'💎')))) : '🔒';
     const mgTag = st.preBattleMinigame ? ' 🎮' : '';
-    const bossTag = st.superBoss ? ` · 🖤 บอสลับ GEMS${mgTag}`
+    const bossTag = st.superBoss ? ` · 🖤 บอสลับ GEMS · รางวัล ☄️ METEORITE${mgTag}`
       : (st.boss ? (st.finalBoss ? ` · 👑 บอสใหญ่ GEMS${mgTag}` : ` · 💠 มินิบอส GEMS${mgTag}`) : '');
     const shownCrystal = cleared ? Math.max(10, Math.round(st.crystal*0.4)) : st.crystal;
     const shownGems = cleared ? Math.max(3, Math.round(st.gems*0.4)) : st.gems;
@@ -7966,7 +8417,7 @@ function renderGemsShop(){
     const cls = ['team-pick-card','event-buy-card','gems-buy-card'];
     if(owned) cls.push('owned'); else if(!affordable) cls.push('unavailable');
     return `<div class="${cls.join(' ')}" data-id="${elem.id}" data-cost="${cost}" style="--rc:${elem.color}">
-      <div class="dot" style="background:${elem.color}"></div>
+      <div class="dot ic-dot">${charIconSVG(elem.id,elem.color)}</div>
       <div class="en">${elem.name}</div>
       <div class="th">${rr.labelTH}</div>
       ${owned ? `<div class="ebc-owned-badge">✅ ซื้อแล้ว</div>` : `<div class="ebc-cost">${cost}${CRYSTAL_ICON}</div>`}
@@ -8097,7 +8548,7 @@ function startGemsSpotGame(){
   }
   state.plays++;
   persistSave();
-  gemsSpotState = { round:0, locked:true };
+  gemsSpotState = { round:0, cleared:0, locked:true };
   nextGemsSpotRound();
 }
 function gemsSpotGridSize(round){ return Math.min(3 + Math.floor((round-1)/1.4), 7); }
@@ -8136,7 +8587,7 @@ function nextGemsSpotRound(){
 function gemsSpotTick(now){
   const st = gemsSpotState;
   if(!st || st.locked) return;
-  const dt = (now - st.lastT)/1000;
+  const dt = Math.min(0.1, (now - st.lastT)/1000); // a backgrounded tab must not burn the whole round
   st.lastT = now;
   st.timeLeft -= dt;
   const bar = document.getElementById('gemsSpotTimerBar');
@@ -8225,6 +8676,7 @@ function handleGemsSpotClick(idx){
   const btn = body.querySelector(`.spot-tile[data-idx="${idx}"]`);
   if(idx===st.oddIdx){
     st.locked = true;
+    st.cleared = st.round;
     if(st.raf) cancelAnimationFrame(st.raf);
     if(btn) btn.classList.add('flash-ok');
     gemsSpotSpark(st.skin.color, 8 + Math.min(st.round,10));
@@ -8236,7 +8688,7 @@ function handleGemsSpotClick(idx){
     } else {
       const statusEl = document.getElementById('gemsSpotStatusLine');
       if(statusEl) statusEl.textContent = `ถูกต้อง! ผ่านรอบ ${st.round} ✅`;
-      setTimeout(nextGemsSpotRound, 650);
+      setTimeout(()=>{ if(gemsSpotState===st) nextGemsSpotRound(); }, 650);
     }
   } else {
     st.locked = true;
@@ -8253,7 +8705,7 @@ function handleGemsSpotClick(idx){
 // already cleared before the run ended, same convention as the TECH Hack-the-Mainframe above.
 function endGemsSpotGame(perfectClear, quit, timedOut){
   const st = gemsSpotState;
-  const roundsCleared = perfectClear ? st.round : Math.max(0, st.round-1);
+  const roundsCleared = perfectClear ? st.round : (st.cleared||0);
   let crystalWon = roundsCleared * GEMS_SPOT_CRYSTAL_PER_ROUND;
   let goldWon = roundsCleared * GEMS_SPOT_GOLD_PER_ROUND;
   if(perfectClear){ crystalWon += GEMS_SPOT_CLEAR_BONUS_CRYSTAL; goldWon += GEMS_SPOT_CLEAR_BONUS_GOLD; }
@@ -8268,7 +8720,7 @@ function endGemsSpotGame(perfectClear, quit, timedOut){
           : (timedOut
               ? (roundsCleared>0 ? `🔍 หมดเวลา! — ผ่านมา ${roundsCleared} รอบ +${crystalWon} คริสตัล +${goldWon}🪙` : `🔍 หมดเวลาตั้งแต่รอบแรก — ลองใหม่อีกครั้ง`)
               : (roundsCleared>0 ? `🔍 แตะผิด — ผ่านมา ${roundsCleared} รอบ +${crystalWon} คริสตัล +${goldWon}🪙` : `🔍 แตะผิดตั้งแต่รอบแรก — ลองใหม่อีกครั้ง`))));
-    renderGemsMinigame();
+    if(!gemsSpotState && document.getElementById('gemsScreen').style.display!=='none' && gemsTab==='minigame') renderGemsMinigame();
   }, 550);
 }
 
@@ -9469,7 +9921,7 @@ function buildElementGrid(gridEl, detailEl, statEl, defId, restrictOwned){
     d.style.setProperty('--rg', rr.glow);
     d.title = owned ? (el.tag+' — '+rr.labelTH+' ('+rr.label+')') : 'ยังไม่ปลดล็อก — แตะเพื่อไปสุ่ม';
     d.innerHTML = (owned ? '' : '<div class="lock-tag">🔒</div>')
-      + `<div class="dot" style="background:${getCharColor(el.id)}"></div><div class="en">${el.name}</div><div class="rarity-stars">${'★'.repeat(rr.stars)}</div>`;
+      + `<div class="dot ic-dot">${charIconSVG(el.id,getCharColor(el.id))}</div><div class="en">${el.name}</div><div class="rarity-stars">${'★'.repeat(rr.stars)}</div>`;
     d.onclick=()=>{
       if(!owned){ onlineStatusMsg(el.name+' ยังไม่ปลดล็อก — ลองกด "สุ่มตัวละคร" ดูก่อน'); return; }
       [...gridEl.children].forEach(x=>x.classList.remove('sel'));
@@ -9497,7 +9949,7 @@ function renderStarterScreen(){
   grid.innerHTML = STARTER_IDS.map(id=>{
     const el = ELEMENTS.find(e=>e.id===id);
     return `<div class="starter-card" data-id="${id}" style="--rc:${el.color}">
-      <div class="dot" style="background:${el.color};color:${el.color}"></div>
+      <div class="dot ic-dot" style="color:${el.color}">${charIconSVG(el.id,el.color)}</div>
       <div class="en">${el.name}</div>
       <div class="th">${el.tag}</div>
       <div class="desc">${el.abA.name}<br>${el.abB.name}</div>
@@ -19695,18 +20147,23 @@ document.getElementById('startBtn').onclick = startBattle;
 document.getElementById('charGachaBtn').onclick = runCharGacha;
 document.getElementById('campaignBtn').onclick = openCampaignScreen;
 document.getElementById('campaignBackBtn').onclick = ()=>{
+  bossGameTeardown();
   document.getElementById('campaignScreen').style.display='none';
   document.getElementById('setupScreen').style.display='block';
 };
 document.getElementById('eventBtn').onclick = openEventScreen;
 document.getElementById('gemsBtn').onclick = openGemsScreen;
 document.getElementById('gemsBackBtn').onclick = ()=>{
+  bossGameTeardown(); hackState = null;
+  if(gemsSpotState){ if(gemsSpotState.raf) cancelAnimationFrame(gemsSpotState.raf); gemsSpotState = null; }
   document.getElementById('gemsScreen').style.display='none';
   document.getElementById('setupScreen').style.display='block';
 };
 if(!isEventActive()) document.getElementById('techCta').style.display='none';
 if(!isGemsActive()) document.getElementById('gemsCta').style.display='none';
 document.getElementById('eventBackBtn').onclick = ()=>{
+  bossGameTeardown(); hackState = null;
+  if(gemsSpotState){ if(gemsSpotState.raf) cancelAnimationFrame(gemsSpotState.raf); gemsSpotState = null; }
   document.getElementById('eventScreen').style.display='none';
   document.getElementById('setupScreen').style.display='block';
 };
@@ -20066,7 +20523,7 @@ document.getElementById('rematchBtn').onclick = ()=>{
             (p.badge ? '<span class="g10-badge '+(p.badgeType||'')+'">'+p.badge+'</span>' : '') +
             gemsOriginBadge(it.id) +
             (theme ? '<div class="g10-theme-fx"></div>' : '') +
-            '<div class="g10-dot'+shape+'" style="background:'+it.color+'"></div>' +
+            '<div class="g10-dot ic">'+anyIconSVG(it,{medal:true})+'</div>' +
             '<div class="g10-name">'+it.name+'</div>' +
             (single ? '<div class="g10-tag">'+(it.tag||'')+'</div>' : '') +
             '<div class="g10-stars">'+'★'.repeat(st)+'</div>' +

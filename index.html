@@ -3156,6 +3156,63 @@ svg.ic{ display:block; width:100%; height:100%; overflow:visible; }
 
 /* tap-heavy mini-game controls: no double-tap zoom / text selection while mashing */
 .mash-tap-btn, .reaction-zone, .hack-node, .gust-btn, .heartbeat-icon, .node-dot, .spot-tile, .skbtn, #bgAlignBtn{ touch-action:manipulation; -webkit-user-select:none; user-select:none; -webkit-tap-highlight-color:transparent; }
+
+/* ===== equip picker v2: one equipped card + category tabs + clean list ===== */
+.item-chip-row{ display:block; margin-top:0; }
+.eq-section{ margin-top:16px; }
+.eq-title{ font-size:0.72rem; letter-spacing:1.5px; color:var(--dim); text-transform:uppercase; margin:0 0 8px; }
+.eq-title.sub{ margin-top:16px; }
+.eq-worn{ display:flex; align-items:center; gap:12px; padding:12px; border-radius:14px; border:1px solid var(--ic,#ffffff33); background:linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02)); box-shadow:0 0 18px -8px var(--ic,#fff); }
+.eq-worn.empty{ justify-content:center; color:var(--dim); font-size:.82rem; border:1px dashed rgba(255,255,255,.18); box-shadow:none; padding:16px; text-align:center; }
+.eq-ico{ flex:0 0 40px; width:40px; height:40px; display:flex; align-items:center; justify-content:center; border-radius:10px; background:rgba(0,0,0,.35); border:1px solid rgba(255,255,255,.1); font-size:0; }
+.eq-ico svg{ width:78%; height:78%; filter:drop-shadow(0 0 4px var(--ic,#fff)); }
+.eq-ico.big{ flex-basis:52px; width:52px; height:52px; border-radius:14px; }
+.eq-main{ flex:1; min-width:0; }
+.eq-name{ font-size:.88rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.eq-name b{ color:var(--gold,#ffc94d); font-size:.75rem; }
+.eq-rar{ width:7px; height:7px; border-radius:50%; flex:0 0 7px; }
+.eq-desc{ font-size:.74rem; color:var(--dim,#9aa); margin-top:2px; line-height:1.35; }
+.eq-unequip{ flex:0 0 auto; padding:7px 12px; border-radius:10px; border:1px solid rgba(255,92,122,.5); background:rgba(255,92,122,.1); color:#ff8aa0; font-size:.78rem; cursor:pointer; }
+.eq-tabs{ display:flex; gap:6px; overflow-x:auto; padding-bottom:6px; margin-bottom:8px; scrollbar-width:none; }
+.eq-tabs::-webkit-scrollbar{ display:none; }
+.eq-tab{ flex:0 0 auto; padding:6px 12px; border-radius:999px; border:1px solid rgba(255,255,255,.15); background:rgba(255,255,255,.04); color:var(--dim,#9aa); font-size:.76rem; cursor:pointer; white-space:nowrap; }
+.eq-tab.on{ color:#fff; border-color:var(--gold,#ffc94d); background:rgba(255,201,77,.14); }
+.eq-list{ display:flex; flex-direction:column; gap:8px; max-height:46vh; overflow-y:auto; padding-right:2px; }
+.eq-row{ display:flex; align-items:center; gap:11px; padding:9px 11px; border-radius:12px; border:1px solid rgba(255,255,255,.09); background:rgba(255,255,255,.03); cursor:pointer; transition:background .15s,border-color .15s; }
+.eq-row:hover{ background:rgba(255,255,255,.07); border-color:var(--ic,#fff); }
+.eq-row.worn{ border-color:var(--ic,#fff); background:rgba(255,255,255,.08); }
+.eq-row.busy{ opacity:.4; cursor:not-allowed; }
+.eq-badge{ flex:0 0 auto; font-size:.7rem; padding:4px 9px; border-radius:999px; border:1px solid rgba(255,255,255,.2); color:#cfd6e4; white-space:nowrap; }
+.eq-badge.on{ color:#7dffb0; border-color:#7dffb0aa; background:rgba(125,255,176,.1); }
+.eq-badge.off{ color:var(--dim,#9aa); }
+.eq-empty{ text-align:center; color:var(--dim,#9aa); font-size:.8rem; padding:18px 0; }
+
+.wh-detail-dot{ width:56px !important; height:56px !important; margin:0 auto 6px !important; }
+.wh-detail-head{ padding-bottom:0; }
+
+.cr-card{ padding:11px; border-radius:14px; border:1px solid rgba(255,255,255,.09); background:rgba(255,255,255,.03); }
+.cr-card.can{ border-color:var(--ic,#fff); box-shadow:0 0 14px -8px var(--ic,#fff); }
+.cr-top{ display:flex; align-items:center; gap:11px; }
+.cr-bottom{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:10px; padding-top:9px; border-top:1px solid rgba(255,255,255,.07); flex-wrap:wrap; }
+.cr-ings{ display:flex; align-items:center; gap:5px; flex-wrap:wrap; font-size:.76rem; }
+.cr-ing{ display:inline-flex; align-items:center; gap:4px; padding:3px 7px; border-radius:8px; background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.1); }
+.cr-ing i{ display:inline-flex; width:16px; height:16px; font-style:normal; font-size:0; }
+.cr-ing i svg{ width:100%; height:100%; }
+.cr-ing i{ width:18px; height:18px; }
+.cr-ing.ok,.cr-gold.ok{ color:#7dffb0; } .cr-ing.no,.cr-gold.no{ color:#ff8aa0; }
+.cr-plus{ color:var(--dim,#9aa); }
+.cr-btn{ padding:7px 16px; }
+
+.idx-search{ width:100%; box-sizing:border-box; padding:9px 12px; border-radius:10px; border:1px solid rgba(255,255,255,.15); background:rgba(0,0,0,.3); color:#fff; font-size:.85rem; }
+.idx-card{ border-radius:12px; border:1px solid rgba(255,255,255,.09); background:rgba(255,255,255,.03); }
+.idx-card[open]{ border-color:var(--ic,#fff); background:rgba(255,255,255,.06); }
+.idx-card summary{ display:flex; align-items:center; gap:11px; padding:9px 11px; cursor:pointer; list-style:none; }
+.idx-card summary::-webkit-details-marker{ display:none; }
+.idx-body{ padding:2px 13px 12px; }
+.idx-h{ font-size:.68rem; letter-spacing:1.2px; color:var(--dim,#9aa); text-transform:uppercase; margin:10px 0 5px; }
+.idx-src{ font-size:.78rem; color:#e4e9f5; line-height:1.45; margin-bottom:4px; }
+.idx-skill{ font-size:.76rem; color:#c9d0e0; line-height:1.45; margin-bottom:4px; }
+.idx-skill b{ color:#fff; }
 </style>
 </head>
 <body>
@@ -3229,6 +3286,7 @@ svg.ic{ display:block; width:100%; height:100%; overflow:visible; }
       <button type="button" class="btn ghost small" id="itemGachaBtn">🧰 สุ่มไอเทม (200🪙)</button>
       <button type="button" class="btn ghost small" id="rosterBtn">📦 ดูคลัง / อัพเกรด</button>
       <button type="button" class="btn ghost small" id="redeemBtn">🎁 แลกโค้ด</button>
+      <button type="button" class="btn ghost small" id="indexBtn">📖 ดัชนี</button>
     </div>
     <div class="gacha-row gacha-row-x10">
       <button type="button" class="btn ghost small x10-btn" id="charGacha10Btn">🎰 สุ่มตัวละคร ×10</button>
@@ -3639,9 +3697,10 @@ const IconKit = (()=>{
     verdant_sprig:'sprout', seraph_bloom:'flower', crimson_thorn:'rose', abyssal_maw:'maw', sharp_monocle:'monocle',
     assassins_edge:'sword', pocket_ward:'bubble', travelers_ward:'bubble', spiny_hide:'thorn', barbed_chain:'link',
     vital_charm:'heart', sturdy_locket:'heart', giant_heart:'heart', titan_core:'heart',
-    nano_repair_kit:'kit', overclock_chip:'chip', quantum_capacitor:'bolt'
+    nano_repair_kit:'kit', overclock_chip:'chip', quantum_capacitor:'bolt',
+    ember_charm:'flame', inferno_brand:'flame', frost_shard:'snow', glacier_core:'snow', venom_vial:'skull', plague_fang:'skull', serrated_edge:'fangs', reaper_hook:'maw', static_coil:'bolt', thunder_crown:'crown', rotten_seal:'chalice', curse_of_famine:'chalice', drone_beacon:'drone', swarm_core:'drone', hive_queen:'drone', executioner_axe:'sword', ghost_cloak:'cloud', shadow_veil:'moon', chrono_gear:'gear', berserker_mask:'skull', phoenix_ash:'feather', chain_conductor:'swirl'
   };
-  const STAT_GLYPH = {pow:'sword', spd:'wing', flatReduce:'shield', regen:'leaf', lifesteal:'fang', crit:'eye', shield:'bubble', reflect:'thorn', maxHp:'heart', statusImmune:'charm', nullifyImmune:'link'};
+  const STAT_GLYPH = {pow:'sword', spd:'wing', flatReduce:'shield', regen:'leaf', lifesteal:'fang', crit:'eye', shield:'bubble', reflect:'thorn', maxHp:'heart', statusImmune:'charm', nullifyImmune:'link', burn:'flame', slow:'snow', poison:'skull', bleed:'fangs', stun:'bolt', wound:'chalice', drone:'drone', execute:'sword', dodge:'cloud', cdr:'gear', rage:'skull', revive:'feather', chain:'swirl'};
   const CHAR_GLYPH = {
     aqua:'drop', pyro:'flame', steam:'cloud', volt:'bolt', terra:'mountain', frost:'snow', gale:'wind', toxin:'skull', radiant:'sun',
     shadow:'moon', metal:'gear', nature:'leaf', sound:'wave', cosmos:'galaxy', love:'heart', emerald:'gem_emerald', topaz:'gem_topaz',
@@ -3818,7 +3877,7 @@ function itemChipHTML(idef, selected, count, disabled){
   </div>`;
 }
 
-let rosterTab = 'chars'; // 'chars' | 'items'
+let rosterTab = 'chars'; // 'chars' | 'items' | 'craft'
 // [TECH UPDATE] warehouse v2: grid overview (tap a card to open its detail) replaces the old
 // flat accordion list. charDetailId/itemDetailId hold the currently opened card's id (null =
 // showing the grid). Sort/filter state is separate per tab so switching tabs doesn't reset it.
@@ -3904,6 +3963,33 @@ function renderCharGrid(ids){
   return summary + toolbar + `<div class="char-grid">${cards}</div>`;
 }
 
+let eqCat = 'all';
+const EQ_CATS = [
+  {id:'all', label:'ทั้งหมด', stats:null},
+  {id:'atk', label:'⚔️ โจมตี', stats:['pow','spd','crit','execute','rage','cdr']},
+  {id:'def', label:'🛡️ ป้องกัน', stats:['flatReduce','shield','reflect','dodge','statusImmune','nullifyImmune']},
+  {id:'hp',  label:'❤️ เลือด', stats:['maxHp','regen','lifesteal','revive']},
+  {id:'fx',  label:'🔥 สถานะ', stats:['burn','slow','poison','bleed','stun','wound']},
+  {id:'sp',  label:'✨ พิเศษ', stats:['drone','chain']}
+];
+function eqRowHTML(idef, state, count){
+  // state: 'worn' (this char wears it) | 'free' | 'busy' (all copies worn by others)
+  const lvl = itemEnhanceLevel(idef.id);
+  const rar = (typeof RARITIES!=='undefined' && RARITIES[idef.rarity]) ? RARITIES[idef.rarity] : null;
+  const rc = rar ? rar.color : '#9aa0ac';
+  const badge = state==='worn' ? '<span class="eq-badge on">ใส่อยู่</span>'
+              : state==='busy' ? '<span class="eq-badge off">ถูกใช้หมด</span>'
+              : `<span class="eq-badge">ใส่${count>1?` · x${count}`:''}</span>`;
+  return `<div class="eq-row ${state}" data-item="${idef.id}" style="--ic:${idef.color}">
+    <div class="eq-ico">${itemIconSVG(idef)}</div>
+    <div class="eq-main">
+      <div class="eq-name"><span class="eq-rar" style="background:${rc}"></span>${idef.name}${lvl>0?` <b>+${lvl}</b>`:''}</div>
+      <div class="eq-desc">${itemStatDisplay(idef)}</div>
+    </div>
+    ${badge}
+  </div>`;
+}
+
 function renderCharDetail(id){
   const ids = Object.keys(saveData.roster);
   const elem = ELEMENTS.find(e=>e.id===id);
@@ -3929,15 +4015,36 @@ function renderCharDetail(id){
   const curPow = Math.round(elem.pow*mult) + bonusPow, curSpd = Math.round(elem.spd*mult) + bonusSpd;
 
   const ownedItemIds = Object.keys(saveData.itemInventory).filter(iid=>saveData.itemInventory[iid]>0);
-  const noneChip = `<div class="item-chip shape-none ${entry.item?'':'sel'}" data-item="" title="ไม่ใส่ไอเทม"><span class="ico">✖</span></div>`;
-  const itemChips = noneChip + ownedItemIds.map(iid=>{
+  const catDef = EQ_CATS.find(c=>c.id===eqCat) || EQ_CATS[0];
+  const rankOf = iid=>{ const d=getItemDef(iid); return d ? RARITY_ORDER.indexOf(d.rarity||'common') : -1; };
+  const listIds = ownedItemIds.filter(iid=>{
+    const d = getItemDef(iid); if(!d) return false;
+    return !catDef.stats || catDef.stats.includes(d.stat);
+  }).sort((a,b)=> rankOf(b)-rankOf(a) || getItemDef(a).name.localeCompare(getItemDef(b).name));
+  const itemRows = listIds.map(iid=>{
     const idef = getItemDef(iid);
-    if(!idef) return '';
-    const isEquippedHere = entry.item===iid;
-    const spare = availableItemCount(iid, id); // spare copies not worn by anyone else
-    const disabled = !isEquippedHere && spare<=0;
-    return itemChipHTML(idef, isEquippedHere, saveData.itemInventory[iid], disabled);
-  }).join('');
+    const isWorn = entry.item===iid;
+    const spare = availableItemCount(iid, id);
+    return eqRowHTML(idef, isWorn?'worn':(spare<=0?'busy':'free'), saveData.itemInventory[iid]);
+  }).join('') || '<div class="eq-empty">ไม่มีไอเทมในหมวดนี้</div>';
+  const eqTabs = EQ_CATS.map(c=>`<button type="button" class="eq-tab ${c.id===eqCat?'on':''}" data-cat="${c.id}">${c.label}</button>`).join('');
+  const wornCard = equippedDef
+    ? `<div class="eq-worn" style="--ic:${equippedDef.color}">
+         <div class="eq-ico big">${itemIconSVG(equippedDef)}</div>
+         <div class="eq-main">
+           <div class="eq-name">${equippedDef.name}${itemEnhanceLevel(equippedDef.id)>0?` <b>+${itemEnhanceLevel(equippedDef.id)}</b>`:''}</div>
+           <div class="eq-desc">${itemStatDisplay(equippedDef)}</div>
+         </div>
+         <button type="button" class="eq-unequip" data-item="">ถอด</button>
+       </div>`
+    : `<div class="eq-worn empty">ยังไม่ได้ใส่ไอเทม — เลือกจากรายการด้านล่าง</div>`;
+  const itemChips = `<div class="eq-section">
+      <div class="eq-title">🎒 ไอเทมที่สวมใส่</div>
+      ${wornCard}
+      <div class="eq-title sub">เปลี่ยนไอเทม</div>
+      <div class="eq-tabs">${eqTabs}</div>
+      <div class="eq-list">${itemRows}</div>
+    </div>`;
 
   const dispColor = getCharColor(id);
   return `
@@ -3952,7 +4059,7 @@ function renderCharDetail(id){
     <span class="roster-name" style="color:${elem.color}">Lv.${entry.level}${maxed?' (MAX)':''}</span>
     <span class="roster-lv">เศษอัพเกรด ${entry.shards}</span>
   </div>
-  <div class="roster-row-sub">พลัง ${curPow} · ความเร็ว ${curSpd}${equippedDef?` · สวมใส่: ${equippedDef.icon} ${equippedDef.name}${itemEnhanceLevel(equippedDef.id)>0?` +${itemEnhanceLevel(equippedDef.id)}`:''} — ${itemStatDisplay(equippedDef)}`:' · ยังไม่ได้ใส่ไอเทม'}</div>
+  <div class="roster-row-sub">พลัง ${curPow} · ความเร็ว ${curSpd}</div>
   <div class="roster-row-actions">
     <button type="button" class="btn ghost small roster-lvup-btn" data-elem="${id}" ${canLevel?'':'disabled'}>
       ${maxed?'อัพเกรดสูงสุดแล้ว':`⬆️ อัพเกรด (${cost.gold}🪙+${cost.shards}เศษ)`}
@@ -3965,7 +4072,6 @@ function renderCharDetail(id){
       )
     ):''}
   </div>
-  <label style="display:block;font-size:0.6rem;letter-spacing:1.5px;color:var(--dim);margin:16px 0 9px;text-transform:uppercase;">🎒 เปลี่ยนไอเทมที่สวมใส่</label>
   <div class="item-chip-row" data-elem="${id}">${itemChips}</div>
   ${id==='glitch'?`<div class="roster-row-sub" style="opacity:0.75;margin-top:9px;">⚠️ ไอเทมฟื้นฟู HP และดูดเลือดไม่มีผลกับ GLITCH (เลือดคงที่ที่ 20 และรับดาเมจแค่ 1 ต่อครั้งอยู่แล้ว)</div>`:''}`;
 }
@@ -4082,14 +4188,17 @@ function renderRosterBody(){
     <div class="wh-tabs">
       <button type="button" class="btn ghost small wh-tab ${rosterTab==='chars'?'active':''}" id="rosterTabChars">👤 ตัวละคร</button>
       <button type="button" class="btn ghost small wh-tab ${rosterTab==='items'?'active':''}" id="rosterTabItems">🧰 คลังไอเทม</button>
+      <button type="button" class="btn ghost small wh-tab ${rosterTab==='craft'?'active':''}" id="rosterTabCraft">🔨 คราฟท์</button>
     </div>
-    ${rosterTab==='chars' ? renderRosterCharsBody() : renderRosterItemsBody()}
+    ${rosterTab==='chars' ? renderRosterCharsBody() : (rosterTab==='craft' ? renderCraftBody() : renderRosterItemsBody())}
   `;
 }
 
 function wireRosterListEvents(){
   document.getElementById('rosterTabChars').onclick = ()=>{ rosterTab='chars'; openRosterModal(); };
   document.getElementById('rosterTabItems').onclick = ()=>{ rosterTab='items'; openRosterModal(); };
+  document.getElementById('rosterTabCraft').onclick = ()=>{ rosterTab='craft'; openRosterModal(); };
+  wireCraftEvents();
 
   const backChars = document.getElementById('whBackChars');
   if(backChars) backChars.onclick = ()=>{ charDetailId=null; openRosterModal(); };
@@ -4144,7 +4253,8 @@ function wireRosterListEvents(){
   });
   document.querySelectorAll('.item-chip-row').forEach(row=>{
     const elemId = row.dataset.elem;
-    row.querySelectorAll('.item-chip:not(.unavailable)').forEach(chip=>{
+    row.querySelectorAll('.eq-tab').forEach(t=>{ t.onclick = ()=>{ eqCat = t.dataset.cat; openRosterModal(); }; });
+    row.querySelectorAll('.eq-row:not(.busy):not(.worn), .eq-unequip').forEach(chip=>{
       chip.onclick = ()=>{
         const itemId = chip.dataset.item;
         const elem = ELEMENTS.find(e=>e.id===elemId);
@@ -4192,8 +4302,216 @@ function wireRosterListEvents(){
   });
 }
 
+
+/* ================= CRAFTING =================
+   Data-driven and deterministic: every recipe is { out, ingredients, gold } and always yields
+   exactly `out`. To add a recipe later (including a CHARACTER recipe) just push another entry:
+     { out:{type:'item', id:'...'} | {type:'char', id:'...'}, ingredients:[{item:'id', n:3}], gold:500 }
+   Only SPARE copies (not worn by a character) can be used as ingredients. */
+const CRAFT_RECIPES = [
+  // --- fuse 3 of a kind into its upgraded form ---
+  {out:{type:'item',id:'inferno_brand'},   ingredients:[{item:'ember_charm',n:3}],     gold:400},
+  {out:{type:'item',id:'glacier_core'},    ingredients:[{item:'frost_shard',n:3}],     gold:400},
+  {out:{type:'item',id:'plague_fang'},     ingredients:[{item:'venom_vial',n:3}],      gold:250},
+  {out:{type:'item',id:'reaper_hook'},     ingredients:[{item:'serrated_edge',n:3}],   gold:250},
+  {out:{type:'item',id:'curse_of_famine'}, ingredients:[{item:'rotten_seal',n:3}],     gold:450},
+  {out:{type:'item',id:'thunder_crown'},   ingredients:[{item:'static_coil',n:3}],     gold:800},
+  {out:{type:'item',id:'swarm_core'},      ingredients:[{item:'drone_beacon',n:3}],    gold:500},
+  {out:{type:'item',id:'hive_queen'},      ingredients:[{item:'swarm_core',n:3}],      gold:1200},
+  {out:{type:'item',id:'shadow_veil'},     ingredients:[{item:'ghost_cloak',n:3}],     gold:800},
+  // --- special recipes: mix two different items ---
+  {out:{type:'item',id:'executioner_axe'}, ingredients:[{item:'blade_edge',n:1},{item:'serrated_edge',n:1}],    gold:300},
+  {out:{type:'item',id:'chrono_gear'},     ingredients:[{item:'swift_boots',n:1},{item:'wind_anklet',n:1}],     gold:500},
+  {out:{type:'item',id:'berserker_mask'},  ingredients:[{item:'assassins_edge',n:1},{item:'blood_chalice',n:1}],gold:500},
+  {out:{type:'item',id:'chain_conductor'}, ingredients:[{item:'storm_charm',n:1},{item:'static_coil',n:1}],    gold:400},
+  // --- character recipe: STEAM is craft-only (AQUA + PYRO shards + gold) ---
+  {out:{type:'char',id:'steam'}, ingredients:[{char:'aqua',shards:8},{char:'pyro',shards:8}], gold:3000},
+  {out:{type:'item',id:'phoenix_ash'},     ingredients:[{item:'phoenix_feather',n:1},{item:'phoenix_wing',n:1}],gold:900},
+];
+let craftKind = 'item'; // 'item' | 'char' — crafting is split into two separate sections
+let craftFilter = 'can'; // 'can' (craftable now) | 'all'
+function craftOutDef(r){ return r.out.type==='item' ? getItemDef(r.out.id) : (ELEMENTS.find(e=>e.id===r.out.id)||null); }
+function craftStatus(r){
+  const ing = r.ingredients.map(g=> g.char
+    ? {...g, n:g.shards, have:(rosterEntry(g.char)?rosterEntry(g.char).shards:0), owned:ownsChar(g.char), def:ELEMENTS.find(e=>e.id===g.char)}
+    : {...g, have:availableItemCount(g.item,null), def:getItemDef(g.item)});
+  const okIng = ing.every(g=>g.have>=g.n && (g.char?g.owned:true)) && !(r.out.type==='char' && ownsChar(r.out.id));
+  const okGold = saveData.gold>=r.gold;
+  return {ing, okIng, okGold, can:okIng&&okGold};
+}
+function doCraft(idx){
+  const r = CRAFT_RECIPES[idx]; if(!r) return false;
+  const st = craftStatus(r); if(!st.can) return false;
+  r.ingredients.forEach(g=>{
+    if(g.char){ saveData.roster[g.char].shards -= g.shards; return; }
+    saveData.itemInventory[g.item] -= g.n;
+    if(saveData.itemInventory[g.item]<=0) delete saveData.itemInventory[g.item];
+  });
+  saveData.gold -= r.gold;
+  if(r.out.type==='item') saveData.itemInventory[r.out.id] = (saveData.itemInventory[r.out.id]||0) + 1;
+  else if(!saveData.roster[r.out.id]) saveData.roster[r.out.id] = {level:1, shards:0, item:null};
+  persistSave(); refreshGemsUI();
+  return true;
+}
+function renderCraftBody(){
+  const allRows = CRAFT_RECIPES.map((r,idx)=>({r,idx,st:craftStatus(r),def:craftOutDef(r)})).filter(x=>x.def);
+  const countOf = k=>allRows.filter(x=>x.r.out.type===k);
+  const kindTabs = `<div class="eq-tabs" style="margin-bottom:10px">
+    <button type="button" class="eq-tab craft-k ${craftKind==='item'?'on':''}" data-k="item">🧰 คราฟท์ไอเทม (${countOf('item').length})</button>
+    <button type="button" class="eq-tab craft-k ${craftKind==='char'?'on':''}" data-k="char">👤 คราฟท์ตัวละคร (${countOf('char').length})</button></div>`;
+  const rows = countOf(craftKind);
+  const shown = rows.filter(x=> craftFilter==='all' || x.st.can);
+  shown.sort((a,b)=> (b.st.can-a.st.can) || (RARITY_ORDER.indexOf(b.def.rarity||'common')-RARITY_ORDER.indexOf(a.def.rarity||'common')));
+  const canCount = rows.filter(x=>x.st.can).length;
+  const head = kindTabs + `<div class="wh-summary">🔨 คราฟท์ได้ตอนนี้ ${canCount} สูตร · ทองของคุณ ${saveData.gold}🪙</div>
+    <div class="eq-tabs"><button type="button" class="eq-tab craft-f ${craftFilter==='can'?'on':''}" data-f="can">คราฟท์ได้</button>
+    <button type="button" class="eq-tab craft-f ${craftFilter==='all'?'on':''}" data-f="all">ทุกสูตร (${rows.length})</button></div>`;
+  const list = shown.map(({r,idx,st,def})=>{
+    const ings = st.ing.map(g=> g.char
+      ? `<span class="cr-ing ${(g.owned&&g.have>=g.n)?'ok':'no'}" title="${g.def.name} (เศษตัวละคร)"><i style="color:${g.def.color}">${charIconSVG(g.def.id,g.def.color)}</i>${g.def.name} เศษ ${g.have}/${g.n}</span>`
+      : `<span class="cr-ing ${g.have>=g.n?'ok':'no'}" title="${g.def?g.def.name:g.item}"><i>${g.def?itemIconSVG(g.def):''}</i>${g.have}/${g.n}</span>`).join('<span class="cr-plus">+</span>');
+    const isChar = r.out.type==='char', ownedOut = isChar && ownsChar(r.out.id);
+    const outIcon = isChar ? `<div class="eq-ico" style="color:${def.color}">${charIconSVG(def.id,def.color)}</div>` : `<div class="eq-ico">${itemIconSVG(def)}</div>`;
+    const outDesc = isChar ? `ตัวละคร · ${(getRarity(def)||{}).labelTH||''} · ${def.tag}` : itemStatDisplay(def);
+    return `<div class="cr-card ${st.can?'can':''}" style="--ic:${def.color}">
+      <div class="cr-top">${outIcon}
+        <div class="eq-main"><div class="eq-name">${def.name}${isChar?' <b>ตัวละคร</b>':''}</div><div class="eq-desc">${outDesc}</div></div></div>
+      <div class="cr-bottom"><div class="cr-ings">${ings}<span class="cr-plus">+</span><span class="cr-gold ${st.okGold?'ok':'no'}">${r.gold}🪙</span></div>
+        <button type="button" class="btn small cr-btn" data-idx="${idx}" ${st.can?'':'disabled'}>${ownedOut?'มีแล้ว':'คราฟท์'}</button></div>
+    </div>`;
+  }).join('') || `<div class="eq-empty">ยังไม่มีสูตรที่คราฟท์ได้ตอนนี้<br>ลองดู "ทุกสูตร" เพื่อดูว่าขาดอะไร</div>`;
+  return head + `<div class="eq-list" style="max-height:none">${list}</div>`;
+}
+function wireCraftEvents(){
+  document.querySelectorAll('.craft-k').forEach(b=>{ b.onclick=()=>{ craftKind=b.dataset.k; openRosterModal(); }; });
+  document.querySelectorAll('.craft-f').forEach(b=>{ b.onclick=()=>{ craftFilter=b.dataset.f; openRosterModal(); }; });
+  document.querySelectorAll('.cr-btn').forEach(b=>{
+    b.onclick = ()=>{
+      const r = CRAFT_RECIPES[+b.dataset.idx], def = r && craftOutDef(r);
+      if(doCraft(+b.dataset.idx)){
+        onlineStatusMsg(r.out.type==='char' ? `🔨 คราฟท์ตัวละคร ${def.name} สำเร็จ! ปลดล็อกแล้ว` : `🔨 คราฟท์ ${def.name} สำเร็จ! — ${itemStatDisplay(def)}`);
+        try{ sfxTone({freq:880,endFreq:1320,type:'triangle',dur:0.25,vol:0.12}); }catch(e){}
+      }
+      openRosterModal();
+    };
+  });
+}
+
+
+/* ================= INDEX: database of every character & item + how to obtain it ================= */
+let idxTab = 'char';      // 'char' | 'item'
+let idxRarity = 'all';
+let idxQuery = '';
+function idxCraftText(kind, id){
+  const r = CRAFT_RECIPES.find(x=>x.out.type===kind && x.out.id===id);
+  if(!r) return null;
+  const parts = r.ingredients.map(g=>{
+    if(g.char){ const e=ELEMENTS.find(x=>x.id===g.char); return `เศษ ${e?e.name:g.char} ×${g.shards}`; }
+    const d=getItemDef(g.item); return `${d?d.name:g.item} ×${g.n}`;
+  });
+  return `🔨 คราฟท์ในคลัง → แท็บคราฟท์: ${parts.join(' + ')} + ${r.gold}🪙`;
+}
+function idxCharSources(e){
+  const out = [];
+  const craft = idxCraftText('char', e.id);
+  if(craft) out.push(craft);
+  if(e.id==='diode') out.push('🖥️ รางวัลมินิเกมแฮ็กเมนเฟรม (ผ่านครบทุกรอบแบบสมบูรณ์) — ไม่ออกจากตู้');
+  else if(e.id==='icecream') out.push('🤫 โค้ดลับเท่านั้น — ไม่ออกจากตู้');
+  else if(e.id==='meteorite') out.push('☄️ ชนะบอสด่านสุดท้ายของโหมด GEMS UPDATE — ไม่ออกจากตู้');
+  else if(TECH_IDS.includes(e.id)) out.push('🖥️ กาชา/ร้านค้าของอีเวนต์ TECH UPDATE (เฉพาะช่วงอีเวนต์)');
+  else if(GEMS_IDS.includes(e.id)) out.push('💎 กาชา/ร้านค้าของโหมด GEMS UPDATE');
+  else if(!craft) out.push('🎰 กาชาตัวละครทั่วไป (120💎) · ตัวซ้ำได้เป็นเศษอัพเกรด');
+  if(e.rarity==='epic' && !craft && !TECH_IDS.includes(e.id) && !GEMS_IDS.includes(e.id) && e.id!=='diode') out.push('🎁 เลือกได้จากโค้ดรางวัลแบบเลือกตัวละคร Epic');
+  if(Object.values(REDEEM_CODES).some(v=>v.charId===e.id) && e.id!=='icecream') out.push('🎟️ มีโค้ดลับที่ให้ตัวละครนี้โดยตรง');
+
+  return out;
+}
+
+function idxItemSources(d){
+  const out = [];
+  const craft = idxCraftText('item', d.id);
+  if(craft) out.push(craft);
+  if(d.craftOnly) out.push('ไม่ออกจากตู้สุ่ม — ได้จากการคราฟท์เท่านั้น');
+  else if(d.eventExclusive) out.push('🖥️ กาชาไอเทมของอีเวนต์ TECH UPDATE (เฉพาะช่วงอีเวนต์)');
+  else out.push('🧰 กาชาไอเทม (200🪙)');
+  const tier = DROP_T1.includes(d.id) ? 'ทั่วไป (ทุกด่าน)' : DROP_T2.includes(d.id) ? 'หายาก (บอสดรอปบ่อย)' : DROP_T3.includes(d.id) ? 'ล้ำค่า (บอสมีโอกาสน้อย)' : null;
+  if(tier){
+    const themes = Object.keys(THEME_DROP).filter(t=>THEME_DROP[t].includes(d.id));
+    out.push(`⚔️ ดรอปจากด่านแคมเปญ: ${tier}${themes.length?' · ออกง่ายในโลกธีม '+themes.join(', '):''}`);
+  }
+  const usedIn = CRAFT_RECIPES.filter(r=>r.ingredients.some(g=>g.item===d.id)).map(r=>{ const o=craftOutDef(r); return o?o.name:''; }).filter(Boolean);
+  if(usedIn.length) out.push(`🔨 ใช้เป็นวัตถุดิบคราฟท์: ${usedIn.join(', ')}`);
+  return out;
+}
+function renderIndexBody(){
+  const q = idxQuery.trim().toLowerCase();
+  const rarOk = r => idxRarity==='all' || r===idxRarity;
+  const rarList = RARITY_ORDER.filter(r=>r!=='secret' || true);
+  const tabs = `<div class="eq-tabs">
+    <button type="button" class="eq-tab idx-t ${idxTab==='char'?'on':''}" data-t="char">👤 ตัวละคร (${ELEMENTS.length})</button>
+    <button type="button" class="eq-tab idx-t ${idxTab==='item'?'on':''}" data-t="item">🧰 ไอเทม (${ITEM_DEFS.length})</button></div>`;
+  const rarTabs = `<div class="eq-tabs"><button type="button" class="eq-tab idx-r ${idxRarity==='all'?'on':''}" data-r="all">ทุกระดับ</button>${
+    rarList.map(r=>`<button type="button" class="eq-tab idx-r ${idxRarity===r?'on':''}" data-r="${r}" style="${idxRarity===r?'':'color:'+(RARITIES[r]?RARITIES[r].color:'#fff')}">${RARITIES[r]?RARITIES[r].labelTH:r}</button>`).join('')}</div>`;
+  const search = `<input type="text" id="idxSearch" class="idx-search" placeholder="ค้นหาชื่อ..." value="${idxQuery.replace(/"/g,'&quot;')}">`;
+  let rows = '', total = 0, owned = 0;
+  if(idxTab==='char'){
+    const list = ELEMENTS.filter(e=>rarOk(e.rarity) && (!q || e.name.toLowerCase().includes(q) || (e.tag||'').toLowerCase().includes(q)))
+      .sort((a,b)=>RARITY_ORDER.indexOf(b.rarity)-RARITY_ORDER.indexOf(a.rarity) || a.name.localeCompare(b.name));
+    total = list.length;
+    rows = list.map(e=>{
+      const has = ownsChar(e.id); if(has) owned++;
+      const rar = getRarity(e);
+      const src = idxCharSources(e).map(t=>`<div class="idx-src">${t}</div>`).join('');
+      return `<details class="idx-card" style="--ic:${e.color}">
+        <summary><div class="eq-ico" style="color:${e.color}">${charIconSVG(e.id,e.color)}</div>
+          <div class="eq-main"><div class="eq-name"><span class="eq-rar" style="background:${rar.color}"></span>${e.name}</div>
+          <div class="eq-desc">${rar.labelTH} · ${e.tag||''} · พลัง ${e.pow} · เร็ว ${e.spd}</div></div>
+          <span class="eq-badge ${has?'on':'off'}">${has?'มีแล้ว':'ยังไม่มี'}</span></summary>
+        <div class="idx-body">
+          <div class="idx-h">วิธีได้ตัวละครนี้</div>${src}
+          <div class="idx-h">สกิล</div>
+          <div class="idx-skill"><b>${e.abA.name}</b> — ${e.abA.desc}</div>
+          <div class="idx-skill"><b>${e.abB.name}</b> — ${e.abB.desc}</div>
+          ${e.passiveDesc?`<div class="idx-h">พาสซีฟ</div><div class="idx-skill">${e.passiveDesc}</div>`:''}
+        </div></details>`;
+    }).join('');
+  } else {
+    const list = ITEM_DEFS.filter(d=>rarOk(d.rarity||'common') && (!q || d.name.toLowerCase().includes(q) || (d.tag||'').toLowerCase().includes(q)))
+      .sort((a,b)=>RARITY_ORDER.indexOf(b.rarity||'common')-RARITY_ORDER.indexOf(a.rarity||'common') || a.name.localeCompare(b.name));
+    total = list.length;
+    rows = list.map(d=>{
+      const cnt = saveData.itemInventory[d.id]||0; if(cnt>0) owned++;
+      const rar = RARITIES[d.rarity||'common'] || RARITIES.common;
+      const src = idxItemSources(d).map(t=>`<div class="idx-src">${t}</div>`).join('');
+      return `<details class="idx-card" style="--ic:${d.color}">
+        <summary><div class="eq-ico">${itemIconSVG(d)}</div>
+          <div class="eq-main"><div class="eq-name"><span class="eq-rar" style="background:${rar.color}"></span>${d.name}</div>
+          <div class="eq-desc">${itemStatDisplay(d)}</div></div>
+          <span class="eq-badge ${cnt>0?'on':'off'}">${cnt>0?'มี ×'+cnt:'ยังไม่มี'}</span></summary>
+        <div class="idx-body"><div class="idx-h">วิธีได้ไอเทมนี้</div>${src}
+          <div class="idx-skill">${rar.labelTH} · ราคาขาย ${d.sell}🪙</div></div></details>`;
+    }).join('');
+  }
+  return `<div class="wh-summary">📖 ดัชนีฐานข้อมูล — แสดง ${total} รายการ · สะสมแล้ว ${owned}</div>${tabs}${rarTabs}${search}
+    <div class="eq-list" style="max-height:none;margin-top:10px">${rows || '<div class="eq-empty">ไม่พบรายการ</div>'}</div>`;
+}
+function openIndexModal(){
+  document.getElementById('listModalTitle').textContent = '📖 ดัชนี — ตัวละคร & ไอเทม';
+  document.getElementById('listModalBody').innerHTML = renderIndexBody();
+  document.getElementById('listModal').classList.add('show');
+  document.querySelectorAll('.idx-t').forEach(b=>b.onclick=()=>{ idxTab=b.dataset.t; openIndexModal(); });
+  document.querySelectorAll('.idx-r').forEach(b=>b.onclick=()=>{ idxRarity=b.dataset.r; openIndexModal(); });
+  const inp = document.getElementById('idxSearch');
+  if(inp) inp.oninput = ()=>{
+    idxQuery = inp.value;
+    const pos = inp.selectionStart;
+    openIndexModal();
+    const n = document.getElementById('idxSearch'); n.focus(); try{ n.setSelectionRange(pos,pos); }catch(e){}
+  };
+}
+
 function openRosterModal(){
-  document.getElementById('listModalTitle').textContent = rosterTab==='chars' ? '📦 คลังตัวละคร' : '📦 คลังไอเทม';
+  document.getElementById('listModalTitle').textContent = rosterTab==='chars' ? '📦 คลังตัวละคร' : (rosterTab==='craft' ? '🔨 คราฟท์' : '📦 คลังไอเทม');
   document.getElementById('listModalBody').innerHTML = renderRosterBody();
   document.getElementById('listModal').classList.add('show');
   wireRosterListEvents();
@@ -4384,7 +4702,7 @@ function renderTeamPicker(stage){
       <button type="button" class="btn ghost small" id="backToStagesBtn">← กลับ</button>
       <div class="t">${stage.boss?'👑 ':''}เลือกทีม (สูงสุด 3) — ${stage.name}</div>
     </div>
-    <div class="stage-enemies">ศัตรู: ${enemyNames} ${enemyChips}${stage.boss?' 🎮 (มีมินิเกมก่อนสู้)':''} — รางวัล +${stage.reward.gold}🪙 +${stage.reward.gems}💎</div>
+    <div class="stage-enemies">ศัตรู: ${enemyNames} ${enemyChips}${stage.boss?' 🎮 (มีมินิเกมก่อนสู้)':''} — รางวัล +${stage.reward.gold}🪙 +${stage.reward.gems}💎 · 🎲 มีโอกาสดรอปวัตถุดิบคราฟท์${stage.boss?' (บอสดรอปการันตี)':''}</div>
     <div class="team-pick-grid" id="teamPickGrid"></div>
     <button type="button" class="btn" id="enterStageBtn" disabled>เลือกอย่างน้อย 1 ตัว</button>
   `;
@@ -5142,7 +5460,7 @@ function renderEpicChoiceBody(introMsg){
   // DIODE is deliberately excluded from this redeem-code epic picker too — a direct pick-your-
   // reward code would otherwise be a "direct exchange" for it, which the minigame-only rule
   // rules out entirely.
-  const epics = ELEMENTS.filter(e=>e.rarity==='epic' && e.id!=='diode' && !(isGemsActive() && GEMS_IDS.includes(e.id)));
+  const epics = ELEMENTS.filter(e=>e.rarity==='epic' && e.id!=='diode' && !CRAFT_ONLY_CHARS.includes(e.id) && !(isGemsActive() && GEMS_IDS.includes(e.id)));
   const cards = epics.map(e=>{
     const owned = ownsChar(e.id);
     return `<div class="team-pick-card epic-choice-card" data-id="${e.id}">
@@ -5257,7 +5575,32 @@ const ITEM_DEFS = [
   {id:'nano_repair_kit',  name:'NANO REPAIR KIT',   tag:'ฟื้นฟู HP +8/วิ',       color:'#33ffcf', rarity:'rare',      stat:'regen', value:8,    sell:95,  icon:'🔧', shape:'diamond', eventExclusive:true},
   {id:'overclock_chip',   name:'OVERCLOCK CHIP',    tag:'+20 ความเร็ว',          color:'#8bffe8', rarity:'epic',      stat:'spd',   value:20,   sell:170, icon:'🖥️', shape:'hex',     eventExclusive:true},
   {id:'quantum_capacitor',name:'QUANTUM CAPACITOR', tag:'โอกาสคริติคอล 16% (ดาเมจ x1.6)', color:'#33ffcf', rarity:'legendary', stat:'crit', value:0.16, sell:320, icon:'⚡', shape:'hex', eventExclusive:true},
+  // ---- COMBAT-EFFECT ITEMS: on-hit status, anti-heal, drones, dodge, cooldown, revive ----
+  {id:'ember_charm',name:'EMBER CHARM', tag:'โจมตีมีโอกาสติดไฟ 25%', color:'#ff8a3d', rarity:'common', stat:'burn', value:0.25, sell:45, icon:'🔥', shape:'circle'},
+  {id:'inferno_brand',name:'INFERNO BRAND', tag:'โจมตีมีโอกาสติดไฟ 50%', color:'#ff4d1a', rarity:'epic', stat:'burn', value:0.5, sell:190, icon:'🔥', shape:'hex', craftOnly:true},
+  {id:'frost_shard',name:'FROST SHARD', tag:'โจมตีมีโอกาสทำให้ช้า 25%', color:'#8fd8ff', rarity:'common', stat:'slow', value:0.25, sell:45, icon:'❄️', shape:'diamond'},
+  {id:'glacier_core',name:'GLACIER CORE', tag:'โจมตีมีโอกาสทำให้ช้า 50%', color:'#5cc8ff', rarity:'epic', stat:'slow', value:0.5, sell:190, icon:'❄️', shape:'hex', craftOnly:true},
+  {id:'venom_vial',name:'VENOM VIAL', tag:'โจมตีมีโอกาสติดพิษ 25%', color:'#7dff5c', rarity:'uncommon', stat:'poison', value:0.25, sell:70, icon:'☠️', shape:'circle'},
+  {id:'plague_fang',name:'PLAGUE FANG', tag:'โจมตีมีโอกาสติดพิษ 45%', color:'#4dd63a', rarity:'rare', stat:'poison', value:0.45, sell:120, icon:'☠️', shape:'diamond', craftOnly:true},
+  {id:'serrated_edge',name:'SERRATED EDGE', tag:'โจมตีมีโอกาสทำให้เลือดออก 25%', color:'#ff3d5c', rarity:'uncommon', stat:'bleed', value:0.25, sell:75, icon:'🩸', shape:'diamond'},
+  {id:'reaper_hook',name:'REAPER HOOK', tag:'โจมตีมีโอกาสทำให้เลือดออก 45%', color:'#d0123a', rarity:'rare', stat:'bleed', value:0.45, sell:125, icon:'🩸', shape:'hex', craftOnly:true},
+  {id:'static_coil',name:'STATIC COIL', tag:'โจมตีมีโอกาสช็อตสตั้น 0.9 วิ 12%', color:'#ffe94d', rarity:'rare', stat:'stun', value:0.12, sell:130, icon:'⚡', shape:'hex'},
+  {id:'thunder_crown',name:'THUNDER CROWN', tag:'โจมตีมีโอกาสช็อตสตั้น 0.9 วิ 22%', color:'#fff06a', rarity:'legendary', stat:'stun', value:0.22, sell:300, icon:'⚡', shape:'hex', craftOnly:true},
+  {id:'rotten_seal',name:'ROTTEN SEAL', tag:'โจมตีมีโอกาสห้ามฮีล 3 วิ 30%', color:'#ff5c7a', rarity:'uncommon', stat:'wound', value:0.3, sell:80, icon:'💔', shape:'circle'},
+  {id:'curse_of_famine',name:'CURSE OF FAMINE', tag:'โจมตีมีโอกาสห้ามฮีล 3 วิ 60%', color:'#ff2e5e', rarity:'epic', stat:'wound', value:0.6, sell:200, icon:'💔', shape:'hex', craftOnly:true},
+  {id:'drone_beacon',name:'DRONE BEACON', tag:'เสกโดรน 2 ตัวทุก 6.5 วิ ยิงดาเมจ 12', color:'#8bffe8', rarity:'rare', stat:'drone', value:12, sell:140, icon:'🛸', shape:'hex', droneCount:2},
+  {id:'swarm_core',name:'SWARM CORE', tag:'เสกโดรน 3 ตัวทุก 6.5 วิ ยิงดาเมจ 18', color:'#5cffd6', rarity:'epic', stat:'drone', value:18, sell:230, icon:'🛸', shape:'hex', droneCount:3, craftOnly:true},
+  {id:'hive_queen',name:'HIVE QUEEN', tag:'เสกโดรน 5 ตัวทุก 6.5 วิ ยิงดาเมจ 24', color:'#33ffcf', rarity:'legendary', stat:'drone', value:24, sell:340, icon:'🛸', shape:'hex', droneCount:5, craftOnly:true},
+  {id:'executioner_axe',name:'EXECUTIONER AXE', tag:'ดาเมจ +35% ใส่ศัตรูที่เลือดต่ำกว่า 30%', color:'#ff6b6b', rarity:'rare', stat:'execute', value:0.35, sell:135, icon:'🪓', shape:'diamond', craftOnly:true},
+  {id:'ghost_cloak',name:'GHOST CLOAK', tag:'โอกาสหลบการโจมตี 10%', color:'#b9a8ff', rarity:'rare', stat:'dodge', value:0.1, sell:125, icon:'👻', shape:'circle'},
+  {id:'shadow_veil',name:'SHADOW VEIL', tag:'โอกาสหลบการโจมตี 18%', color:'#9d8cff', rarity:'legendary', stat:'dodge', value:0.18, sell:290, icon:'👻', shape:'hex', craftOnly:true},
+  {id:'chrono_gear',name:'CHRONO GEAR', tag:'สกิลคูลดาวน์เร็วขึ้น 20%', color:'#7affc8', rarity:'epic', stat:'cdr', value:0.2, sell:200, icon:'⏱️', shape:'hex', craftOnly:true},
+  {id:'berserker_mask',name:'BERSERKER MASK', tag:'เลือดยิ่งน้อยยิ่งแรง สูงสุด +50% ดาเมจ', color:'#ff7a3d', rarity:'epic', stat:'rage', value:0.5, sell:195, icon:'👹', shape:'hex', craftOnly:true},
+  {id:'phoenix_ash',name:'PHOENIX ASH', tag:'ฟื้นคืนชีพครั้งเดียว กลับมา 30% HP', color:'#ffb27a', rarity:'legendary', stat:'revive', value:0.3, sell:320, icon:'🔥', shape:'hex', craftOnly:true},
+  {id:'chain_conductor',name:'CHAIN CONDUCTOR', tag:'โจมตีมีโอกาสสายฟ้าฟาดซ้ำ 20%', color:'#7ad1ff', rarity:'rare', stat:'chain', value:0.2, sell:135, icon:'🌩️', shape:'hex', craftOnly:true},
 ];
+// Craft-only items (craftOnly:true) never drop from any gacha/box — the only way to get them is the crafting tab.
+const GACHA_ITEM_DEFS = ITEM_DEFS.filter(i=>!i.craftOnly);
 function getItemDef(id){ return ITEM_DEFS.find(i=>i.id===id) || null; }
 /* ---- item enhancement: a second, always-available gold sink alongside leveling characters.
    Enhancing is per ITEM TYPE (not per physical copy) — every copy of e.g. IRON PLATE a player
@@ -5278,7 +5621,7 @@ function itemEnhanceCost(itemId){
 function itemEffectiveValue(idef){
   if(!idef) return 0;
   const lvl = itemEnhanceLevel(idef.id);
-  return idef.stat==='pow'||idef.stat==='spd'||idef.stat==='flatReduce'||idef.stat==='maxHp' ? Math.round(idef.value*(1+lvl*ITEM_ENHANCE_STEP)) : idef.value*(1+lvl*ITEM_ENHANCE_STEP);
+  return idef.stat==='pow'||idef.stat==='spd'||idef.stat==='flatReduce'||idef.stat==='maxHp'||idef.stat==='drone' ? Math.round(idef.value*(1+lvl*ITEM_ENHANCE_STEP)) : idef.value*(1+lvl*ITEM_ENHANCE_STEP);
 }
 // [TECH UPDATE] Formats an item's live property text from a given effective value (defaults to
 // its current enhance level) so the warehouse/equip UI always shows what a copy actually does
@@ -5298,6 +5641,19 @@ function itemStatDisplay(idef, valueOverride){
     case 'shield': return `มีเกราะป้องกันตอนเริ่มด่าน ${Math.round(v*10)/10} วิ`;
     case 'reflect': return `สะท้อนดาเมจ ${Math.round(v*1000)/10}% กลับคืน`;
     case 'maxHp': return `+${v} พลังชีวิตสูงสุด`;
+    case 'burn': return `โจมตีมีโอกาสติดไฟ ${Math.round(v*1000)/10}%`;
+    case 'slow': return `โจมตีมีโอกาสทำให้ช้า ${Math.round(v*1000)/10}%`;
+    case 'poison': return `โจมตีมีโอกาสติดพิษ ${Math.round(v*1000)/10}%`;
+    case 'bleed': return `โจมตีมีโอกาสทำให้เลือดออก ${Math.round(v*1000)/10}%`;
+    case 'stun': return `โจมตีมีโอกาสช็อตสตั้น 0.9 วิ ${Math.round(v*1000)/10}%`;
+    case 'wound': return `โจมตีมีโอกาสห้ามฮีล 3 วิ ${Math.round(v*1000)/10}%`;
+    case 'drone': return `เสกโดรน ${idef.droneCount} ตัวทุก 6.5 วิ ยิงดาเมจ ${v}`;
+    case 'execute': return `ดาเมจ +${Math.round(v*1000)/10}% ใส่ศัตรูเลือดต่ำกว่า 30%`;
+    case 'dodge': return `โอกาสหลบการโจมตี ${Math.round(v*1000)/10}%`;
+    case 'cdr': return `สกิลคูลดาวน์เร็วขึ้น ${Math.round(v*1000)/10}%`;
+    case 'rage': return `เลือดยิ่งน้อยยิ่งแรง สูงสุด +${Math.round(v*1000)/10}% ดาเมจ`;
+    case 'revive': return `ฟื้นคืนชีพครั้งเดียว กลับมา ${Math.round(v*1000)/10}% HP`;
+    case 'chain': return `โจมตีมีโอกาสสายฟ้าฟาดซ้ำ ${Math.round(v*1000)/10}%`;
     default: return idef.tag;
   }
 }
@@ -5308,7 +5664,7 @@ function itemStatNextPreview(idef){
   const lvl = itemEnhanceLevel(idef.id);
   if(lvl>=ITEM_ENHANCE_MAX) return null;
   if(idef.stat==='statusImmune' || idef.stat==='nullifyImmune') return null;
-  const nextVal = idef.stat==='pow'||idef.stat==='spd'||idef.stat==='flatReduce'||idef.stat==='maxHp'
+  const nextVal = idef.stat==='pow'||idef.stat==='spd'||idef.stat==='flatReduce'||idef.stat==='maxHp'||idef.stat==='drone'
     ? Math.round(idef.value*(1+(lvl+1)*ITEM_ENHANCE_STEP))
     : idef.value*(1+(lvl+1)*ITEM_ENHANCE_STEP);
   return itemStatDisplay(idef, nextVal);
@@ -5327,7 +5683,7 @@ function enhanceItem(itemId){
 // no explicit pool is given, eventExclusive items are left out while the event is active — they
 // only drop through the event item gacha, which passes the full ITEM_DEFS pool explicitly.
 function pickRandomItemWeighted(pool){
-  pool = pool && pool.length ? pool : (isEventActive() ? ITEM_DEFS.filter(i=>!i.eventExclusive) : ITEM_DEFS);
+  pool = pool && pool.length ? pool.filter(i=>!i.craftOnly) : (isEventActive() ? GACHA_ITEM_DEFS.filter(i=>!i.eventExclusive) : GACHA_ITEM_DEFS);
   const total = pool.reduce((s,i)=> s+(getRarity(i).weight||1), 0);
   let roll = Math.random()*total;
   for(const it of pool){ roll -= (getRarity(it).weight||1); if(roll<=0) return it; }
@@ -5524,6 +5880,14 @@ function applyRosterBonus(fdef){
   // UNBREAKABLE CORE — counter-play gear: your projectiles/beams can't be nullified by SOUND's
   // SONIC WAVE (or anything else using the same nullify mechanic in the future).
   if(item&&item.stat==='nullifyImmune') out.itemNullifyImmune = true;
+  // COMBAT-EFFECT ITEMS — each just sets a flag read by the engine hooks in applyDamage/stepInner
+  if(item){
+    const m = {burn:'itemBurnChance', slow:'itemSlowChance', poison:'itemPoisonChance', bleed:'itemBleedChance',
+      stun:'itemStunChance', wound:'itemWoundChance', execute:'itemExecutePct', dodge:'itemDodgeChance',
+      cdr:'itemCdr', rage:'itemRagePct', revive:'itemRevivePct', chain:'itemChainChance'};
+    if(m[item.stat]) out[m[item.stat]] = Math.min(ival, item.stat==='dodge'?0.35:(item.stat==='revive'?0.6:0.9));
+    if(item.stat==='drone'){ out.itemDroneDmg = ival; out.itemDroneCount = item.droneCount||2; }
+  }
   return out;
 }
 
@@ -5656,6 +6020,20 @@ const MAP_DEFS = [
     flavor:'หลังการดับสูญของจักรวาลเดิม เหล่าดวงดาวที่เหลือรวมตัวกันใหม่เป็นราศีนิรันดร์ เฝ้าปกป้องแสงสุดท้ายของทุกสรรพสิ่งที่เคยมีชีวิตอยู่',
     pool:['zodiac','love','radiant','cosmos'], bossAffixes:['warded','regen'],
     affixNames:{armored:'เกราะดาวราศี', vampiric:'ดูดแสงดาวตก', regen:'ฟื้นจากแสงนิรันดร์', warded:'ม่านจักรราศีปกป้อง', berserk:'พิโรธราศีสุดท้าย'}},
+  // ===== [NEW WORLDS] three more worlds beyond ASTRAL REQUIEM. Every stage here (like every
+  // stage in the game) can also drop crafting materials — see rollStageDrops().
+  {name:'ANCIENT ROOTHALL', emoji:'🌲', theme:'forest', stageCount:7, boss:'nature', bossName:'ผู้พิทักษ์รากโลกาโบราณ',
+    flavor:'โถงรากไม้โบราณใต้ผืนป่าที่เก่าแก่กว่าอารยธรรมใดๆ รากแก้วยักษ์ซ่อมแซมทุกบาดแผลและกลืนกินผู้บุกรุกไว้ในดิน',
+    pool:['nature','terra','mud','amber','pebble'], bossAffixes:['regen','warded'],
+    affixNames:{armored:'เกราะเปลือกไม้โบราณ', vampiric:'ดูดน้ำเลี้ยงราก', regen:'งอกใหม่จากรากลึก', warded:'ม่านใบไม้นิรันดร์', berserk:'พิโรธป่าลึก'}},
+  {name:'CLOCKWORK FOUNDRY', emoji:'🏭', theme:'tech', stageCount:8, boss:'metal', bossName:'ราชันเฟืองจักรกลนิรันดร์',
+    flavor:'โรงหลอมจักรกลที่ไม่เคยหยุดเดิน เฟืองและสายพานผลิตทหารเหล็กออกมาไม่รู้จบ ทุกชิ้นส่วนเสริมเกราะให้กันและกัน',
+    pool:['metal','drone','techno','microchip','glitch'], bossAffixes:['armored','berserk'],
+    affixNames:{armored:'เกราะเฟืองเหล็กกล้า', vampiric:'ดูดพลังงานสายพาน', regen:'ซ่อมตัวเองอัตโนมัติ', warded:'โล่พลังงานโรงหลอม', berserk:'ระบบคลั่งโอเวอร์โหลด'}},
+  {name:'CRIMSON CATHEDRAL', emoji:'⛪', theme:'shadow', stageCount:8, boss:'blood', bossName:'อัครสังฆราชโลหิตสีชาด',
+    flavor:'มหาวิหารที่หน้าต่างกระจกสีย้อมด้วยเลือด ผู้ศรัทธาถวายชีวิตแก่อัครสังฆราชผู้กระหายทุกหยดโลหิต — ด่านสุดท้ายของโลกใบนี้',
+    pool:['blood','obsidian','shadow','toxin','love'], bossAffixes:['vampiric','berserk','regen'],
+    affixNames:{armored:'เกราะกระจกสีเลือด', vampiric:'ดื่มโลหิตผู้ศรัทธา', regen:'ฟื้นจากพิธีสีชาด', warded:'ม่านสวดมนต์ต้องห้าม', berserk:'พิโรธวิหารเลือด'}},
 ];
 const MAPS = [];
 const STAGES = [];
@@ -5694,6 +6072,37 @@ const STAGES = [];
     MAPS.push({id:mi, name:md.name, emoji:md.emoji, theme:md.theme, stageStart:startId, stageEnd:sid-1});
   });
 })();
+
+/* ================= STAGE DROPS: crafting materials =================
+   Every campaign clear rolls for base items used by the crafting tab. Normal stages give a
+   modest chance at common materials and a small one at rare ones; bosses are guaranteed a
+   common material plus better odds at rare and (from mid-game) epic parts. Deeper worlds
+   raise every chance. Each world's theme also biases WHICH material drops. */
+const DROP_T1 = ['ember_charm','frost_shard','venom_vial','serrated_edge','rotten_seal','blade_edge','swift_boots','wind_anklet'];
+const DROP_T2 = ['static_coil','drone_beacon','ghost_cloak','storm_charm','assassins_edge','blood_chalice'];
+const DROP_T3 = ['phoenix_feather','phoenix_wing'];
+const THEME_DROP = {
+  forest:['venom_vial','wind_anklet'], jungle:['venom_vial','serrated_edge'], volcano:['ember_charm','blade_edge'],
+  water:['frost_shard','swift_boots'], ice:['frost_shard','rotten_seal'], storm:['static_coil','storm_charm'],
+  shadow:['ghost_cloak','serrated_edge','blood_chalice'], desert:['serrated_edge','blade_edge'], cosmic:['ghost_cloak','phoenix_wing'],
+  light:['phoenix_feather','swift_boots'], tech:['drone_beacon','static_coil'], astral:['phoenix_feather','storm_charm']
+};
+function rollStageDrops(stage){
+  const mi = stage.mapIndex||0, md = MAP_DEFS[mi]||{};
+  const themed = THEME_DROP[md.theme] || [];
+  const pick = (tier, bias)=>{
+    const pool = (bias && themed.length && Math.random()<0.6) ? themed.filter(i=>tier.includes(i)) : [];
+    const src = pool.length ? pool : tier;
+    return src[Math.floor(Math.random()*src.length)];
+  };
+  const out = [];
+  const t1 = stage.boss ? 1 : (Math.random() < Math.min(0.5, 0.28 + mi*0.012) ? 1 : 0);
+  for(let i=0;i<t1;i++) out.push(pick(DROP_T1, true));
+  if(Math.random() < (stage.boss ? Math.min(0.75, 0.5+mi*0.012) : Math.min(0.2, 0.07+mi*0.008))) out.push(pick(DROP_T2, true));
+  if(Math.random() < (stage.boss ? Math.min(0.4, 0.06+mi*0.02) : Math.min(0.06, 0.01+mi*0.003))) out.push(pick(DROP_T3, true));
+  if(stage.boss && mi>=6 && Math.random()<0.5) out.push(pick(DROP_T1, true)); // late bosses can give a second common part
+  return out.filter(id=>getItemDef(id));
+}
 function stageUnlocked(stage){ return stage.id <= saveData.stageProgress+1; }
 function mapIndexForStage(stageId){ return MAPS.findIndex(m=>stageId>=m.stageStart && stageId<=m.stageEnd); }
 // [WORLD GATE] Beyond clearing the previous world, each world (past the first) now also
@@ -5834,10 +6243,14 @@ function runStageBattle(stage, playerTeamDefs){
       if(stage.id > saveData.stageProgress) saveData.stageProgress = stage.id;
       addGold(stage.reward.gold);
       addGems(stage.reward.gems);
+      const dropIds = rollStageDrops(stage);
+      dropIds.forEach(iid=>{ saveData.itemInventory[iid] = (saveData.itemInventory[iid]||0) + 1; });
       persistSave();
+      refreshGemsUI();
       questProgress('campaignWin', 1);
       questProgress('anyWin', 1);
-      onlineStatusMsg(`ผ่านด่าน ${stage.name}! +${stage.reward.gold}🪙 +${stage.reward.gems}💎`);
+      const dropTxt = dropIds.length ? ' 🎁 ได้วัตถุดิบ: ' + dropIds.map(iid=>{ const d=getItemDef(iid); return `${d.name}`; }).join(', ') : '';
+      onlineStatusMsg(`ผ่านด่าน ${stage.name}! +${stage.reward.gold}🪙 +${stage.reward.gems}💎${dropTxt}`);
     } else {
       onlineStatusMsg(`ทีมคุณพ่ายที่ด่าน ${stage.name} — ลองอัพเกรดทีมแล้วมาใหม่`);
     }
@@ -7673,7 +8086,7 @@ const EVENT_ITEM_GACHA_COST = 40;  // Gear per item roll
 // it is a perfect clear of the "แฮ็กเมนเฟรม TECH" minigame (see endHackGame), not the event
 // gacha and not a direct Gear purchase. GEMS characters are NOT in this pool either — they live
 // in the GEMS mode's own gacha (getGemsGachaPool), so the two banners never mix.
-function getEventGachaPool(){ return ELEMENTS.filter(e=>e.id!=='diode' && e.id!=='icecream' && e.id!=='meteorite' && !(isGemsActive() && GEMS_IDS.includes(e.id))); }
+function getEventGachaPool(){ return ELEMENTS.filter(e=>e.id!=='diode' && e.id!=='icecream' && e.id!=='meteorite' && !CRAFT_ONLY_CHARS.includes(e.id) && !(isGemsActive() && GEMS_IDS.includes(e.id))); }
 
 function openEventScreen(){
   document.getElementById('setupScreen').style.display='none';
@@ -7845,7 +8258,7 @@ function renderEventShop(){
   document.getElementById('eventItemGachaBtn').onclick = ()=>{
     if((saveData.gear||0) < EVENT_ITEM_GACHA_COST){ onlineStatusMsg('Gear ไม่พอ ต้องการ '+EVENT_ITEM_GACHA_COST+'🔩'); return; }
     saveData.gear -= EVENT_ITEM_GACHA_COST; persistSave(); refreshGemsUI();
-    pullItem(ITEM_DEFS).then(({picked})=>{
+    pullItem(GACHA_ITEM_DEFS).then(({picked})=>{
       questProgress('techItem', 1);
       onlineStatusMsg(`ได้ไอเทมอีเว้นท์: ${picked.name} (${picked.tag})`);
       renderEventShop();
@@ -7853,7 +8266,7 @@ function renderEventShop(){
   };
   const runEventItem10 = ()=> runMultiGacha({
     spend:{key:'gear', name:'Gear', unit:'🔩', cost:EVENT_ITEM_GACHA_COST*MULTI_PULL_COUNT},
-    roll:()=>pullItemBatch(MULTI_PULL_COUNT, ITEM_DEFS),
+    roll:()=>pullItemBatch(MULTI_PULL_COUNT, GACHA_ITEM_DEFS),
     title:'สุ่มไอเทมอีเว้นท์ ×10', subtitle:'มีโอกาสได้ไอเทมเอ็กซ์คลูซีฟของอีเว้นท์',
     summaryOf:itemBatchSummary,
     finish:(picks)=>{ questProgress('techItem', MULTI_PULL_COUNT); onlineStatusMsg(itemBatchSummary(picks)); renderEventShop(); },
@@ -8111,7 +8524,7 @@ let gemsTab = 'stages'; // 'stages' | 'shop' | 'minigame' | 'quests'
 const GEMS_CHAR_SHOP_COST = {common:75, uncommon:165, rare:330, epic:600, legendary:1140, mythical:2280};
 const GEMS_CHAR_GACHA_COST = 150; // 🔷 per pull [PRICE DOWN: 250 -> 150] (the main-menu gacha is 120💎 — this banner carries the GEMS characters)
 function getGemsGachaPool(){
-  return ELEMENTS.filter(e=> e.id!=='diode' && e.id!=='icecream' && e.id!=='meteorite' && !(isEventActive() && TECH_IDS.includes(e.id)));
+  return ELEMENTS.filter(e=> e.id!=='diode' && e.id!=='icecream' && e.id!=='meteorite' && !CRAFT_ONLY_CHARS.includes(e.id) && !(isEventActive() && TECH_IDS.includes(e.id)));
 }
 
 const GEMS_STAGE_DEFS = [
@@ -9265,8 +9678,10 @@ function getRarity(elemOrId){
 // own pool (including TECH) explicitly.
 // The plain (main-menu) gacha pool: no DIODE ever, and no TECH / GEMS characters while their
 // update modes are active — each of those only rolls from its own mode's gacha.
+// Craft-only characters never roll from any gacha — the crafting tab is their only source.
+const CRAFT_ONLY_CHARS = ['steam'];
 function getMainGachaPool(){
-  return ELEMENTS.filter(e=> e.id!=='diode' && e.id!=='icecream' && e.id!=='meteorite'
+  return ELEMENTS.filter(e=> e.id!=='diode' && e.id!=='icecream' && e.id!=='meteorite' && !CRAFT_ONLY_CHARS.includes(e.id)
     && !(isEventActive() && TECH_IDS.includes(e.id))
     && !(isGemsActive() && GEMS_IDS.includes(e.id)));
 }
@@ -9274,6 +9689,7 @@ function pickRandomElementWeighted(pool){
   // DIODE is a minigame-only reward — it never appears in ANY default weighted pool, event
   // active or not, so it can't be pulled from a normal or event gacha roll by chance.
   pool = pool && pool.length ? pool : getMainGachaPool();
+  pool = pool.filter(e=>!CRAFT_ONLY_CHARS.includes(e.id)); // hard guarantee: craft-only characters can never be rolled
   const total = pool.reduce((sum,e)=> sum + (getRarity(e).weight||1), 0);
   let roll = Math.random()*total;
   for(const e of pool){
@@ -9299,7 +9715,7 @@ const ELEMENTS = [
     passivePoisonImmune:true, passiveDesc:'สายน้ำชำระพิษ — ไม่ติดสถานะพิษจากศัตรูเลย',
   },
   {
-    id:'pyro', rarity:'epic', name:'PYRO', tag:'ธาตุไฟ', color:'#ff5a36', pow:86, spd:38,
+    id:'pyro', rarity:'rare', name:'PYRO', tag:'ธาตุไฟ', color:'#ff5a36', pow:86, spd:38,
     abA:{name:'MAGMA LANCE', desc:'พุ่งหอกลาวาหลอมเหลวความเร็วสูงเป็นเส้นตรง โดนแล้วระเบิดเป็นวงไฟลามรอบจุดกระทบ (หรือพุ่งชนขอบสนามก็ระเบิดได้เช่นกัน) เผาทุกคนที่อยู่ใกล้ให้ติดไฟสะสมสแต็กได้สูงสุด 3 ชั้น ยิ่งสแต็กเยอะไฟยิ่งแรงและถี่ขึ้น', kind:'projectile', dmgMul:0.95, cd:1.7, burn:{dur:2.6}, explodeOnHit:true, explodeOnWall:true, explodeDmgMul:0.5, explodeRadius:80, fireball:true},
     abB:{name:'FLASHOVER', desc:'ปลุกความร้อนในตัวเร่งความเร็วชั่วคราว พร้อมจุดชนวนไฟที่สะสมอยู่บนตัวคู่ต่อสู้ให้ระเบิดออกมาเป็นดาเมจก้อนใหญ่ทันที และดูดพลังชีวิตส่วนหนึ่งจากการระเบิดนั้นกลับมาเป็นของตัวเอง', kind:'haste', mult:1.5, cd:5.6, dur:2.0, detonate:true, detonateHealPct:0.15},
     passiveFreezeImmune:true, passiveEnrage:true, enrageMax:0.35,
@@ -9307,10 +9723,13 @@ const ELEMENTS = [
     passiveDesc:'ไออุ่นละลายน้ำแข็ง — ไม่มีวันถูกแช่แข็ง | เลือดร้อนลุกโชน — ยิ่งเลือดตัวเองเหลือน้อย พลังโจมตียิ่งพุ่งสูงขึ้น (สูงสุด +35% ตอนใกล้ตาย) | WILDFIRE APOCALYPSE (ท่าไม้ตาย) — เมื่อ HP เหลือ 210 ครั้งแรกในแมตช์ เปลวไฟกลืนกินทั้งสนาม ยืนนิ่ง 2.3 วิ (ไม่มีเกราะป้องกัน ถ้าโดนน็อคก่อนปล่อยพลัง ท่านี้จะไม่ทำงาน) ก่อนปล่อยคลื่นไฟมหาวินาศใส่คู่ต่อสู้แบบไม่พลาดไม่ว่าจะอยู่ตรงไหนของสนาม ดาเมจ 280-340 พร้อมจุดไฟสแต็กสูงสุดทันที และดูดพลังชีวิตกลับมา 12% ของดาเมจที่ทำได้ (ครั้งเดียวต่อแมตช์)',
   },
   {
-    id:'steam', rarity:'common', name:'STEAM', tag:'ธาตุไอน้ำ', color:'#f2e9dc', pow:64, spd:54,
-    abA:{name:'SCALDING JET', desc:'ยิงกลุ่มเมฆไอน้ำร้อนจัดพุ่งเป็นเส้นตรง ทะลุตัวคู่ต่อสู้ได้ไม่หายไปเมื่อโดน โดนแล้วลวกจนโดนดาเมจต่อเนื่อง (ไม่ติดไฟ) พร้อมไอน้ำเกาะตัวทำให้เคลื่อนไหวช้าลง เมื่อพุ่งชนขอบสนามจะระเบิดเป็นแรงดันไอน้ำใส่ใครก็ตามที่อยู่ใกล้', kind:'projectile', dmgMul:0.55, cd:1.3, pierce:true, scald:{dmg:11, dur:2.2, tick:0.5}, slow:{dur:1.3}, explodeOnWall:true, explodeDmgMul:0.9, explodeRadius:70},
-    abB:{name:'VAPOR SHROUD', desc:'ปกคลุมตัวเองด้วยม่านไอน้ำร้อนหนาทึบ พร่ามัวจนคู่ต่อสู้เล็งเป้าได้ยาก ลดความเสียหายที่ได้รับชั่วคราว', kind:'shield', reduce:0.45, cd:5.2, dur:1.5},
-    passiveFreezeImmune:true, passiveDesc:'ไอร้อนไม่จับตัวเป็นน้ำแข็ง — ไม่มีวันถูกแช่แข็ง',
+    id:'steam', rarity:'epic', name:'STEAM', tag:'ธาตุไอน้ำ', color:'#f2e9dc', pow:72, spd:56,
+    abA:{name:'SCALDING JET', desc:'ยิงกลุ่มเมฆไอน้ำร้อนจัดพุ่งเป็นเส้นตรง ทะลุตัวคู่ต่อสู้ได้ไม่หายไปเมื่อโดน โดนแล้วลวกจนโดนดาเมจต่อเนื่อง (ไม่ติดไฟ) พร้อมไอน้ำเกาะตัวทำให้เคลื่อนไหวช้าลง เมื่อพุ่งชนขอบสนามจะระเบิดเป็นแรงดันไอน้ำใส่ใครก็ตามที่อยู่ใกล้', kind:'projectile', dmgMul:0.6, cd:1.3, pierce:true, scald:{dmg:13, dur:2.4, tick:0.5}, slow:{dur:1.4}, explodeOnWall:true, explodeDmgMul:1.0, explodeRadius:78},
+    abB:{name:'VAPOR SHROUD', desc:'ปกคลุมตัวเองด้วยม่านไอน้ำร้อนหนาทึบ ลดความเสียหายที่ได้รับ และไอน้ำจะชะล้างสถานะผิดปกติบนตัว (พิษ ไฟ ลวก เลือดออก ช้า) ออกทันที พร้อมคลื่นไอร้อนกระแทกลวกศัตรูที่อยู่ใกล้', kind:'shield', reduce:0.5, cd:5.2, dur:1.6, cleanse:true, shroudBlast:{radius:90, dmg:34, scald:{dmg:12, dur:2.0, tick:0.5}}},
+    passiveFreezeImmune:true,
+    passiveScaldBonus:0.25,
+    passiveBoilerBurst:true, boilerTriggerHP:220, boilerDmg:260, boilerHealPct:0.12,
+    passiveDesc:'ไอร้อนไม่จับตัวเป็นน้ำแข็ง — ไม่มีวันถูกแช่แข็ง | ไอน้ำเดือด — โจมตีศัตรูที่กำลังถูกลวกอยู่แรงขึ้น 25% | BOILER BURST (ท่าไม้ตาย ครั้งเดียวต่อแมตช์) — เมื่อ HP เหลือ 220 หรือต่ำกว่า หม้อไอน้ำระเบิดทันที ใส่ศัตรู 260 ดาเมจ ลวกต่อเนื่องและทำให้ช้า ชะล้างสถานะผิดปกติ ฟื้นฟู 12% ของ HP สูงสุด และเคลือบเกราะไอน้ำชั่วครู่',
   },
   {
     id:'volt', rarity:'common', name:'VOLT', tag:'ธาตุสายฟ้า', color:'#f4e04d', pow:58, spd:82,
@@ -9434,8 +9853,8 @@ const ELEMENTS = [
     id:'lapizlazuli', rarity:'legendary', name:'LAPIZLAZULI', tag:'ธาตุลาพิสลาซูลี', color:'#2f7bff', pow:88, spd:58,
     abA:{name:'TIDAL GEM', desc:'เล็งวงน้ำใต้เท้าคู่ต่อสู้ มีอัญมณีลาพิสลาซูลีลอยอยู่กลางวง หน่วงเวลาสั้นๆ ก่อนซัดน้ำต่อเนื่อง 3 จังหวะ ครั้งที่ 1-2 เบา ครั้งที่ 3 แรงที่สุดเป็นคลื่นน้ำซัดกว้างกว่าเดิม | เลือดต่ำกว่า 200: ปล่อย 3 วงพร้อมกัน แรงขึ้น และอัญมณีเปล่งแสงสีฟ้าจ้าขึ้น | เลือดต่ำกว่า 100: วงน้ำจะดูดศัตรูเข้าหาศูนย์กลางด้วย และดาเมจแรงขึ้นไปอีก', kind:'aquaring', dmgMul:0.85, hitMuls:[0.45,0.45,1.0], cd:2.0, range:100, telegraph:0.6, hitGap:0.45, waveMul:1.35, lowHp1:200, lowHp2:100, lowBoost:1.55, veryLowBoost:1.95, pullSpeed:190},
     abB:{name:'LAPIS WARD', desc:'สร้างเกราะน้ำผลึกลาพิสลาซูลีห่อหุ้มตัว ลดความเสียหายที่ได้รับชั่วคราว', kind:'shield', reduce:0.6, cd:4.5, dur:1.5},
-    passiveAquaGems:true, aquaGemsDur:5, aquaGemsHeal:300, aquaGemsAuraR:90, aquaGemsTick:0.4, aquaGemsAuraMul:0.35, aquaGemsLifesteal:0.6, aquaGemsBurstR:150, aquaGemsBurstMul:1.6,
-    passiveDesc:'AQUA GEMS — เมื่อโดนโจมตีจนเลือดจะหมดเป็นครั้งแรกในแมตช์ เลือดจะค้างอยู่ที่ 1 และเป็นอมตะนาน 5 วิ พร้อมสร้างออร่าน้ำรอบตัวที่ทำความเสียหายและดูดเลือดศัตรูที่เข้าใกล้ พอครบ 5 วิออร่าจะระเบิดรอบตัวเป็นประกายสีฟ้า ทำความเสียหายศัตรูที่อยู่ใกล้ และฮีลเลือดให้ตัวเอง 300 (ครั้งเดียวต่อแมตช์)',
+    passiveAquaGems:true, aquaGemsDur:3, aquaGemsHeal:300, aquaGemsAuraR:90, aquaGemsTick:0.4, aquaGemsAuraMul:0.35, aquaGemsLifesteal:0.6, aquaGemsBurstR:150, aquaGemsBurstMul:1.6,
+    passiveDesc:'AQUA GEMS — เมื่อโดนโจมตีจนเลือดจะหมดเป็นครั้งแรกในแมตช์ เลือดจะค้างอยู่ที่ 1 และเป็นอมตะนาน 3 วิ พร้อมสร้างออร่าน้ำรอบตัวที่ทำความเสียหายและดูดเลือดศัตรูที่เข้าใกล้ พอครบ 3 วิออร่าจะระเบิดรอบตัวเป็นประกายสีฟ้า ทำความเสียหายศัตรูที่อยู่ใกล้ และฮีลเลือดให้ตัวเอง 300 (ครั้งเดียวต่อแมตช์)',
   },
   // ===== GEMS UPDATE — BISMUTH (epic): a rainbow-metal hopper crystal that fences the arena in =====
   // abA is a new kind, 'shardvolley' (see useAbilityA): a tight burst of tiny armor-piercing shards.
@@ -11150,7 +11569,41 @@ function runSimulation(f1,f2, netRole, roomCode){
     return pts;
   }
 
-  function makeFighter(def, side){
+  // Every heal in the game (regen, lifesteal, abilities, passives, items) is written as a plain
+  // `hp = Math.min(maxHp, hp + x)`. Rather than patching dozens of call sites, the fighter's hp is
+  // an accessor that filters any INCREASE on a living fighter: ANTI-HEAL (healBlockT) cancels it,
+  // and bosses only receive BOSS_HEAL_MUL of every heal. Revives from 0 HP are never filtered.
+  const BOSS_HEAL_MUL = 0.5;
+  function installHealFilter(f){
+    let hpVal = f.hp;
+    Object.defineProperty(f, 'hp', {
+      enumerable:true, configurable:true,
+      get(){ return hpVal; },
+      set(v){
+        if(typeof v==='number' && v>hpVal && hpVal>0){
+          let mul = 1;
+          const blocked = f.healBlockT>0;
+          if(blocked) mul = 0;
+          else if(f.def && f.def.__isCampaignBoss) mul = BOSS_HEAL_MUL;
+          if(mul<1){
+            const gain = Math.floor((v-hpVal)*mul);
+            if(blocked){
+              const nowMs = Date.now();
+              if(!f._hbMsgAt || nowMs-f._hbMsgAt>700){
+                f._hbMsgAt = nowMs;
+                try{ toPx(f); floaters.push({x:f.px, y:f.py-f.r-18, text:'ห้ามฮีล!', life:0.6, vy:-22, color:'#ff5c7a', big:false}); }catch(e){}
+              }
+            }
+            v = hpVal + gain;
+          }
+        }
+        hpVal = v;
+      }
+    });
+    return f;
+  }
+  function makeFighter(def, side){ return installHealFilter(makeFighterRaw(def, side)); }
+  function makeFighterRaw(def, side){
     const sideMaxHp = side===0 ? MAXHP1 : MAXHP2;
     return {
       def, side,
@@ -11375,6 +11828,7 @@ function runSimulation(f1,f2, netRole, roomCode){
   const ironConverges = []; // ironjuggernaut's GRAVITIC CONVERGENCE ultimate: locked-in channel, then 3 staggered iron-shard strikes from different bearings, the last one also sundering the foe's defenses
   const voidRings = []; // voidsovereign's EVENT HORIZON ultimate: unprotected windup, then 4 escalating collapse ticks that also drag the foe inward with each one
   const frostZones = []; // frostemperor's ETERNAL BLIZZARD ultimate: locked-in channel, then a lingering ice zone anchored at the foe's own position — the first campaign finisher a foe can dodge by moving away
+  const itemDrones = []; // ITEM: DRONE BEACON family — tiny orbiting helper drones that shoot the foe
   const verdantBlooms = []; // soft expanding flower-bloom flourish drawn once when the root-cage first clamps shut
   const fireBursts = []; // PYRO's MAGMA LANCE: filled fireball flash on impact (rings alone are too thin/weak to read as an explosion)
   const starcharges = [];
@@ -11518,7 +11972,7 @@ function runSimulation(f1,f2, netRole, roomCode){
     if(target._aquaGemsUsed || target.def.__isCampaignBoss) return false;
     target._aquaGemsUsed = true;
     target.hp = 1;
-    const dur = target.def.aquaGemsDur || 5;
+    const dur = target.def.aquaGemsDur || 3;
     target.aquaGemT = dur;
     target.aquaGemMax = dur;
     target.aquaGemTick = 0.2;
@@ -12090,7 +12544,33 @@ function runSimulation(f1,f2, netRole, roomCode){
     // now has its own independent hitbox (see tryHitClone/damageCloneDirect below) and is only
     // ever damaged by attacks that actually reach its own position. Damage aimed at the real
     // body always lands on the real body.
+    // ----- item on-hit hooks: roll status procs for the attacker's equipped item. These feed the
+    // SAME poison/burn/slow arguments the elements use, so immunities & stacking just work.
+    const itAtk = (attacker && attacker!==target && attacker.def) ? attacker.def : null;
+    if(itAtk){
+      if(itAtk.itemBurnChance && !burn && Math.random()<itAtk.itemBurnChance) burn = {dur:2.6};
+      if(itAtk.itemSlowChance && !slow && Math.random()<itAtk.itemSlowChance) slow = {dur:1.9};
+      if(itAtk.itemPoisonChance && !poison && Math.random()<itAtk.itemPoisonChance) poison = {dur:3.2};
+    }
+    // item: GHOST CLOAK / SHADOW VEIL — a chance to dodge any single hit outright
+    if(target.def.itemDodgeChance && target.alive && Math.random()<target.def.itemDodgeChance){
+      toPx(target);
+      floaters.push({x:target.px, y:target.py-target.r-14, text:'หลบ!', life:0.7, vy:-30, color:'#b9a8ff', big:true});
+      rings.push({x:target.px,y:target.py,r:target.r*0.6,maxR:target.r+18,life:0.3,maxLife:0.3,color:'#b9a8ff'});
+      for(let i=0;i<8;i++){ const a=Math.random()*Math.PI*2; particles.push({x:target.px,y:target.py,vx:Math.cos(a)*2,vy:Math.sin(a)*2,life:0.35,color:'#b9a8ff',shape:'circle'}); }
+      return;
+    }
     let dmg = raw;
+    // item: EXECUTE / RAGE — situational bonus damage, folded in before armor so it behaves like raw power
+    if(itAtk){
+      if(itAtk.itemExecutePct && target.hp/target.maxHp < 0.3) dmg *= (1+itAtk.itemExecutePct);
+      // STEAM passive: scalded foes take extra damage from the steam-bearer's own attacks
+      if(itAtk.passiveScaldBonus && target.scaldT>0) dmg *= (1+itAtk.passiveScaldBonus);
+      if(itAtk.itemRagePct){
+        const missing = 1 - Math.max(0, attacker.hp)/attacker.maxHp; // 0 at full HP .. 1 at death's door
+        dmg *= (1 + itAtk.itemRagePct*Math.max(0, (missing-0.3)/0.7));
+      }
+    }
     let blocked = target.shieldT>0;
     // GEMS UPDATE — BISMUTH's SHARD STRIKE / pillar hits set pierceArmor: they skip both the 50%
     // shield reduction and the flat armor reduction
@@ -12135,6 +12615,36 @@ function runSimulation(f1,f2, netRole, roomCode){
     if(isCrit){
       toPx(target);
       floaters.push({x:target.px, y:target.py-target.r-46, text:'CRIT!', life:0.8, vy:-32, color:'#ffb93f', big:true});
+    }
+    // ----- item on-hit hooks that need a landed hit: bleed, stun, anti-heal, chain lightning
+    if(itAtk && dmg>0 && target.alive && target.hp>0){
+      toPx(target);
+      if(itAtk.itemBleedChance && Math.random()<itAtk.itemBleedChance && !target.def.passiveBleedImmune){
+        target.bleedT = 3.0; target.bleedTick = Math.min(target.bleedTick>0?target.bleedTick:0.5, 0.5);
+        target.bleedDmg = Math.max(4, Math.round(6 + (attacker.def.pow||50)*0.04)); target.bleedSrc = srcName;
+        floaters.push({x:target.px, y:target.py-target.r-26, text:'เลือดออก!', life:0.6, vy:-24, color:'#ff3d5c', big:false});
+      }
+      if(itAtk.itemStunChance && Math.random()<itAtk.itemStunChance && !(target.stunT>0) && !target.def.passiveFreezeImmune){
+        target.stunT = 0.9;
+        floaters.push({x:target.px, y:target.py-target.r-30, text:'ช็อต!', life:0.8, vy:-28, color:'#ffe94d', big:true});
+        rings.push({x:target.px,y:target.py,r:target.r*0.5,maxR:target.r+26,life:0.35,maxLife:0.35,color:'#ffe94d'});
+        for(let i=0;i<10;i++){ const a=Math.random()*Math.PI*2, sp=1.5+Math.random()*3; particles.push({x:target.px,y:target.py,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:0.35,color:'#ffe94d',shape:'diamond'}); }
+      }
+      if(itAtk.itemWoundChance && Math.random()<itAtk.itemWoundChance){
+        target.healBlockT = Math.max(target.healBlockT||0, 3.2);
+        floaters.push({x:target.px, y:target.py-target.r-38, text:'ห้ามฮีล 3 วิ', life:0.9, vy:-26, color:'#ff5c7a', big:true});
+        rings.push({x:target.px,y:target.py,r:target.r*0.5,maxR:target.r+20,life:0.4,maxLife:0.4,color:'#ff5c7a'});
+      }
+      if(itAtk.itemChainChance && !attacker._inChain && Math.random()<itAtk.itemChainChance){
+        // CHAIN LIGHTNING: a bonus arc of damage that can't itself chain again
+        attacker._inChain = true;
+        const arc = Math.max(3, Math.round(dmg*0.45));
+        const arcPath = makeJaggedPath(attacker.px, attacker.py, target.px, target.py, 6, 9);
+        bolts.push({path:arcPath, life:0.22, maxLife:0.22, color:'#7ad1ff', jagged:true});
+        target.hp = Math.max(0, target.hp - arc);
+        floaters.push({x:target.px+14, y:target.py-target.r-8, text:'⚡-'+arc, life:0.6, vy:-26, color:'#7ad1ff', big:false});
+        attacker._inChain = false;
+      }
     }
     // Item hook — VAMPIRE FANG: attacker heals for a % of the damage they just dealt.
     if(attacker && attacker.def.itemLifestealPct && dmg>0 && attacker.alive && attacker.hp>0){
@@ -13551,6 +14061,22 @@ function runSimulation(f1,f2, netRole, roomCode){
           particles.push({x:p.px+Math.cos(angMb)*distMb, y:p.py+Math.sin(angMb)*distMb, vx:(Math.random()-0.5)*0.4, vy:-0.6-Math.random()*0.8, life:0.55+Math.random()*0.3, color:['#6b5842','#8a7358'][mb%2], shape:'splat'});
         }
       }
+      if(a.cleanse){
+        p.poisonT=0; p.poisonStacks=0; p.burnT=0; p.burnStacks=0; p.scaldT=0; p.bleedT=0; p.slowT=0; p.frostStacks=0;
+        for(let vs=0; vs<14; vs++){
+          const angV = Math.random()*Math.PI*2, dV = p.r*(0.5+Math.random()*0.9);
+          particles.push({x:p.px+Math.cos(angV)*dV, y:p.py+Math.sin(angV)*dV, vx:Math.cos(angV)*0.5, vy:-0.8-Math.random()*1.0, life:0.7+Math.random()*0.4, color:['#ffffff','#f2e9dc','#cfe9ff'][vs%3], shape:'circle'});
+        }
+        floaters.push({x:p.px, y:p.py-p.r-20, text:'ล้างสถานะ', life:0.7, vy:-24, color:'#cfe9ff', big:false});
+      }
+      if(a.shroudBlast && o && o.alive){
+        toPx(o);
+        const dB = Math.hypot(o.px-p.px, o.py-p.py);
+        rings.push({x:p.px,y:p.py,r:p.r,maxR:a.shroudBlast.radius,life:0.45,maxLife:0.45,color:'#f2e9dc'});
+        if(dB <= a.shroudBlast.radius + o.r){
+          applyDamage(o, a.shroudBlast.dmg, p.def.name, a.name+' (คลื่นไอร้อน)', null, null, null, p, null, null, null, null, null, a.shroudBlast.scald);
+        }
+      }
       log(`${p.def.name} ตั้งการ์ดด้วย ${a.name}`);
     } else if(a.kind==='heal'){
       const healedBefore = p.hp;
@@ -13984,7 +14510,8 @@ function runSimulation(f1,f2, netRole, roomCode){
       const wasRooted = p.rootT>0;
       if(wasRooted){ p.rootT -= dt; if(p.rootT<0) p.rootT=0; }
       if(p.freezeT>0){ p.freezeT -= dt; if(p.freezeT<0) p.freezeT=0; }
-      if(!(p.freezeT>0) && !(p.stunT>0) && !wasRooted){ p.cdA -= dt; p.cdB -= dt; }
+      if(!(p.freezeT>0) && !(p.stunT>0) && !wasRooted){ const cdTick = dt*(1+(p.def.itemCdr||0)); p.cdA -= cdTick; p.cdB -= cdTick; }
+      if(p.healBlockT>0){ p.healBlockT -= dt; if(p.healBlockT<0) p.healBlockT=0; }
       if(p.shieldT>0) p.shieldT -= dt;
       if(p.hasteT>0) p.hasteT -= dt;
       if(p.evadeT>0) p.evadeT -= dt;
@@ -17032,6 +17559,42 @@ function runSimulation(f1,f2, netRole, roomCode){
       }
     }
 
+    // ----- ITEM: DRONE BEACON / SWARM CORE / HIVE QUEEN — every few seconds the carrier launches
+    // mini drones that orbit it and take pot-shots at the opponent for a short while
+    [p1,p2].forEach(p=>{
+      const dmgPerShot = p.def.itemDroneDmg;
+      if(!dmgPerShot || !p.alive) return;
+      const foe = p===p1 ? p2 : p1;
+      p._droneT = (p._droneT==null ? 1.5 : p._droneT) - dt;
+      if(p._droneT<=0){
+        p._droneT = 6.5;
+        const n = p.def.itemDroneCount || 2;
+        toPx(p);
+        for(let k=0;k<n;k++){
+          itemDrones.push({owner:p, foe, ang:(k/n)*Math.PI*2, t:0, life:5.2, shotT:0.4+k*0.35, dmg:dmgPerShot, x:p.px, y:p.py});
+        }
+        floaters.push({x:p.px, y:p.py-p.r-22, text:'เสกโดรน!', life:0.8, vy:-26, color:'#8bffe8', big:false});
+        rings.push({x:p.px,y:p.py,r:p.r*0.5,maxR:p.r+26,life:0.4,maxLife:0.4,color:'#8bffe8'});
+      }
+    });
+    for(let i=itemDrones.length-1;i>=0;i--){
+      const d = itemDrones[i];
+      d.t += dt;
+      if(d.t>=d.life || !d.owner.alive || gameOver){ itemDrones.splice(i,1); continue; }
+      toPx(d.owner);
+      d.ang += dt*2.6;
+      const orR = d.owner.r + 22;
+      d.x = d.owner.px + Math.cos(d.ang)*orR;
+      d.y = d.owner.py + Math.sin(d.ang)*orR*0.7;
+      d.shotT -= dt;
+      if(d.shotT<=0 && d.foe.alive && d.foe.hp>0){
+        d.shotT = 0.95;
+        toPx(d.foe);
+        bolts.push({path:[{x:d.x,y:d.y},{x:d.foe.px,y:d.foe.py}], life:0.16, maxLife:0.16, color:'#8bffe8', jagged:false});
+        applyDamage(d.foe, d.dmg, d.owner.def.name, 'มินิโดรน', null, null, null, null, null, null, null, null, null, null, null, true);
+        sfxTone({freq:1500+Math.random()*300, type:'square', dur:0.04, vol:0.05});
+      }
+    }
     for(let i=verdantBlooms.length-1;i>=0;i--){
       verdantBlooms[i].t += dt;
       if(verdantBlooms[i].t>=verdantBlooms[i].dur) verdantBlooms.splice(i,1);
@@ -17212,6 +17775,45 @@ function runSimulation(f1,f2, netRole, roomCode){
     // immortal window the first time, and just holds hp at 1 while the window is open.
     [p1,p2].forEach(p=>{
       if(p.def.passiveAquaGems && p.alive && p.hp<=0) tryAquaGems(p);
+    });
+    // STEAM's BOILER BURST — once per match, the first time its HP falls to the trigger, the
+    // boiler blows: a guaranteed blast at the opponent wherever they stand, with scald + slow,
+    // while STEAM scrubs its own debuffs, recovers a slice of HP, and gets a brief steam shield.
+    [p1,p2].forEach(p=>{
+      if(p.def.passiveBoilerBurst && !p._boilerUsed && p.alive && p.hp>0 && p.hp<=(p.def.boilerTriggerHP||220)){
+        p._boilerUsed = true;
+        const foe = p===p1 ? p2 : p1;
+        toPx(p); toPx(foe);
+        p.poisonT=0; p.poisonStacks=0; p.burnT=0; p.burnStacks=0; p.scaldT=0; p.bleedT=0; p.slowT=0; p.frostStacks=0;
+        p.shieldT = Math.max(p.shieldT||0, 1.4);
+        p.hp = Math.min(p.maxHp, p.hp + Math.round(p.maxHp*(p.def.boilerHealPct||0.12)));
+        floaters.push({x:p.px, y:p.py-p.r-30, text:'BOILER BURST!', life:1.0, vy:-30, color:'#f2e9dc', big:true});
+        rings.push({x:p.px,y:p.py,r:p.r,maxR:p.r+70,life:0.6,maxLife:0.6,color:'#f2e9dc'});
+        rings.push({x:p.px,y:p.py,r:p.r,maxR:p.r+110,life:0.8,maxLife:0.8,color:'#cfe9ff'});
+        for(let k=0;k<30;k++){ const a=Math.random()*Math.PI*2, sp=1.5+Math.random()*4; particles.push({x:p.px,y:p.py,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-0.6,life:0.8+Math.random()*0.5,color:['#ffffff','#f2e9dc','#cfe9ff'][k%3],shape:'circle'}); }
+        try{ sfxNoise({dur:0.5,vol:0.3,freq:2600,endFreq:500,filterType:'bandpass',Q:0.6}); sfxTone({freq:200,endFreq:60,type:'sawtooth',dur:0.4,vol:0.18}); }catch(e){}
+        if(foe.alive){
+          bolts.push({path:makeJaggedPath(p.px,p.py,foe.px,foe.py,6,14), life:0.3, maxLife:0.3, color:'#f2e9dc', jagged:true});
+          applyDamage(foe, p.def.boilerDmg||260, p.def.name, 'BOILER BURST', null, null, null, p, null, {dur:2.5}, null, null, null, {dmg:18, dur:3.0, tick:0.5}, null, true);
+        }
+        log(`${p.def.name} เลือดเหลือน้อย หม้อไอน้ำระเบิด — BOILER BURST!`, true);
+        updateHPUI();
+      }
+    });
+    // ITEM: PHOENIX ASH — once per match, a would-be fatal blow instead restores a chunk of HP
+    [p1,p2].forEach(p=>{
+      if(p.def.itemRevivePct && !p._itemRevived && p.alive && p.hp<=0){
+        p._itemRevived = true;
+        p.hp = Math.max(1, Math.round(p.maxHp*p.def.itemRevivePct));
+        p.shieldT = Math.max(p.shieldT||0, 1.5);
+        p.poisonT=0; p.poisonStacks=0; p.burnT=0; p.burnStacks=0; p.bleedT=0; p.scaldT=0;
+        toPx(p);
+        floaters.push({x:p.px, y:p.py-p.r-30, text:'ฟื้นคืนชีพ!', life:1.2, vy:-30, color:'#ffb27a', big:true});
+        rings.push({x:p.px,y:p.py,r:p.r,maxR:p.r+60,life:0.7,maxLife:0.7,color:'#ffb27a'});
+        for(let i=0;i<26;i++){ const a=Math.random()*Math.PI*2, sp=1+Math.random()*4; particles.push({x:p.px,y:p.py,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-1,life:0.7,color:['#ffb27a','#ffe08a','#ff6b3d'][i%3],shape:'triangle'}); }
+        log(`${p.def.name} ลุกจากเถ้าถ่าน — ชีวิตที่สองจาก PHOENIX ASH!`, true);
+        updateHPUI();
+      }
     });
     [p1,p2].forEach(p=>{
       if(!p.def.passiveAquaGems || !p.alive || !(p.aquaGemT>0)) return;
@@ -19366,6 +19968,25 @@ function runSimulation(f1,f2, netRole, roomCode){
 
     // release flourish: a soft full-arena verdant wash and a blooming ring of flower petals
     // right where the roots clamp shut — deliberately gentle and radiant rather than a blast
+    // mini drones (item): small glowing quad-copters with a pulsing core
+    itemDrones.forEach(d=>{
+      ctx.save();
+      ctx.translate(d.x, d.y);
+      const fade = Math.min(1, (d.life-d.t)/0.5, d.t/0.2);
+      ctx.globalAlpha = Math.max(0, fade);
+      ctx.shadowColor = '#8bffe8'; ctx.shadowBlur = 10;
+      ctx.strokeStyle = '#8bffe8'; ctx.lineWidth = 1.6;
+      ctx.beginPath(); ctx.moveTo(-6,-6); ctx.lineTo(6,6); ctx.moveTo(6,-6); ctx.lineTo(-6,6); ctx.stroke();
+      const spinA = d.t*40;
+      [[-6,-6],[6,-6],[-6,6],[6,6]].forEach(([rx,ry])=>{
+        ctx.save(); ctx.translate(rx,ry); ctx.rotate(spinA);
+        ctx.fillStyle='rgba(139,255,232,0.7)'; ctx.fillRect(-3.2,-0.7,6.4,1.4);
+        ctx.restore();
+      });
+      ctx.fillStyle = '#0b2a2e'; ctx.beginPath(); ctx.arc(0,0,3.4,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(0,0,1.6+0.5*Math.sin(d.t*14),0,Math.PI*2); ctx.fill();
+      ctx.restore();
+    });
     verdantBlooms.forEach(vb=>{
       const tb = Math.min(1, vb.t/vb.dur);
       const washA = tb<0.35 ? tb/0.35 : Math.max(0,(1-tb)/0.65);
@@ -20173,13 +20794,14 @@ document.getElementById('itemGacha10Btn').onclick = runItemGacha10;
 // labels read the same cost constants the pulls charge, so they can never drift apart
 document.getElementById('charGacha10Btn').innerHTML = `🎰 สุ่มตัวละคร ×10<small>${CHAR_GACHA_COST*MULTI_PULL_COUNT}💎</small>`;
 document.getElementById('itemGacha10Btn').innerHTML = `🧰 สุ่มไอเทม ×10<small>${ITEM_GACHA_COST*MULTI_PULL_COUNT}🪙</small>`;
+document.getElementById('indexBtn').onclick = ()=> openIndexModal();
 document.getElementById('rosterBtn').onclick = ()=>{ charDetailId=null; itemDetailId=null; openRosterModal(); };
 document.getElementById('redeemBtn').onclick = openRedeemModal;
 // mirrors pickRandomElementWeighted()'s own default-pool logic exactly, so the drop-rate panel
 // never shows odds for a character that isn't actually reachable through the plain gacha button
 // (TECH characters excluded while the event is active; DIODE excluded always — minigame only).
 document.getElementById('charRateBtn').onclick = ()=> toggleRatePanel('charRateBtn','charRatePanel', getMainGachaPool());
-document.getElementById('itemRateBtn').onclick = ()=> toggleRatePanel('itemRateBtn','itemRatePanel', ITEM_DEFS);
+document.getElementById('itemRateBtn').onclick = ()=> toggleRatePanel('itemRateBtn','itemRatePanel', GACHA_ITEM_DEFS);
 document.getElementById('saveOnlineBtn').onclick = saveMyTeamOnline;
 document.getElementById('challengeBtn').onclick = openChallengeList;
 document.getElementById('leaderboardBtn').onclick = openLeaderboard;
